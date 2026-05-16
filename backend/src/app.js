@@ -41,6 +41,12 @@ app.use("/api/upload", uploadRoutes);
 app.use("/api/process", imageRoutes);
 app.use("/api/print", printRoutes);
 
+app.use((req, _res, next) => {
+   const error = new Error(`Route not found: ${req.originalUrl}`);
+   error.statusCode = 404;
+   next(error);
+});
+
 app.use(errorMiddleware);
 
 export default app;
