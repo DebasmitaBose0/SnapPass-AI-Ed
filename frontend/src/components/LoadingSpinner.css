@@ -1,7 +1,7 @@
 /* ── LoadingSpinner ─────────────────────────────────────────────────────────
    Shared spinner used across UploadPage, EditorPage, PrintPreviewPage,
    and any future async section. Also consumed by ButtonSpinner (inline variant).
-   All @keyframes spin references in other components point here.
+   All spinner animation references in other components point here via @keyframes spinner-spin.
    ─────────────────────────────────────────────────────────────────────────── */
 
 /* ── Wrapper ──────────────────────────────────────── */
