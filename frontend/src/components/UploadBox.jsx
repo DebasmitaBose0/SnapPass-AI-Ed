@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import './UploadBox.css';
+import { validateImageFile } from '../utils/fileValidation';
 
 /**
  * UploadBox — drag-and-drop + click-to-browse photo uploader.
@@ -12,25 +13,15 @@ function UploadBox({ onFileSelect }) {
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState('');
 
-  const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-  const MAX_SIZE_MB = 10;
-
-  const validateFile = (file) => {
-    if (!ACCEPTED_TYPES.includes(file.type)) {
-      setError('Only JPEG, PNG, or WebP images are accepted.');
-      return false;
-    }
-    if (file.size > MAX_SIZE_MB * 1024 * 1024) {
-      setError(`File must be smaller than ${MAX_SIZE_MB} MB.`);
-      return false;
+  const handleFile = (file) => {
+    const result = validateImageFile(file);
+    if (!result.valid) {
+      setError(result.error);
+      return;
     }
     setError('');
-    return true;
-  };
-
-  const handleFile = (file) => {
-    if (file && validateFile(file)) {
-      onFileSelect && onFileSelect(file);
+    if (onFileSelect) {
+      onFileSelect(file);
     }
   };
 
