@@ -12,7 +12,7 @@ import {
 /**
  * HomePage — landing page with hero section and feature highlights.
  */
-function HomePage() {
+function HomePage({darkMode, toggleTheme}) {
   const features = [
     {
       icon: 'bg-remove',
@@ -111,7 +111,7 @@ function HomePage() {
   };
 
   return (
-    <div className="home-page">
+    <div className={`home-page ${darkMode? 'bg-black': bg-white}`}>
       {/* ── Hero ── */}
       <section className="hero" aria-labelledby="hero-title">
         <div className="hero__inner">

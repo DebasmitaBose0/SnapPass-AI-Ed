@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
+import {Sun, Moon} from 'lucide-react'
 import './Navbar.css';
 
 /**
  * Navbar — fixed top navigation bar.
  * Shows logo, main nav links, and a mobile hamburger toggle.
  */
-function Navbar() {
+function Navbar({darkMode, toggleTheme}) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navLinks = [
@@ -18,12 +19,12 @@ function Navbar() {
   ];
 
   return (
-    <header className="navbar" role="banner">
+    <header className={`navbar ${darkMode?  'navbar--dark': 'navbar--light'}`} role="banner">
       <div className="navbar__inner">
         {/* Logo */}
         <Link to="/" className="navbar__brand" aria-label="SnapPass AI Home">
           <span className="navbar__logo-icon" aria-hidden="true">📷</span>
-          <span className="navbar__brand-name">
+          <span className={`navbar__brand-name ${darkMode?  'navbar--dark': 'navbar--light'}`}>
             SnapPass <span className="navbar__brand-highlight">AI</span>
           </span>
         </Link>
@@ -40,15 +41,18 @@ function Navbar() {
               }
             >
               {label}
-            </NavLink>
+            </NavLink>  
           ))}
         </nav>
-
+          
         {/* CTA */}
         <div className="navbar__actions">
+          <button onClick = {toggleTheme} className ={` flex items-center justify-center w-10 ml-auto p-2 h-10 rounded-full ${darkMode? 'bg-gray-700': 'bg-[#a2bece]' }`}> {darkMode? <Sun className='text-amber-500'/> : <Moon/>}</button>
           <Link to="/upload" className="btn btn-primary navbar__cta">
             Get Started
           </Link>
+
+          
           {/* Mobile hamburger */}
           <button
             className="navbar__hamburger"
