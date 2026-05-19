@@ -1,10 +1,19 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { fadeUpVariant } from "../../animations/variants.js";
 
 const HeroSection = () => {
   return (
     <section className="hero" aria-labelledby="hero-title">
-      <div className="hero__inner">
+      <motion.div
+        className="hero__inner"
+        variants={fadeUpVariant}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
+        custom={0.1}
+      >
         <span className="badge badge-blue">Open Source · Free to Use</span>
         <h1 id="hero-title" className="hero__title">
           Passport Photos,
@@ -20,8 +29,17 @@ const HeroSection = () => {
             Upload Your Photo
           </Link>
         </div>
-      </div>
-      <div className="hero__visual" aria-hidden="true">
+      </motion.div>
+
+      <motion.div
+        className="hero__visual"
+        aria-hidden="true"
+        variants={fadeUpVariant}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
+        custom={0.3}
+      >
         <div className="hero__photo-mock">
           <div className="hero__photo-frame" />
           <div className="hero__photo-frame" />
@@ -29,7 +47,7 @@ const HeroSection = () => {
           <div className="hero__photo-frame" />
         </div>
         <span className="hero__ai-badge"> AI Processed</span>
-      </div>
+      </motion.div>
     </section>
   );
 };
