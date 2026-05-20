@@ -7,7 +7,6 @@
 import express from "express";
 import { uploadPhoto, getUploadedPhoto } from "../controllers/upload.controller.js";
 import { uploadMiddleware } from "../middleware/upload.middleware.js";
-// import { validateUpload } from "../middleware/validate.middleware.js";
 
 const router = express.Router();
 
