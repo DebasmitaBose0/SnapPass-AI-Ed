@@ -5,8 +5,7 @@ import { fadeUpVariant } from "../../animations/variants.js";
 const AIShowcaseSection = ({ darkMode, toggleTheme, chips, iconMap }) => {
   return (
     <div className={`ai-showcase-toggle ${ darkMode? "ai-showcase-toggle-dark": "" }`}>
-    <section className={`ai-showcase ${ darkMode? "ai-showcase-dark": "ai-showcase-light" }`
-    } aria-labelledby="ai-showcase-title">
+    <section className= "ai-showcase" aria-labelledby="ai-showcase-title">
       {/* left  text */}
       <motion.div
         className="ai-showcase__content"
@@ -24,7 +23,7 @@ const AIShowcaseSection = ({ darkMode, toggleTheme, chips, iconMap }) => {
           to Print-Ready Sheet
         </h2>
 
-        <p className="section-subtitle">
+        <p className={`section-subtitle ${darkMode? "section-subtitle-dark": "section-subtitle-light"}`}>
           Upload a portrait photo and let AI automatically remove the
           background, align your face and generate a professional passport photo
           sheet.
@@ -33,8 +32,8 @@ const AIShowcaseSection = ({ darkMode, toggleTheme, chips, iconMap }) => {
         {/* feature */}
         <div className="ai-showcase__chips">
           {chips.map(({ icon, label }) => (
-            <div key={label} className="ai-chip">
-              <span className="ai-chip__icon" aria-hidden="true">
+            <div key={label} className={`ai-chip ${darkMode ? "ai-chip-dark" : "ai-chip-light"}`}>
+              <span className={`ai-chip__icon ${darkMode ? "ai-chip__icon-dark" : "ai-chip__icon-light"}`} aria-hidden="true">
                 {iconMap[icon]}
               </span>
               {label}
@@ -75,7 +74,9 @@ const AIShowcaseSection = ({ darkMode, toggleTheme, chips, iconMap }) => {
             alt="Printable passport sheet"
             className="showcase-sheet-card__image"
           />
-          <div className="showcase-sheet-card__badge">Print Ready</div>
+          <div className={`showcase-sheet-card__badge ${darkMode ? "showcase-sheet-card__badge-dark" : "showcase-sheet-card__badge-light"}`}>
+            Print Ready
+          </div>
         </motion.div>
       </div>
     </section>

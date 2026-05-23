@@ -2,9 +2,9 @@ import React from "react";
 import { motion } from "framer-motion";
 import { fadeUpVariant } from "../../animations/variants.js";
 
-const FeaturesSection = ({ features, iconMap }) => {
+const FeaturesSection = ({darkMode, toggleTheme, features, iconMap }) => {
   return (
-    
+    <div className={`features-toggle ${darkMode ? 'feature-toggle-dark' : ''}`} aria-labelledby="features-title"> 
     <section className="features-section" aria-labelledby="features-title">
       
       <motion.div
@@ -14,10 +14,10 @@ const FeaturesSection = ({ features, iconMap }) => {
         viewport={{ once: true }}
         custom={0.1}
       >
-        <h2 id="features-title" className="text-center section-title">
+        <h2 id="features-title" className={`section-title ${darkMode ? 'section-title-dark' : ''}`}>
           Features
         </h2>
-        <p className="text-center section-subtitle">
+        <p className={`section-subtitle ${darkMode ? 'section-subtitle-dark' : ''}`}>
           Everything you need right out of the box
         </p>
       </motion.div>
@@ -51,6 +51,7 @@ const FeaturesSection = ({ features, iconMap }) => {
         ))}
       </div>
     </section>
+    </div>
   );
 };
 
