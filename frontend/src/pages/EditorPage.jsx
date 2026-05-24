@@ -81,6 +81,7 @@ function EditorPage({darkMode, toggleTheme}) {
     navigate('/print-preview', {
       state: {
         processedUrl: photoData.localUrl, // replace with real processedUrl after backend integration
+        filename: photoData.filename,
         background,
         sizePreset,
       },
