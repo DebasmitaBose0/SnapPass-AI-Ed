@@ -320,7 +320,6 @@ color: var(--color-text-dark2);
 }
 .features-toggle-dark{ 
     width: 100%;
-    height: 100vh;
     display: flex;
     
   background: 
