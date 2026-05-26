@@ -2,7 +2,8 @@
 .app-shell {
   display: flex;
   flex-direction: column;
-  min-height: 100vh
+  min-height: 100vh;
+  padding-top: 34px;
 }
 
 .app-main {
@@ -10,4 +11,17 @@
   display: flex;
   flex-direction: column;
   margin-top: 0;
+  padding-top: 34px;
+}
+
+[data-theme='dark'] {
+  background-color: #000000 !important;
+}
+
+[data-theme='dark'] .app-shell {
+  background-color: #000000;
+}
+
+[data-theme='dark'] .studio-header .section-title {
+  color: #ffffff !important;
 }

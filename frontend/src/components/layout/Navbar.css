@@ -1,15 +1,14 @@
 /* ── Navbar ─────────────────────────────────────── */
 .navbar {
   position: fixed;
-  top: 20px;
-
+  top: 0;
   left: 50%;
   transform: translateX(-50%);
 
   width: 72%;
   max-width: 1200px;
 
-  z-index: 1000;
+  z-index: 9999;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   height: var(--navbar-height);
