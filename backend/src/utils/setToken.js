@@ -7,7 +7,8 @@ export function setToken(res,user){
         email: user.email,
         role: user.role,
     }, config.JWT_SECRET, { expiresIn: '7d' });
-    const isProduction = config.NODE_ENV === "production";
+    const nodeEnv = config.NODE_ENV || "development";
+    const isProduction = nodeEnv === "production";
     res.cookie("token", token, {
         httpOnly: true,
         secure: isProduction,

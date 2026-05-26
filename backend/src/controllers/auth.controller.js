@@ -99,25 +99,40 @@ export const requestPasswordReset = catchAsync(async (req, res) => {
     sendResponse(res, 200, true, "If an account with that email exists, an OTP has been sent.", null);
 });
 
+
 export const verifyPasswordResetOtp = catchAsync(async (req, res) => {
     const { email, otp } = req.body;
-    const user = await authService.getUserByEmail(email);
-    
+    let user;
+    try {
+        user = await authService.getUserByEmail(email);
+    } catch (error) {
+        // If user not found, return generic success to prevent email enumeration
+        if (error.statusCode === 404 || error.name === "NotFoundError") {
+            return sendResponse(res, 200, true, "OTP verified successfully", null);
+        }
+        throw error;
+    }
     // Check if OTP is valid without consuming it yet
     await passwordResetOtpService.checkOtpValidity(user._id, otp);
-    
     sendResponse(res, 200, true, "OTP verified successfully", null);
 });
 
+
 export const resetPassword = catchAsync(async (req, res) => {
     const { email, otp, newPassword } = req.body;
-    const user = await authService.getUserByEmail(email);
-    
+    let user;
+    try {
+        user = await authService.getUserByEmail(email);
+    } catch (error) {
+        // If user not found, return generic success to prevent email enumeration
+        if (error.statusCode === 404 || error.name === "NotFoundError") {
+            return sendResponse(res, 200, true, "Password reset successfully", null);
+        }
+        throw error;
+    }
     // Verify OTP
     await passwordResetOtpService.verifyOtp(user._id, otp);
-    
     // Update Password
     await authService.updatePassword(user._id, newPassword);
-    
     sendResponse(res, 200, true, "Password reset successfully", null);
 });

@@ -1,21 +1,23 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import AppRoutes from './routes/AppRoutes';
+import SnapPassAssistant from './chatbot/SnapPassAssistant';
 import './App.css';
 
 function App() {
-  const[darkMode, setDarkMode] = useState(false); 
-  const toggleTheme = () =>{
-    setDarkMode(prev=> !prev)
+  const [darkMode, setDarkMode] = useState(false);
+  const toggleTheme = () => {
+    setDarkMode(prev => !prev)
   }
   return (
     <div className="app-shell">
       <Navbar darkMode={darkMode} toggleTheme={toggleTheme} />
       <main className="app-main">
-        <AppRoutes darkMode={darkMode} toggleTheme={toggleTheme}/>
+        <AppRoutes darkMode={darkMode} toggleTheme={toggleTheme} />
       </main>
       <Footer darkMode={darkMode} toggleTheme={toggleTheme} />
+      <SnapPassAssistant />
     </div>
   );
 }

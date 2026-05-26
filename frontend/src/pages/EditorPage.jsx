@@ -9,6 +9,7 @@ import EmptyState from '../components/EmptyState';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
 import { translations } from '../translations/translations';
+import useImageProcessor from '../hooks/useImageProcessor';
 
 /**
  * EditorPage — Step 2.
@@ -33,7 +34,7 @@ function EditorPage({ darkMode, toggleTheme }) {
 
   const [background, setBackground] = useState('white');
   const [sizePreset, setSizePreset] = useState('35x45');
-  const [isProcessing, setIsProcessing] = useState(false);
+  const { processImage, isProcessing, error } = useImageProcessor();
 
   const iconMap = {
     refresh: (
@@ -67,30 +68,24 @@ function EditorPage({ darkMode, toggleTheme }) {
 
 
   const handleProcess = async () => {
-    setIsProcessing(true);
+    try {
+      const processedUrl = await processImage({
+        filename: photoData.filename,
+        backgroundColour: background,
+        photoSizePreset: sizePreset,
+      });
 
-    // TODO: Call backend POST /api/process with { filename, backgroundColour, photoSizePreset }
-    // const res = await fetch('/api/process', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ filename: state.filename, backgroundColour: background, photoSizePreset: sizePreset }),
-    // });
-    // const blob = await res.blob();
-    // const processedUrl = URL.createObjectURL(blob);
-
-    // Simulate processing delay
-    await new Promise((r) => setTimeout(r, 1500));
-
-    setIsProcessing(false);
-
-    // Navigate to print preview — pass original url as placeholder for processed for now
-    navigate('/print-preview', {
-      state: {
-        processedUrl: photoData.localUrl, // replace with real processedUrl after backend integration
-        background,
-        sizePreset,
-      },
-    });
+      navigate('/print-preview', {
+        state: {
+          processedUrl,
+          filename: photoData.filename,
+          background,
+          sizePreset,
+        },
+      });
+    } catch (err) {
+      console.error(err);
+    }
   };
   // If user lands here directly without uploading, redirect
 
@@ -133,6 +128,7 @@ function EditorPage({ darkMode, toggleTheme }) {
 
         <div className="editor-page__layout">
           {/* Preview panel */}
+
           <motion.section
             className="editor-page__preview"
             aria-label="Photo preview"
@@ -140,7 +136,7 @@ function EditorPage({ darkMode, toggleTheme }) {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            custom={0.2} // Loads second
+            custom={0.2}
           >
             <PhotoPreview
               originalUrl={photoData.localUrl}
@@ -157,12 +153,35 @@ function EditorPage({ darkMode, toggleTheme }) {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            custom={0.3} // Loads third
+            custom={0.3}
           >
-            <BackgroundSelector selected={background} onChange={setBackground} />
+            <BackgroundSelector
+              selected={background}
+              onChange={setBackground}
+            />
+
             <hr className="divider" />
-            <SizeSelector selected={sizePreset} onChange={setSizePreset} />
+
+            <SizeSelector
+              selected={sizePreset}
+              onChange={setSizePreset}
+            />
+
             <hr className="divider" />
+
+            {error && (
+              <div
+                className="editor-page__error"
+                style={{
+                  color: '#ef4444',
+                  margin: '1rem 0',
+                  fontSize: '0.875rem',
+                  textAlign: 'center'
+                }}
+              >
+                {error}
+              </div>
+            )}
 
             <div className="editor-page__info">
               <p className="editor-info-row">

@@ -10,6 +10,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Temporary placeholder service until the real Python AI service is implemented.
-# Use Python's built-in HTTP server so the container starts reliably on port 8000.
-CMD ["python", "-m", "http.server", "8000"]
+# Run the Flask service so /health and /remove-bg are available.
+CMD ["python", "main.py"]

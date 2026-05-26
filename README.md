@@ -225,10 +225,9 @@ npm install
 npm run dev
 ```
 
-Backend runs at [http://localhost:5000](http://localhost:5000).
-Upload metadata is now stored in MongoDB. The `POST /api/upload` route is enabled.
+Backend runs at [http://localhost:3000](http://localhost:3000).
 
-Health check: `GET http://localhost:5000/health`
+Health check: `GET http://localhost:3000/health`
 
 ---
 
@@ -247,6 +246,8 @@ AI service runs at [http://localhost:8000](http://localhost:8000).
 ## 🐳 Docker (Compose)
 
 Run all services (frontend, backend, python-ai-service, MongoDB) with one command:
+
+Note: the Docker setup is intended for local development and testing; production is handled via Vercel.
 
 ```bash
 docker compose up --build
@@ -304,13 +305,13 @@ Home
 ### Frontend (`frontend/.env`)
 
 ```env
-VITE_API_URL=http://localhost:5000/api
+VITE_API_URL=http://localhost:3000/api
 ```
 
 ### Backend (`backend/.env`)
 
 ```env
-PORT=5000
+PORT=3000
 NODE_ENV=development
 AI_SERVICE_URL=http://localhost:8000
 UPLOAD_DIR=uploads

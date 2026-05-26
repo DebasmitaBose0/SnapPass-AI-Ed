@@ -1,0 +1,120 @@
+/* ── Testimonial Card ───────────────────────────────────── */
+.testimonial-card {
+  position: relative;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  border-radius: 24px;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  transition: all 0.35s ease;
+}
+
+.testimonial-card-light {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.testimonial-card-dark {
+  background: rgba(19, 17, 17, 0.403);
+  border: 1px solid rgba(63, 68, 74, 0.4);
+}
+
+.testimonial-card:hover {
+  transform: translateY(-8px);
+}
+
+.testimonial-card-light:hover {
+  border-color: rgba(37, 99, 235, 0.25);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 25px 50px rgba(15, 23, 42, 0.08);
+}
+
+.testimonial-card-dark:hover {
+  border-color: rgba(37, 99, 235, 0.25);
+  background: rgba(46, 38, 0, 0.92);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+}
+
+/* Card Header */
+.testimonial-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.testimonial-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.testimonial-name-light {
+  color: var(--color-text);
+}
+
+.testimonial-name-dark {
+  color: var(--color-text-dark2);
+}
+
+/* Quote icon */
+.testimonial-card::before {
+  content: '"';
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  font-size: 5rem;
+  font-family: serif;
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+.testimonial-comment {
+  font-size: var(--font-size-sm);
+  line-height: 1.7;
+  margin: var(--space-sm) 0;
+  flex-grow: 1;
+}
+
+.testimonial-comment-light {
+  color: var(--color-text-muted);
+}
+
+.testimonial-comment-dark {
+  color: var(--color-text-light);
+}
+
+.testimonial-date {
+  font-size: 0.75rem;
+  padding-top: var(--space-sm);
+  border-top: 1px solid;
+  margin-top: auto;
+}
+
+.testimonial-date-light {
+  color: var(--color-text-muted);
+  border-color: rgba(148, 163, 184, 0.18);
+}
+
+.testimonial-date-dark {
+  color: var(--color-text-light);
+  border-color: rgba(63, 68, 74, 0.4);
+}
+
+@media (max-width: 768px) {
+  .testimonial-card {
+    padding: var(--space-md);
+  }
+  
+  .testimonial-name {
+    font-size: 0.95rem;
+  }
+  
+  .testimonial-comment {
+    font-size: 0.85rem;
+  }
+}

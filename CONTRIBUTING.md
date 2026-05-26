@@ -188,7 +188,7 @@ Browser (React Frontend)
     │
     │  HTTP (fetch / axios) via port 3000
     ▼
-Express Backend (Node.js) ← runs on port 5000
+Express Backend (Node.js) ← runs on port 3000
     │
     │  HTTP (axios) forwarding images/data
     ▼
@@ -257,7 +257,7 @@ Open a new terminal window:
 cd backend
 npm install
 npm run dev 
-# The server will start and listen on http://localhost:5000
+# The server will start and listen on http://localhost:3000
 ```
 
 ### Step 4 — Run the Python AI Service (Required for Python/AI Tasks)
