@@ -64,20 +64,22 @@ function Footer({ darkMode, toggleTheme }) {
               </Link>
             </div>
 
+            {/* bug fix-> here the items need to be displayed in flex for responsiveness, so maintained internal css in the css file for flex display */}
+            {/* bug fix-> privacy and terms needs to be in same section under company section but it is now in two different sections  */}
+            <div className="footer__column">
+              <h4 className={`footer__heading ${darkMode ? 'footer__heading-dark' : ''}`}>{t.company}</h4>
 
-            <h4 className={`footer__heading ${darkMode ? 'footer__heading-dark' : ''}`}>{t.company}</h4>
+              <a href="/privacy" className={`footer__item ${darkMode ? 'footer__item-dark' : ''}`}>
+                {t.privacyPolicy}
 
-            <a href="/privacy" className={`footer__heading ${darkMode ? 'footer__heading-dark' : ''}`}>
-              {t.privacyPolicy}
+              </a>
 
-            </a>
+              <a href="/terms" className={`footer__item ${darkMode ? 'footer__item-dark' : ''}`}>
 
-            <a href="/terms" className={`footer__heading ${darkMode ? 'footer__heading-dark' : ''}`}>
+                {t.termsConditions}
 
-              {t.termsConditions}
-
-            </a>
-
+              </a>
+            </div>
 
             <div className="footer__column">
               <h4 className={`footer__heading ${darkMode ? 'footer__heading-dark' : ''}`}>{t.contact}</h4>
