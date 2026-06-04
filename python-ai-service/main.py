@@ -4,12 +4,42 @@ Flask entry point for the SnapPass AI Python service.
 Runs on http://localhost:8000
 """
 
+import logging
 import os
-from flask import Flask, request, jsonify, send_file
+import pathlib
+import re
+from flask import Flask, after_this_request, request, jsonify, send_file
 from flask_cors import CORS
 import config
 from app.routes.process_routes import process_bp
 from app.services.errors import ai_error_handler
+
+logger = logging.getLogger(__name__)
+
+
+def _safe_photo_path(raw: str) -> str:
+    """
+    Resolve raw to an absolute path and confirm it sits inside UPLOAD_DIR.
+
+    Raises ValueError if the resolved path escapes the allowed directory,
+    preventing path-traversal attacks via caller-supplied photo_path values
+    such as '../../etc/passwd'.
+
+    Args:
+        raw: The photo_path value received from the request body.
+
+    Returns:
+        The resolved absolute path string if it is within UPLOAD_DIR.
+
+    Raises:
+        ValueError: If the resolved path is outside UPLOAD_DIR.
+    """
+    allowed_dir = pathlib.Path(config.UPLOAD_DIR).resolve()
+    # Use only the final filename component — strip any directory traversal.
+    resolved = (allowed_dir / pathlib.Path(raw).name).resolve()
+    if not str(resolved).startswith(str(allowed_dir) + os.sep) and resolved != allowed_dir:
+        raise ValueError("Invalid photo_path: file is outside the allowed upload directory.")
+    return str(resolved)
 
 app = Flask(__name__)
 CORS(app)
@@ -53,14 +83,21 @@ def generate_sheet():
     from app.services.sheet_generator import generate_a4_sheet
     
     data= request.get_json()
-    photo_path= data.get("photo_path")
-    preset_id= data.get("preset_id", "35x45")
+    raw_photo_path = data.get("photo_path")
+    # Sanitize preset_id to alphanumeric + dash/underscore only so it cannot
+    # inject path separators into the output filename (e.g. '../evil').
+    preset_id = re.sub(r"[^a-zA-Z0-9_\-]", "", data.get("preset_id", "35x45")) or "35x45"
     quantity= int(data.get("quantity", 8))
     bg_color= tuple(data.get("bg_color", [255, 255, 255]))
     draw_guides= bool(data.get("draw_guides", True))
 
-    if not photo_path:
+    if not raw_photo_path:
         return jsonify({"error": "photo_path is required"}), 400
+
+    try:
+        photo_path = _safe_photo_path(raw_photo_path)
+    except ValueError:
+        return jsonify({"error": "Invalid photo_path."}), 400
 
     output_dir= os.environ.get("OUTPUT_DIR", "outputs")
     os.makedirs(output_dir, exist_ok=True)
