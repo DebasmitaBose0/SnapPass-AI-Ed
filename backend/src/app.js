@@ -16,6 +16,8 @@ import healthRoutes from './routes/health.routes.js';
 
 import errorMiddleware from './middleware/error.middleware.js';
 import { apiLimiter } from './middleware/rateLimit.middleware.js';
+import logger from './utils/logger.js';
+import { sanitizeInput } from './middleware/sanitize.middleware.js';
 
 const localFilename = fileURLToPath(import.meta.url);
 const localDirname = path.dirname(localFilename);
@@ -39,6 +41,7 @@ app.use(
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(sanitizeInput);
 app.use(hpp());
 app.use(cookieParser());
 
