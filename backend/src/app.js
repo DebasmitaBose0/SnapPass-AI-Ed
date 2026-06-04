@@ -5,13 +5,14 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import path from 'path';
 import cookieParser from 'cookie-parser';
-import mongoSanitize from 'express-mongo-sanitize';
+import hpp from 'hpp';
 import { fileURLToPath } from 'url';
 
 import uploadRoutes from './routes/upload.routes.js';
 import imageRoutes from './routes/image.routes.js';
 import printRoutes from './routes/print.routes.js';
 import authRoutes from './routes/auth.routes.js';
+import healthRoutes from './routes/health.routes.js';
 
 import errorMiddleware from './middleware/error.middleware.js';
 import { apiLimiter } from './middleware/rateLimit.middleware.js';
@@ -38,7 +39,7 @@ app.use(
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(mongoSanitize());
+app.use(hpp());
 app.use(cookieParser());
 
 app.use("/uploads", express.static(path.join(localDirname, "..", "uploads")));
@@ -55,6 +56,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/process", imageRoutes);
 app.use("/api/print", printRoutes);
+app.use("/api/health", healthRoutes);
 
 app.use((req, _res, next) => {
    const error = new Error(`Route not found: ${req.originalUrl}`);
