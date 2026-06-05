@@ -30,9 +30,18 @@ app.use('/api', apiLimiter);
 
 
 app.use(helmet());
+const allowedOrigins = config.CORS_ORIGIN.split(',').map(o => o.trim());
+
 app.use(
   cors({
-    origin: config.CORS_ORIGIN,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, curl, or postman)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*')) {
+        return callback(null, true);
+      }
+      return callback(new Error('Blocked by CORS policy: origin not allowed'));
+    },
     credentials: true,
   })
 );
