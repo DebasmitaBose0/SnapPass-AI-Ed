@@ -9,6 +9,10 @@ from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import config
 from app.routes.process_routes import process_bp
+from app.utils.env_validator import validate_environment
+
+# Perform pre-flight configuration validations
+validate_environment()
 
 app = Flask(__name__)
 CORS(app)
