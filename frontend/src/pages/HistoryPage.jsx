@@ -11,6 +11,7 @@ import './HistoryPage.css';
 function HistoryPage() {
   const navigate = useNavigate();
   const [sessions, setSessions] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     loadSessions();
@@ -43,6 +44,14 @@ function HistoryPage() {
     setSessions([]);
   };
 
+  const filteredSessions = sessions.filter((session) => {
+    const query = searchQuery.toLowerCase();
+    const filename = (session.filename || '').toLowerCase();
+    const step = (session.step || '').toLowerCase();
+    const preset = (session.photoSizePreset || '').toLowerCase();
+    return filename.includes(query) || step.includes(query) || preset.includes(query);
+  });
+
   return (
     <div className="history-page">
       <div className="history-page__header">
@@ -54,11 +63,25 @@ function HistoryPage() {
         )}
       </div>
 
+      {sessions.length > 0 && (
+        <div className="history-page__search-container">
+          <input
+            type="text"
+            className="history-page__search-input"
+            placeholder="Search by filename, step or size preset..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      )}
+
       {sessions.length === 0 ? (
         <p className="history-page__empty">No saved sessions found.</p>
+      ) : filteredSessions.length === 0 ? (
+        <p className="history-page__empty">No matching sessions found.</p>
       ) : (
         <div className="history-page__list">
-          {sessions.map((session) => (
+          {filteredSessions.map((session) => (
             <div key={session.id} className="history-page__card">
               <div className="history-page__card-content">
                 <p className="history-page__filename">
