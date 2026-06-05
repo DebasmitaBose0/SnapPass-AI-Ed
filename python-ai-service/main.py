@@ -22,7 +22,29 @@ app.register_blueprint(process_bp)
 @app.get("/health")
 def health():
     return {"status": "ok", "service": "python-ai-service"}
-
+# Face Quality Gate
+@app.route("/face-quality-check", methods=["POST"])
+def face_quality_check():
+    from app.services.face_quality_gate import assess_face_quality
+    
+    data = request.get_json()
+    file_path = data.get("file_path")
+    
+    if not file_path:
+        return jsonify({"error": "file_path is required"}), 400
+    
+    try:
+        report = assess_face_quality(file_path)
+        return jsonify({
+            "passed": report.passed,
+            "face_count": report.face_count,
+            "blur_score": report.blur_score,
+            "rejection_code": report.rejection_code,
+            "rejection_reason": report.rejection_reason,
+            "user_hint": report.user_hint,
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 # Sheet Generator
 @app.route("/generate-sheet", methods=["POST"])
 def generate_sheet():
