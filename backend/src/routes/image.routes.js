@@ -6,10 +6,11 @@
 
 import express from "express";
 import { processImage, getPreview } from "../controllers/image.controller.js";
+import { processingLimiter } from "../middleware/rateLimit.middleware.js";
 
 const router = express.Router();
 
-router.post("/", processImage);
+router.post("/", processingLimiter, processImage);
 router.get("/preview/:filename", getPreview);
 
 export default router;

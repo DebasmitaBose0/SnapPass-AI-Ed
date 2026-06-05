@@ -37,3 +37,15 @@ export const authLimiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
 });
+
+// Dedicated rate limiting for resource-intensive image processing requests
+export const processingLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 20, // Limit each IP to 20 image processing runs
+    message: {
+        success: false,
+        message: "Too many image processing requests. Please wait 15 minutes before trying again."
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
