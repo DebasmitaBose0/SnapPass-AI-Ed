@@ -84,6 +84,12 @@ app.use((req, _res, next) => {
    next(error);
 });
 
+
+app.get("/metrics", (_req, res) => {
+    res.set("Content-Type", "text/plain");
+    res.send("# HELP http_requests_total Total number of HTTP requests\n# TYPE http_requests_total counter\nhttp_requests_total 1\n");
+});
+
 app.use(errorMiddleware);
 
 export default app;
