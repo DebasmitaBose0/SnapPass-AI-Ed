@@ -4,12 +4,50 @@ Flask entry point for the SnapPass AI Python service.
 Runs on http://localhost:8000
 """
 
+import logging
 import os
+import pathlib
+import re
+import uuid
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import config
 from app.routes.process_routes import process_bp
 from app.services.errors import ai_error_handler
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+)
+logger = logging.getLogger(__name__)
+
+
+def _safe_photo_path(raw: str) -> str:
+    """
+    Resolve raw to an absolute path and confirm it sits inside UPLOAD_DIR.
+
+    Uses pathlib.Path.relative_to() for a boundary check that is immune to
+    prefix-match false positives (e.g. /uploads_evil/ matching /uploads).
+    Strips directory traversal from the input by taking only the filename
+    component before resolving.
+
+    Args:
+        raw: The photo_path value received from the request body.
+
+    Returns:
+        The resolved absolute path string if it is within UPLOAD_DIR.
+
+    Raises:
+        ValueError: If the resolved path is outside UPLOAD_DIR.
+    """
+    allowed_dir = pathlib.Path(config.UPLOAD_DIR).resolve()
+    # Use only the final filename component — strip any directory traversal.
+    resolved = (allowed_dir / pathlib.Path(raw).name).resolve()
+    try:
+        resolved.relative_to(allowed_dir)
+    except ValueError:
+        raise ValueError("Invalid photo_path: file is outside the allowed upload directory.")
+    return str(resolved)
 
 app = Flask(__name__)
 CORS(app)
@@ -53,18 +91,27 @@ def generate_sheet():
     from app.services.sheet_generator import generate_a4_sheet
     
     data= request.get_json()
-    photo_path= data.get("photo_path")
-    preset_id= data.get("preset_id", "35x45")
+    raw_photo_path = data.get("photo_path")
+    # Sanitize preset_id to alphanumeric + dash/underscore only so it cannot
+    # inject path separators into the output filename (e.g. '../evil').
+    preset_id = re.sub(r"[^a-zA-Z0-9_\-]", "", data.get("preset_id", "35x45")) or "35x45"
     quantity= int(data.get("quantity", 8))
     bg_color= tuple(data.get("bg_color", [255, 255, 255]))
     draw_guides= bool(data.get("draw_guides", True))
 
-    if not photo_path:
+    if not raw_photo_path:
         return jsonify({"error": "photo_path is required"}), 400
+
+    try:
+        photo_path = _safe_photo_path(raw_photo_path)
+    except ValueError:
+        return jsonify({"error": "Invalid photo_path."}), 400
 
     output_dir= os.environ.get("OUTPUT_DIR", "outputs")
     os.makedirs(output_dir, exist_ok=True)
-    output_path= os.path.join(output_dir, f"sheet_{preset_id}.jpg")
+    # Include a UUID in the filename so concurrent requests using the same
+    # preset_id do not race on the same file path.
+    output_path= os.path.join(output_dir, f"sheet_{preset_id}_{uuid.uuid4().hex}.jpg")
 
     from app.services.sheet_generator import generate_a4_sheet
     saved = generate_a4_sheet(
@@ -75,7 +122,22 @@ def generate_sheet():
         draw_guides= draw_guides,
         output_path= output_path,
     )
-    return send_file(saved, mimetype="image/jpeg")
+
+    # Build the response first, then register cleanup via call_on_close so
+    # the file is only deleted after the WSGI server has finished sending
+    # all bytes — safer than after_this_request which can fire before
+    # transmission completes and fails on Windows while the handle is open.
+    response = send_file(saved, mimetype="image/jpeg")
+    saved_path = saved
+
+    def _delete_sheet():
+        try:
+            os.unlink(saved_path)
+        except OSError:
+            logger.warning("Could not delete sheet file: %s", saved_path)
+
+    response.call_on_close(_delete_sheet)
+    return response
 
 # Run 
 if __name__ == "__main__":
