@@ -13,24 +13,50 @@ const errorMiddleware = (
   res,
   next
 ) => {
+  let error = { ...err };
+  error.message = err.message || "Internal Server Error";
+  error.statusCode = err.statusCode || err.status || 500;
+
+  // Log non-operational errors
   if (!err.isOperational) {
-    console.error(err);
+    console.error("💥 SYSTEM ERROR:", err);
   }
 
-  const statusCode = err.statusCode || err.status || 500;
+  // Handle Mongoose CastError (e.g. invalid ObjectId)
+  if (err.name === "CastError") {
+    error.message = `Resource not found with id of ${err.value}`;
+    error.statusCode = 404;
+  }
 
-  res.status(statusCode).json({
+  // Handle Mongo Duplicate Key Error
+  if (err.code === 11000) {
+    error.message = `Duplicate field value entered.`;
+    error.statusCode = 400;
+  }
+
+  // Handle Mongoose ValidationError
+  if (err.name === "ValidationError") {
+    error.message = Object.values(err.errors).map(val => val.message).join(", ");
+    error.statusCode = 400;
+  }
+
+  // Handle JWT Errors
+  if (err.name === "JsonWebTokenError") {
+    error.message = "Invalid authentication token. Please log in again.";
+    error.statusCode = 401;
+  }
+
+  if (err.name === "TokenExpiredError") {
+    error.message = "Your session token has expired. Please log in again.";
+    error.statusCode = 401;
+  }
+
+  res.status(error.statusCode).json({
     success: false,
-    status: err.status || "error",
-    message:
-      err.message || "Internal Server Error",
-
+    status: error.statusCode >= 500 ? "error" : "fail",
+    message: error.message,
     errors: err.errors || undefined,
-
-    stack:
-      config.NODE_ENV === "development"
-        ? err.stack
-        : undefined,
+    stack: config.NODE_ENV === "development" ? err.stack : undefined,
   });
 };
 
