@@ -54,6 +54,22 @@
   line-height: 1.7;
 }
 
+.testimonials-status {
+  text-align: center;
+  margin: 0 auto var(--space-md);
+  max-width: 720px;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+.testimonials-status-light {
+  color: #1d4ed8;
+}
+
+.testimonials-status-dark {
+  color: #facc15;
+}
+
 /* Rating Summary Badge */
 .rating-summary {
   display: inline-flex;

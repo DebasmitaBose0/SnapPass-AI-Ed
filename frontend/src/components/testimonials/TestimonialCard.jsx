@@ -4,7 +4,7 @@ import './TestimonialCard.css';
 import { useLanguage } from '../../context/LanguageContext';
 
 const TestimonialCard = ({ testimonial, darkMode }) => {
-  const { name, rating, commentHi, commentEn, date } = testimonial;
+  const { name, rating, commentHi, commentEn, comment, date } = testimonial;
   const { language } = useLanguage();
 
   const formatDate = (dateString) => {
@@ -23,8 +23,8 @@ const TestimonialCard = ({ testimonial, darkMode }) => {
 
       <p className={`testimonial-comment ${darkMode ? 'testimonial-comment-dark' : 'testimonial-comment-light'}`}>
         {language === 'hi'
-          ? (commentHi || commentEn)
-          : (commentEn || commentHi)}
+          ? (commentHi || commentEn || comment)
+          : (commentEn || commentHi || comment)}
       </p>
 
       <span className={`testimonial-date ${darkMode ? 'testimonial-date-dark' : 'testimonial-date-light'}`}>
