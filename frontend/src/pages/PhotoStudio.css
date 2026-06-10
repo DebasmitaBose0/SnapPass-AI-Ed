@@ -280,8 +280,11 @@
 .main-toolbar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    width: 100%;
+    justify-content: center;
+    gap: 8px;
+    width: fit-content;
+    max-width: 100%;
+    margin: 0 auto;
     background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -298,15 +301,14 @@
 }
 
 .tools-group {
-    flex: 1;
+    flex: 0 1 auto;
     justify-content: flex-start;
-    gap: 6px;
+    gap: 4px;
     overflow-x: auto;
     overflow-y: hidden;
     scrollbar-width: none;
     -ms-overflow-style: none;
-    padding: 0 4px;
-    max-width: calc(100% - 120px);
+    padding: 0 2px;
 }
 
 .tools-group::-webkit-scrollbar {
@@ -317,7 +319,8 @@
     width: 1px;
     height: 32px;
     background: #cbd5e1;
-    margin: 0 12px;
+    margin: 0 4px;
+    flex-shrink: 0;
 }
 
 .tool-btn {
