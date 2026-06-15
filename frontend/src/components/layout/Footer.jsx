@@ -146,15 +146,15 @@ function Footer({ darkMode }) {
 
             {/* SOCIALS */}
             <div className="footer__socials">
-              <a href="/" className="footer__social-link">
+              <a href="https://www.linkedin.com/in/soumadeep-s/" className="footer__social-link">
                 <Globe size={18} />
               </a>
 
-              <a href="/" className="footer__social-link">
+              <a href="https://www.facebook.com/soumadeep9830" className="footer__social-link">
                 <Share2 size={18} />
               </a>
 
-              <a href="/" className="footer__social-link">
+              <a href="https://github.com/souma9830" className="footer__social-link">
                 <User size={18} />
               </a>
             </div>
