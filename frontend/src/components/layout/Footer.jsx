@@ -118,18 +118,19 @@ function Footer({ darkMode }) {
         <div className="footer__top">
           {/* BRAND */}
           <div className="footer__brand">
-            <span
-              className={`footer__logo ${darkMode ? 'footer__logo-dark' : ''}`}
-            >
-              <span
-                aria-hidden="true"
-                className={`footer__logo-icon ${darkMode ? 'footer__logo-icon-dark' : ''
-                  }`}
-              >
-                📷
-              </span>
-              SnapPass AI
-            </span>
+            <Link
+  to="/"
+  className={`footer__logo ${darkMode ? 'footer__logo-dark' : ''}`}
+  aria-label="Go to homepage"
+>
+  <span
+    aria-hidden="true"
+    className={`footer__logo-icon ${darkMode ? 'footer__logo-icon-dark' : ''}`}
+  >
+    📷
+  </span>
+  SnapPass AI
+</Link>
 
             <p
               className={`footer__tagline ${darkMode ? 'footer__tagline-dark' : ''
