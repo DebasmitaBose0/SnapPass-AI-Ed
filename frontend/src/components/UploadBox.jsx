@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import './UploadBox.css';
-import { validateImageFile } from '../utils/fileValidation';
+import { validateImageFile, validateImageMagicBytes } from '../utils/fileValidation';
 import { useLanguage } from '../context/LanguageContext';
 import { translations } from '../translations/translations';
 
@@ -17,7 +17,7 @@ function UploadBox({ onFileSelect }) {
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState('');
 
-  const handleFile = (file) => {
+  const handleFile = async (file) => {
     if (!file) {
       setError('Please select an image file.');
       return;
@@ -28,6 +28,14 @@ function UploadBox({ onFileSelect }) {
       setError(result.error);
       return;
     }
+
+    // Validate magic bytes to verify actual image signature
+    const isValidMagic = await validateImageMagicBytes(file);
+    if (!isValidMagic) {
+      setError('Invalid file structure. The file signature does not match a valid JPG, PNG, or WEBP image.');
+      return;
+    }
+
     setError('');
     if (onFileSelect) {
       onFileSelect(file);
