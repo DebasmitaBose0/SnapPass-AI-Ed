@@ -57,19 +57,24 @@ app.use(helmet({
     xContentTypeOptions: true,
     referrerPolicy: { policy: "strict-origin-when-cross-origin" }
 }));
-const allowedOrigins = config.CORS_ORIGIN.split(',').map(o => o.trim());
+const allowedOrigins = config.CORS_ORIGIN ? config.CORS_ORIGIN.split(',').map(o => o.trim()) : [];
 
 app.use(
   cors({
     origin: (origin, callback) => {
       // Allow requests with no origin (like mobile apps, curl, or postman)
       if (!origin) return callback(null, true);
-      if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*')) {
+      if (allowedOrigins.includes('*')) {
+        return callback(null, origin);
+      }
+      if (allowedOrigins.indexOf(origin) !== -1) {
         return callback(null, true);
       }
       return callback(new Error('Blocked by CORS policy: origin not allowed'));
     },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Request-Id']
   })
 );
 app.use(morgan("dev"));
