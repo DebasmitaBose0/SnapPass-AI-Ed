@@ -41,7 +41,44 @@
   gap: 12px;
 }
 
+/* Mobile preset ribbon */
+@media (max-width: 768px) {
+  .attire-selector__grid {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    gap: 12px;
+    padding-bottom: 4px;
+    scroll-snap-type: x mandatory;
+  }
+
+  .attire-card {
+    flex: 0 0 auto;
+    min-width: 220px;
+    min-height: 76px;
+    scroll-snap-align: start;
+  }
+
+
+
+  .attire-card__icon {
+    width: 44px;
+    height: 44px;
+    font-size: 22px;
+  }
+
+  .attire-card {
+    padding: 12px 14px;
+  }
+}
+
+
+
+
 /* Attire Card Design */
+
 .attire-card {
   display: flex;
   align-items: center;
