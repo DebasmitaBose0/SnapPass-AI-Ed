@@ -38,12 +38,19 @@
 .editor-page__layout {
   display: grid;
   grid-template-columns: 1fr 340px;
+
   gap: var(--space-xl, 2rem);
   /* Let grid items stretch so controls panel matches preview height */
   align-items: stretch;
 }
 
+.editor-page__compliance-wrap {
+  display: flex;
+  width: 100%;
+}
+
 .editor-page__preview {
+
   display: flex;
   flex-direction: column;
   /* Allow preview to participate in grid stretching */

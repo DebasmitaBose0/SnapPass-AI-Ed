@@ -16,6 +16,7 @@ import printRoutes from './routes/print.routes.js';
 import authRoutes from './routes/auth.routes.js';
 import healthRoutes from './routes/health.routes.js';
 import testimonialRoutes from './routes/testimonial.routes.js';
+import complianceRoutes from './routes/compliance.routes.js';
 
 import errorMiddleware from './middleware/error.middleware.js';
 import { apiLimiter } from './middleware/rateLimit.middleware.js';
@@ -115,6 +116,8 @@ app.use("/api/v1/process", imageRoutes);
 app.use("/api/v1/print", printRoutes);
 app.use("/api/v1/health", healthRoutes);
 app.use("/api/v1/testimonials", testimonialRoutes);
+app.use("/api/v1/compliance", complianceRoutes);
+
 
 // Legacy backward-compatibility routes
 app.use("/api/auth", authRoutes);
@@ -123,6 +126,8 @@ app.use("/api/process", imageRoutes);
 app.use("/api/print", printRoutes);
 app.use("/api/health", healthRoutes);
 app.use("/api/testimonials", testimonialRoutes);
+app.use("/api/compliance", complianceRoutes);
+
 
 app.use((req, _res, next) => {
    const error = new Error(`Route not found: ${req.originalUrl}`);

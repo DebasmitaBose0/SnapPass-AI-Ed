@@ -12,6 +12,9 @@ import { useLanguage } from '../context/LanguageContext';
 import { translations } from '../translations/translations';
 import useImageProcessor from '../hooks/useImageProcessor';
 import { saveSession, getSession } from '../utils/sessionManager';
+import CompliancePanel from '../components/CompliancePanel';
+import api from '../services/api';
+
 
 /**
  * EditorPage — Step 2.
@@ -47,6 +50,40 @@ function EditorPage({ darkMode, toggleTheme }) {
     savedSession?.attire || 'none'
   );
   const { processImage, isProcessing, error } = useImageProcessor();
+
+  const [compliance, setCompliance] = useState(null);
+  const [complianceLoading, setComplianceLoading] = useState(false);
+  const [complianceError, setComplianceError] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function runCheck() {
+      if (!photoData?.filename) return;
+
+      setComplianceLoading(true);
+      setComplianceError(null);
+      setCompliance(null);
+
+      try {
+        // Backend endpoint: POST /api/compliance/check
+        const resp = await api.post('/compliance/check', { filename: photoData.filename });
+        const data = resp?.data?.data;
+        if (!cancelled) setCompliance(data);
+      } catch (e) {
+        if (!cancelled) {
+          setComplianceError(e?.response?.data?.message || e?.message || 'Compliance check failed');
+        }
+      } finally {
+        if (!cancelled) setComplianceLoading(false);
+      }
+    }
+
+    runCheck();
+    return () => {
+      cancelled = true;
+    };
+  }, [photoData?.filename]);
+
 
   useEffect(() => {
     // Only persist session when there is a live image in this page's context.
@@ -96,7 +133,15 @@ function EditorPage({ darkMode, toggleTheme }) {
 
   const handleProcess = async () => {
     try {
+      // Hard block processing if compliance contains any hard-fail item.
+      if (compliance?.hard_fail) {
+        // Keep error UX consistent with existing flow.
+        setComplianceError('Photo fails critical compliance checks. Please retake/adjust the photo.');
+        return;
+      }
+
       const processedUrl = await processImage({
+
         filename: photoData.filename,
         backgroundColour: background,
         photoSizePreset: sizePreset,
@@ -174,11 +219,24 @@ function EditorPage({ darkMode, toggleTheme }) {
             viewport={{ once: true }}
             custom={0.2}
           >
-            <PhotoPreview
+          <PhotoPreview
               originalUrl={photoData.localUrl}
               processedUrl={null}
               isProcessing={isProcessing}
             />
+
+          {/* Sliding side-panel (realtime compliance checklist) */}
+
+          <div className="editor-page__compliance-wrap">
+            <CompliancePanel
+              compliance={compliance}
+              loading={complianceLoading}
+              error={complianceError}
+              darkMode={darkMode}
+            />
+          </div>
+
+
           </motion.section>
 
           {/* Controls panel */}
@@ -186,6 +244,7 @@ function EditorPage({ darkMode, toggleTheme }) {
             className="editor-page__controls card"
             aria-label="Photo settings"
             variants={fadeUpVariant}
+
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}

@@ -13,6 +13,7 @@ from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import config
 from app.routes.process_routes import process_bp
+from app.routes.compliance_routes import compliance_bp
 from app.services.errors import ai_error_handler
 
 logging.basicConfig(
@@ -74,6 +75,8 @@ os.makedirs(config.UPLOAD_DIR, exist_ok=True)
 
 # Blueprints
 app.register_blueprint(process_bp)
+app.register_blueprint(compliance_bp)
+
 
 
 # Health Check
@@ -167,6 +170,9 @@ def generate_sheet():
     response.call_on_close(_delete_sheet)
     return response
 
+
+
+# NOTE: Compliance endpoint wired via Blueprint above.
 
 # Run
 if __name__ == "__main__":
