@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import LoadingSpinner from './LoadingSpinner';
+import SkeletonLoader from './SkeletonLoader';
 import './PhotoPreview.css';
 
 /**
@@ -12,6 +13,8 @@ import './PhotoPreview.css';
  */
 function PhotoPreview({ originalUrl, processedUrl, isProcessing }) {
   const [showGuidelines, setShowGuidelines] = useState(true);
+
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   return (
     <div className="photo-preview">
@@ -83,15 +86,25 @@ function PhotoPreview({ originalUrl, processedUrl, isProcessing }) {
         </span>
         <div className={`photo-preview__frame photo-preview__frame--processed${isProcessing ? ' photo-preview__frame--loading' : ''}`}>
           {processedUrl && !isProcessing ? (
-            <img
-              src={processedUrl}
-              alt="AI-processed — background removed and centred"
-              className="photo-preview__img"
-            />
+            <>
+              {!imageLoaded && (
+                <div className="photo-preview__image-preloader">
+                  <LoadingSpinner size="md" />
+                </div>
+              )}
+              <img
+                src={processedUrl}
+                alt="AI-processed — background removed and centred"
+                className={`photo-preview__img photo-preview__img--processed ${imageLoaded ? 'photo-preview__img--loaded' : 'photo-preview__img--loading'}`}
+                onLoad={() => setImageLoaded(true)}
+              />
+            </>
           ) : (
             <div className="photo-preview__empty">
               {isProcessing ? (
-                <LoadingSpinner size="md" />
+                <div style={{ width: '100%', padding: '20px' }}>
+                  <SkeletonLoader type="editor" />
+                </div>
               ) : (
                 <p className="photo-preview__empty-text">
                   Upload and process a photo to preview the AI-generated result

@@ -16,6 +16,28 @@ Upload → Auto-process → Generate a print-ready sheet — in seconds.</p>
 
 ---
 
+## 📚 Table of Contents
+
+- [📌 What is SnapPass AI?](#-what-is-snappass-ai)
+- [✨ What It Does](#-what-it-does)
+- [📸 Website Preview](#-website-preview)
+- [🧭 Project Status](#-project-status)
+- [🖥️ Tech Stack](#️%EF%B8%8F-tech-stack)
+- [📁 Folder Structure](#-folder-structure)
+- [🚀 Getting Started](#-getting-started)
+- [🐳 Docker (Compose)](#-docker-compose)
+- [🗺️ App Flow (UI)](#️%EF%B8%8F-app-flow-ui)
+- [📡 API Endpoints](#-api-endpoints)
+- [🌍 Supported Passport Photo Sizes](#-supported-passport-photo-sizes)
+- [🔧 Environment Variables](#-environment-variables)
+- [🛣️ Roadmap](#️%EF%B8%8F-roadmap)
+- [🤝 Contributing](#-contributing)
+- [🏷️ Good First Issues](#️%EF%B8%8F-good-first-issues)
+- [📜 License](#-license)
+- [👨‍💻 Project Admin](#%E2%80%8D-project-admin)
+
+---
+
 ## 📌 What is SnapPass AI?
 
 **SnapPass AI** is a free, open-source web application that lets anyone generate professional passport-quality photos from any selfie or portrait.
@@ -348,6 +370,29 @@ MONGO_URI=mongodb://localhost:27017/snappass
 - [ ] Deploy guide (Vercel + Render + Railway)
 - [ ] PWA support
 - [ ] Dark mode
+
+---
+
+## 🔒 Security & Dependencies
+
+SnapPass AI uses **Dependabot** for automated dependency updates across all ecosystems:
+
+| Ecosystem | Location | Schedule |
+|-----------|----------|----------|
+| npm | `/frontend`, `/backend` | Every Monday |
+| pip | `/python-ai-service` | Every Tuesday |
+| Docker | All Dockerfiles | Every Wednesday |
+| GitHub Actions | `.github/workflows` | Every Thursday |
+
+All dependency PRs are automatically labeled `dependencies` and assigned to maintainers. We also run:
+
+- **npm audit** weekly to detect high/critical vulnerabilities
+- **Trivy** filesystem scan for container and infrastructure issues
+- **Semgrep** SAST analysis on every PR for JavaScript and Python
+- **OpenSSF Scorecard** to track overall security posture
+- **CodeQL** deep code analysis on every push to master
+
+For reporting security vulnerabilities, see our [SECURITY.md](SECURITY.md) policy.
 
 ---
 

@@ -1,9 +1,11 @@
 import React from 'react';
 import StarRating from './StarRating';
 import './TestimonialCard.css';
+import { useLanguage } from '../../context/LanguageContext';
 
 const TestimonialCard = ({ testimonial, darkMode }) => {
-  const { name, rating, comment, date } = testimonial;
+  const { name, rating, commentHi, commentEn, comment, date } = testimonial;
+  const { language } = useLanguage();
 
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -18,9 +20,13 @@ const TestimonialCard = ({ testimonial, darkMode }) => {
         </h3>
         <StarRating rating={rating} readonly={true} darkMode={darkMode} />
       </div>
+
       <p className={`testimonial-comment ${darkMode ? 'testimonial-comment-dark' : 'testimonial-comment-light'}`}>
-        {comment}
+        {language === 'hi'
+          ? (commentHi || commentEn || comment)
+          : (commentEn || commentHi || comment)}
       </p>
+
       <span className={`testimonial-date ${darkMode ? 'testimonial-date-dark' : 'testimonial-date-light'}`}>
         {formatDate(date)}
       </span>

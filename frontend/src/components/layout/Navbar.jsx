@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { Sun, Moon } from 'lucide-react';
 import './Navbar.css';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../../context/LanguageContext';
 import { translations } from '../../translations/translations';
-
 /**
  * Navbar — fixed top navigation bar.
  * Shows logo, main nav links, and a mobile hamburger toggle.
@@ -18,6 +17,7 @@ function Navbar({ darkMode, toggleTheme }) {
 
   const { language, setLanguage } = useLanguage();
   const t = translations[language];
+  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -37,6 +37,17 @@ function Navbar({ darkMode, toggleTheme }) {
     handleScroll();
 
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setLanguageOpen(false);
+        setMenuOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const navLinks = [
@@ -117,6 +128,9 @@ function Navbar({ darkMode, toggleTheme }) {
                   : 'navbar__language-selector-light'
                   }`}
                 onClick={() => setLanguageOpen(!languageOpen)}
+                aria-haspopup="true"
+                aria-expanded={languageOpen}
+                aria-label="Select Language"
               >
                 {language === 'en' ? 'English' : 'हिन्दी'}
 
@@ -134,8 +148,11 @@ function Navbar({ darkMode, toggleTheme }) {
                     ? 'navbar__language-menu-dark'
                     : 'navbar__language-menu-light'
                     }`}
+                  role="menu"
+                  aria-label="Languages"
                 >
                   <button
+                    role="menuitem"
                     onClick={() => {
                       setLanguage('en');
                       setLanguageOpen(false);
@@ -145,6 +162,7 @@ function Navbar({ darkMode, toggleTheme }) {
                   </button>
 
                   <button
+                    role="menuitem"
                     onClick={() => {
                       setLanguage('hi');
                       setLanguageOpen(false);
@@ -159,16 +177,18 @@ function Navbar({ darkMode, toggleTheme }) {
             <button
               onClick={toggleTheme}
               className={`flex items-center justify-center w-10 ml-auto p-2 hover:no-underline h-10 rounded-full ${darkMode ? 'bg-gray-700' : 'bg-[#a2bece]'}`}
+              aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
             >
               {darkMode ? <Sun className="text-amber-500" /> : <Moon />}
             </button>
-
+            {!location.pathname.startsWith('/upload') && (
             <Link
               to="/upload"
               className={`navbar__cta hover:no-underline ${darkMode ? 'navbar__cta-dark' : 'navbar__cta-light'}`}
-            >
+             >
               {t.getStarted}
             </Link>
+              )}
 
             {/* Mobile hamburger */}
             <button
@@ -183,13 +203,12 @@ function Navbar({ darkMode, toggleTheme }) {
         </div>
 
         {/* Mobile Drawer */}
-        <nav
-          className={`navbar__mobile-menu ${menuOpen ? 'active' : ''} 
-            ${darkMode
-              ? 'navbar__mobile-menu-dark'
-              : 'navbar__mobile-menu-light'
-            }
-            `}
+       <nav
+          className={[
+            'navbar__mobile-menu',
+            menuOpen ? 'active' : '',
+            darkMode ? 'navbar__mobile-menu-dark' : 'navbar__mobile-menu-light',
+          ].filter(Boolean).join(' ')}
           aria-label="Mobile navigation"
         >
           <div className="navbar__mobile-language">

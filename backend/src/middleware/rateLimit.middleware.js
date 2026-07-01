@@ -43,3 +43,17 @@ export const authLimiter = rateLimit({
     legacyHeaders: false,
 });
 
+// Limit review submissions to reduce spam and rating manipulation
+export const testimonialSubmissionLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    max: 5,
+    message: {
+        success: false,
+        message: "Too many review submissions from this IP. Please try again later.",
+        errorType: "TESTIMONIAL_RATE_LIMIT_EXCEEDED",
+        retryAfterSeconds: 3600
+    },
+    standardHeaders: 'draft-7',
+    legacyHeaders: false,
+});
+

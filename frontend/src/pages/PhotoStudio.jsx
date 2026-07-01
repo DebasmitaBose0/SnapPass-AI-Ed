@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useEffect } from "react";
+import React, { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import {
@@ -9,37 +9,67 @@ import {
     Droplets,
     Download,
     RotateCcw,
-    Check
+    Check,
+    Thermometer,
+    Focus,
+    CloudMoon,
+    SunMedium,
 } from "lucide-react";
 import "./PhotoStudio.css";
 import { useLanguage } from '../context/LanguageContext';
 import { translations } from '../translations/translations';
+import {
+    DEFAULT_ADJUSTMENTS,
+    renderAdjustedImageDataUrl,
+} from '../utils/imageAdjustments';
+
+const ADJUSTMENT_TOOLS = [
+    { id: 'brightness', labelKey: 'brightness', min: 0, max: 200, format: (v) => `${v}%` },
+    { id: 'contrast', labelKey: 'contrast', min: 0, max: 200, format: (v) => `${v}%` },
+    { id: 'saturation', labelKey: 'saturation', min: 0, max: 200, format: (v) => `${v}%` },
+    { id: 'warmth', labelKey: 'warmth', min: -50, max: 50, format: (v) => v },
+    { id: 'sharpness', labelKey: 'sharpness', min: 0, max: 100, format: (v) => `${v}%` },
+    { id: 'shadows', labelKey: 'shadows', min: -100, max: 100, format: (v) => v },
+    { id: 'highlights', labelKey: 'highlights', min: -100, max: 100, format: (v) => v },
+];
+
+const TOOL_BUTTONS = [
+    { id: 'crop', type: 'crop', icon: Crop, label: 'Crop' },
+    { id: 'brightness', type: 'adjustment', icon: Sun, labelKey: 'brightness' },
+    { id: 'contrast', type: 'adjustment', icon: Contrast, labelKey: 'contrast' },
+    { id: 'saturation', type: 'adjustment', icon: Droplets, labelKey: 'saturation' },
+    { id: 'warmth', type: 'adjustment', icon: Thermometer, labelKey: 'warmth' },
+    { id: 'sharpness', type: 'adjustment', icon: Focus, labelKey: 'sharpness' },
+    { id: 'shadows', type: 'adjustment', icon: CloudMoon, labelKey: 'shadows' },
+    { id: 'highlights', type: 'adjustment', icon: SunMedium, labelKey: 'highlights' },
+];
 
 function PhotoStudio() {
     const { language } = useLanguage();
     const t = translations[language];
     const [imageSrc, setImageSrc] = useState(null);
     const [croppedImageSrc, setCroppedImageSrc] = useState(null);
+    const [previewUrl, setPreviewUrl] = useState(null);
+    const [isRenderingPreview, setIsRenderingPreview] = useState(false);
     const [fileName, setFileName] = useState("edited-photo.png");
 
-    // Toolbar States
     const [activeTool, setActiveTool] = useState(null);
     const [showOriginal, setShowOriginal] = useState(false);
+    const [adjustments, setAdjustments] = useState(DEFAULT_ADJUSTMENTS);
 
-    // Crop States
     const [isCropping, setIsCropping] = useState(false);
     const [crop, setCrop] = useState();
     const [completedCrop, setCompletedCrop] = useState(null);
     const imgRef = useRef(null);
-
-    // Adjustment states
-    const [brightness, setBrightness] = useState(100);
-    const [contrast, setContrast] = useState(100);
-    const [saturation, setSaturation] = useState(100);
-
     const fileInputRef = useRef(null);
+    const renderRequestRef = useRef(0);
 
-    // Handle image upload
+    const workingSource = croppedImageSrc || imageSrc;
+
+    const basicFilterStyle = useMemo(() => ({
+        filter: `brightness(${adjustments.brightness}%) contrast(${adjustments.contrast}%) saturate(${adjustments.saturation}%)`
+    }), [adjustments.brightness, adjustments.contrast, adjustments.saturation]);
+
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
         if (file && file.type.startsWith("image/")) {
@@ -48,10 +78,12 @@ function PhotoStudio() {
             reader.onload = (event) => {
                 setImageSrc(event.target.result);
                 setCroppedImageSrc(null);
+                setPreviewUrl(null);
                 setCrop(undefined);
                 setCompletedCrop(null);
                 setIsCropping(false);
                 setActiveTool(null);
+                setAdjustments(DEFAULT_ADJUSTMENTS);
             };
             reader.readAsDataURL(file);
         }
@@ -61,7 +93,6 @@ function PhotoStudio() {
         imgRef.current = e.currentTarget;
     }, []);
 
-    // Tool Selection Handler
     const handleToolSelect = (tool) => {
         if (!imageSrc || isCropping) return;
 
@@ -72,12 +103,16 @@ function PhotoStudio() {
         setActiveTool(tool);
     };
 
-    // Toggle Crop Mode / Save Crop
+    const updateAdjustment = (key, value) => {
+        setAdjustments((prev) => ({
+            ...prev,
+            [key]: Number(value),
+        }));
+    };
+
     const handleCropAction = () => {
         if (isCropping) {
-            // User clicked "Save" (Tick icon)
             if (!imgRef.current || !completedCrop || completedCrop.width <= 0 || completedCrop.height <= 0) {
-                // If they didn't draw a crop box, just exit crop mode
                 setIsCropping(false);
                 return;
             }
@@ -107,53 +142,64 @@ function PhotoStudio() {
             setCroppedImageSrc(canvas.toDataURL("image/png", 1.0));
             setIsCropping(false);
         } else {
-            // User clicked "Crop" to enter crop mode
             setActiveTool(null);
             setIsCropping(true);
         }
     };
 
-    // Reset all adjustments
     const handleReset = () => {
-        setBrightness(100);
-        setContrast(100);
-        setSaturation(100);
+        setAdjustments(DEFAULT_ADJUSTMENTS);
         setCroppedImageSrc(null);
+        setPreviewUrl(null);
         setCrop(undefined);
         setCompletedCrop(null);
         setIsCropping(false);
         setActiveTool(null);
     };
 
-    // Export Action
-    const handleDownload = () => {
-        const sourceToDownload = croppedImageSrc || imageSrc;
-        if (!sourceToDownload) return;
+    const handleDownload = async () => {
+        if (!workingSource) return;
 
-        const img = new Image();
-        img.onload = () => {
-            const canvas = document.createElement("canvas");
-            const ctx = canvas.getContext("2d");
-
-            canvas.width = img.width;
-            canvas.height = img.height;
-
-            ctx.filter = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%)`;
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
+        try {
+            const dataUrl = await renderAdjustedImageDataUrl(workingSource, adjustments);
             const link = document.createElement("a");
             link.download = `edited-${fileName}`;
-            link.href = canvas.toDataURL("image/png", 1.0);
+            link.href = dataUrl;
             link.click();
-        };
-        img.src = sourceToDownload;
+        } catch {
+            // Preview/download failed silently; user can retry.
+        }
     };
 
-    const filterStyle = {
-        filter: `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%)`
-    };
+    useEffect(() => {
+        if (!workingSource || showOriginal || isCropping) {
+            return undefined;
+        }
 
-    // Close active slider tool when clicking outside
+        const requestId = renderRequestRef.current + 1;
+        renderRequestRef.current = requestId;
+        setIsRenderingPreview(true);
+
+        const timeoutId = window.setTimeout(async () => {
+            try {
+                const dataUrl = await renderAdjustedImageDataUrl(workingSource, adjustments);
+                if (renderRequestRef.current === requestId) {
+                    setPreviewUrl(dataUrl);
+                }
+            } catch {
+                if (renderRequestRef.current === requestId) {
+                    setPreviewUrl(workingSource);
+                }
+            } finally {
+                if (renderRequestRef.current === requestId) {
+                    setIsRenderingPreview(false);
+                }
+            }
+        }, 120);
+
+        return () => window.clearTimeout(timeoutId);
+    }, [workingSource, adjustments, showOriginal, isCropping]);
+
     useEffect(() => {
         const handleClickOutside = (e) => {
             if (activeTool && !e.target.closest('.bottom-toolbar-container')) {
@@ -165,6 +211,9 @@ function PhotoStudio() {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [activeTool]);
 
+    const previewImageSrc = showOriginal
+        ? workingSource
+        : (isCropping ? imageSrc : (previewUrl || workingSource));
 
     return (
         <div className="photo-studio-page">
@@ -173,11 +222,8 @@ function PhotoStudio() {
                 <p className="section-subtitle">{t.photoStudioSubtitle}</p>
             </div>
 
-
             <div className="studio-workspace">
                 <div className="studio-preview-full">
-
-
                     {imageSrc && (
                         <div className="top-actions">
                             <span className="file-name-display">{fileName}</span>
@@ -205,7 +251,7 @@ function PhotoStudio() {
                             <span className="upload-hint">{t.uploadFormats}</span>
                         </div>
                     ) : (
-                        <div className="image-container crop-container">
+                        <div className={`image-container crop-container ${isRenderingPreview ? 'image-container--rendering' : ''}`}>
                             {isCropping ? (
                                 <ReactCrop
                                     crop={crop}
@@ -221,16 +267,16 @@ function PhotoStudio() {
                                         ref={imgRef}
                                         src={imageSrc}
                                         alt="Original"
-                                        style={filterStyle}
+                                        style={basicFilterStyle}
                                         className="shared-image-style"
                                         onLoad={onImageLoad}
                                     />
                                 </ReactCrop>
                             ) : (
                                 <img
-                                    src={showOriginal ? imageSrc : (croppedImageSrc || imageSrc)}
+                                    src={previewImageSrc}
                                     alt="Preview"
-                                    style={showOriginal ? {} : filterStyle}
+                                    style={showOriginal || previewUrl ? {} : basicFilterStyle}
                                     className="shared-image-style"
                                 />
                             )}
@@ -247,74 +293,61 @@ function PhotoStudio() {
                 </div>
             </div>
 
-
             {imageSrc && (
                 <div className="bottom-toolbar-container">
-
-
-                    <div className={`floating-panel ${activeTool === 'brightness' ? 'panel-visible' : ''}`}>
-                        <div className="panel-header">
-                            <span>{t.brightness}</span>
-                            <span className="value-display">{brightness}%</span>
+                    {ADJUSTMENT_TOOLS.map((tool) => (
+                        <div
+                            key={tool.id}
+                            className={`floating-panel ${activeTool === tool.id ? 'panel-visible' : ''}`}
+                        >
+                            <div className="panel-header">
+                                <span>{t[tool.labelKey]}</span>
+                                <span className="value-display">
+                                    {tool.format(adjustments[tool.id])}
+                                </span>
+                            </div>
+                            <input
+                                type="range"
+                                min={tool.min}
+                                max={tool.max}
+                                value={adjustments[tool.id]}
+                                onChange={(e) => updateAdjustment(tool.id, e.target.value)}
+                                className="slider"
+                            />
                         </div>
-                        <input
-                            type="range" min="0" max="200"
-                            value={brightness}
-                            onChange={(e) => setBrightness(e.target.value)}
-                            className="slider"
-                        />
-                    </div>
-
-                    <div className={`floating-panel ${activeTool === 'contrast' ? 'panel-visible' : ''}`}>
-                        <div className="panel-header">
-                            <span>{t.contrast}</span>
-                            <span className="value-display">{contrast}%</span>
-                        </div>
-                        <input
-                            type="range" min="0" max="200"
-                            value={contrast}
-                            onChange={(e) => setContrast(e.target.value)}
-                            className="slider"
-                        />
-                    </div>
-
-                    <div className={`floating-panel ${activeTool === 'saturation' ? 'panel-visible' : ''}`}>
-                        <div className="panel-header">
-                            <span>{t.saturation}</span>
-                            <span className="value-display">{saturation}%</span>
-                        </div>
-                        <input
-                            type="range" min="0" max="200"
-                            value={saturation}
-                            onChange={(e) => setSaturation(e.target.value)}
-                            className="slider"
-                        />
-                    </div>
+                    ))}
 
                     <div className="main-toolbar tour-toolbar">
                         <div className="toolbar-group tools-group">
-                            <button
-                                className={`tool-btn ${isCropping ? 'active-crop' : ''}`}
-                                onClick={handleCropAction}
-                                disabled={showOriginal}
-                            >
-                                {isCropping ? <Check size={22} className="text-emerald-500" /> : <Crop size={22} />}
-                                <span className={isCropping ? "text-emerald-500" : ""}>
-                                    {isCropping ? 'Save' : 'Crop'}
-                                </span>
-                            </button>
-                            <button className={`tool-btn ${activeTool === 'brightness' ? 'active' : ''}`} onClick={() => handleToolSelect('brightness')} disabled={isCropping || showOriginal}>
-                                <Sun size={22} />
-                                <span>{t.brightness}</span>
-                            </button>
-                            <button className={`tool-btn ${activeTool === 'contrast' ? 'active' : ''}`} onClick={() => handleToolSelect('contrast')} disabled={isCropping || showOriginal}>
-                                <Contrast size={22} />
-                                <span>{t.contrast}</span>
-                            </button>
-                            <button className={`tool-btn ${activeTool === 'saturation' ? 'active' : ''}`} onClick={() => handleToolSelect('saturation')} disabled={isCropping || showOriginal}>
-                                <Droplets size={22} />
-                                <span>{t.saturation}</span>
-                            </button>
+                            {TOOL_BUTTONS.map((tool) => {
+                                const Icon = tool.icon;
+                                const isCrop = tool.type === 'crop';
+                                const label = isCrop
+                                    ? (isCropping ? 'Save' : 'Crop')
+                                    : t[tool.labelKey];
+
+                                return (
+                                    <button
+                                        key={tool.id}
+                                        className={`tool-btn ${
+                                            isCrop
+                                                ? (isCropping ? 'active-crop' : '')
+                                                : (activeTool === tool.id ? 'active' : '')
+                                        }`}
+                                        onClick={isCrop ? handleCropAction : () => handleToolSelect(tool.id)}
+                                        disabled={showOriginal || (!isCrop && isCropping)}
+                                    >
+                                        {isCrop && isCropping ? (
+                                            <Check size={22} className="text-emerald-500" />
+                                        ) : (
+                                            <Icon size={22} />
+                                        )}
+                                        <span className={isCrop && isCropping ? "text-emerald-500" : ""}>
+                                            {label}
+                                        </span>
+                                    </button>
+                                );
+                            })}
                         </div>
 
                         <div className="toolbar-divider" />

@@ -118,18 +118,19 @@ function Footer({ darkMode }) {
         <div className="footer__top">
           {/* BRAND */}
           <div className="footer__brand">
-            <span
-              className={`footer__logo ${darkMode ? 'footer__logo-dark' : ''}`}
-            >
-              <span
-                aria-hidden="true"
-                className={`footer__logo-icon ${darkMode ? 'footer__logo-icon-dark' : ''
-                  }`}
-              >
-                📷
-              </span>
-              SnapPass AI
-            </span>
+            <Link
+  to="/"
+  className={`footer__logo ${darkMode ? 'footer__logo-dark' : ''}`}
+  aria-label="Go to homepage"
+>
+  <span
+    aria-hidden="true"
+    className={`footer__logo-icon ${darkMode ? 'footer__logo-icon-dark' : ''}`}
+  >
+    📷
+  </span>
+  SnapPass AI
+</Link>
 
             <p
               className={`footer__tagline ${darkMode ? 'footer__tagline-dark' : ''
@@ -146,15 +147,15 @@ function Footer({ darkMode }) {
 
             {/* SOCIALS */}
             <div className="footer__socials">
-              <a href="/" className="footer__social-link">
+              <a href="https://www.linkedin.com/in/soumadeep-s/" className="footer__social-link">
                 <Globe size={18} />
               </a>
 
-              <a href="/" className="footer__social-link">
+              <a href="https://www.facebook.com/soumadeep9830" className="footer__social-link">
                 <Share2 size={18} />
               </a>
 
-              <a href="/" className="footer__social-link">
+              <a href="https://github.com/souma9830" className="footer__social-link">
                 <User size={18} />
               </a>
             </div>
@@ -233,7 +234,9 @@ function Footer({ darkMode }) {
 
               <div className="footer__contact">
                 <Mail size={16} />
-                <span>support@snappassai.com</span>
+                <a href="mailto:support@snappassai.com">
+    support@snappassai.com
+  </a>
               </div>
             </div>
           </div>

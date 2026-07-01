@@ -13,6 +13,37 @@ const hasAcceptedImageExtension = (fileName = '') => {
 };
 
 /**
+ * Verifies the file's binary signature (magic bytes) to ensure it is a real image.
+ * @param {File} file
+ * @returns {Promise<boolean>}
+ */
+export const validateImageMagicBytes = (file) => {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onloadend = (e) => {
+      if (e.target.readyState === FileReader.DONE) {
+        const arr = new Uint8Array(e.target.result);
+        let header = "";
+        for (let i = 0; i < Math.min(arr.length, 12); i++) {
+          header += arr[i].toString(16).toUpperCase().padStart(2, '0');
+        }
+        // JPEG/JPG: FFD8FF
+        const isJpeg = header.startsWith("FFD8FF");
+        // PNG: 89504E47
+        const isPng = header.startsWith("89504E47");
+        // WEBP RIFF (52494646) and WEBP (57454250)
+        const isWebp = header.startsWith("52494646") && header.endsWith("57454250");
+        
+        resolve(isJpeg || isPng || isWebp);
+      } else {
+        resolve(false);
+      }
+    };
+    reader.readAsArrayBuffer(file.slice(0, 12));
+  });
+};
+
+/**
  * Validates that a file is an accepted image type and within the size limit.
  * @param {File} file
  * @returns {{ valid: boolean, error: string|null }}

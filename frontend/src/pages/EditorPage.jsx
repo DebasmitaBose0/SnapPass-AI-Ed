@@ -2,7 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import PhotoPreview from '../components/PhotoPreview';
 import BackgroundSelector from '../components/BackgroundSelector';
-import SizeSelector from '../components/SizeSelector';
+import SizeSelector, { DEFAULT_PRESETS } from '../components/SizeSelector';
+import RecentlyUsedPresets from '../components/RecentlyUsedPresets';
+import { useLocalStorage } from '../hooks/useLocalStorage';
+import AttireSelector from '../components/AttireSelector';
 import { ButtonSpinner } from '../components/LoadingSpinner';
 import './EditorPage.css';
 import EmptyState from '../components/EmptyState';
@@ -11,6 +14,9 @@ import { useLanguage } from '../context/LanguageContext';
 import { translations } from '../translations/translations';
 import useImageProcessor from '../hooks/useImageProcessor';
 import { saveSession, getSession } from '../utils/sessionManager';
+import CompliancePanel from '../components/CompliancePanel';
+import api from '../services/api';
+
 
 /**
  * EditorPage — Step 2.
@@ -24,10 +30,14 @@ function EditorPage({ darkMode, toggleTheme }) {
   const navigate = useNavigate();
   const savedSession = getSession();
 
+  // Only trust photo data from React Router navigation state (current page load).
+  // Restoring filename/fileSize from savedSession without a live localUrl creates
+  // a contradictory state where the editor shows metadata for an image it cannot
+  // display — the EmptyState handles the no-localUrl case correctly on its own.
   const [photoData, setPhotoData] = useState({
-    localUrl: state?.localUrl || savedSession?.localUrl,
-    filename: state?.filename || savedSession?.filename,
-    fileSize: state?.fileSize || savedSession?.fileSize,
+    localUrl: state?.localUrl || null,
+    filename: state?.filename || null,
+    fileSize: state?.fileSize || null,
   });
 
   const fileInputRef = useRef(null);
@@ -35,25 +45,83 @@ function EditorPage({ darkMode, toggleTheme }) {
   const [background, setBackground] = useState(
     savedSession?.background || 'white'
   );
+  const [recentSizePresets, setRecentSizePresets] = useLocalStorage(
+    'snappass.recentSizePresets',
+    []
+  );
+
   const [sizePreset, setSizePreset] = useState(
     savedSession?.sizePreset || '35x45'
   );
-  const { processImage, isProcessing, error } = useImageProcessor();
+  const [attire, setAttire] = useState(
+    savedSession?.attire || 'none'
+  );
+  const { processImage, processedUrl, isProcessing, error } = useImageProcessor();
+
+  const [compliance, setCompliance] = useState(null);
+  const [complianceLoading, setComplianceLoading] = useState(false);
+  const [complianceError, setComplianceError] = useState(null);
 
   useEffect(() => {
+    let cancelled = false;
+    async function runCheck() {
+      if (!photoData?.filename) return;
+
+      setComplianceLoading(true);
+      setComplianceError(null);
+      setCompliance(null);
+
+      try {
+        // Backend endpoint: POST /api/compliance/check
+        const resp = await api.post('/compliance/check', { filename: photoData.filename });
+        const data = resp?.data?.data;
+        if (!cancelled) setCompliance(data);
+      } catch (e) {
+        if (!cancelled) {
+          setComplianceError(e?.response?.data?.message || e?.message || 'Compliance check failed');
+        }
+      } finally {
+        if (!cancelled) setComplianceLoading(false);
+      }
+    }
+
+    runCheck();
+    return () => {
+      cancelled = true;
+    };
+  }, [photoData?.filename]);
+
+
+  useEffect(() => {
+    // Only persist session when there is a live image in this page's context.
+    // Guarding on localUrl prevents a reloaded/empty editor from continuously
+    // writing an unusable 'editor' step back to localStorage.
     if (!photoData?.localUrl) return;
 
-    const sessionData = {
+    saveSession({
       step: 'editor',
-      localUrl: photoData.localUrl,
       filename: photoData.filename,
       fileSize: photoData.fileSize,
       background,
       sizePreset,
-    };
+      attire,
+    });
+  }, [photoData, background, sizePreset, attire]);
 
-    saveSession(sessionData);
-  }, [photoData, background, sizePreset]);
+  const updateRecentSizePresets = (presetId) => {
+    setRecentSizePresets((prev) => {
+      const limit = 5;
+      const prevArr = Array.isArray(prev) ? prev : [];
+
+      const next = [presetId, ...prevArr.filter((id) => id !== presetId)];
+      return next.slice(0, limit);
+    });
+  };
+
+  const handleSelectPreset = (presetId) => {
+    setSizePreset(presetId);
+    updateRecentSizePresets(presetId);
+  };
 
   const iconMap = {
     refresh: (
@@ -87,18 +155,27 @@ function EditorPage({ darkMode, toggleTheme }) {
 
   const handleProcess = async () => {
     try {
-      const processedUrl = await processImage({
+      // Hard block processing if compliance contains any hard-fail item.
+      if (compliance?.hard_fail) {
+        // Keep error UX consistent with existing flow.
+        setComplianceError('Photo fails critical compliance checks. Please retake/adjust the photo.');
+        return;
+      }
+
+      const nextProcessedUrl = await processImage({
         filename: photoData.filename,
         backgroundColour: background,
         photoSizePreset: sizePreset,
+        attire,
       });
 
       navigate('/print-preview', {
         state: {
-          processedUrl,
+          processedUrl: nextProcessedUrl,
           filename: photoData.filename,
           background,
           sizePreset,
+          attire,
         },
       });
     } catch (err) {
@@ -165,9 +242,22 @@ function EditorPage({ darkMode, toggleTheme }) {
           >
             <PhotoPreview
               originalUrl={photoData.localUrl}
-              processedUrl={null}
+              processedUrl={processedUrl}
               isProcessing={isProcessing}
             />
+
+          {/* Sliding side-panel (realtime compliance checklist) */}
+
+          <div className="editor-page__compliance-wrap">
+            <CompliancePanel
+              compliance={compliance}
+              loading={complianceLoading}
+              error={complianceError}
+              darkMode={darkMode}
+            />
+          </div>
+
+
           </motion.section>
 
           {/* Controls panel */}
@@ -175,6 +265,7 @@ function EditorPage({ darkMode, toggleTheme }) {
             className="editor-page__controls card"
             aria-label="Photo settings"
             variants={fadeUpVariant}
+
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
@@ -187,7 +278,19 @@ function EditorPage({ darkMode, toggleTheme }) {
 
             <hr className="divider" />
 
-            <SizeSelector selected={sizePreset} onChange={setSizePreset} />
+            <AttireSelector selected={attire} onChange={setAttire} />
+
+            <hr className="divider" />
+
+            <SizeSelector selected={sizePreset} onChange={handleSelectPreset} />
+
+            <RecentlyUsedPresets
+              recentIds={recentSizePresets}
+              presets={DEFAULT_PRESETS}
+              onSelectPreset={handleSelectPreset}
+              limit={5}
+              title={t.recentlyUsedPresets || 'Recently used'}
+            />
 
             <hr className="divider" />
 

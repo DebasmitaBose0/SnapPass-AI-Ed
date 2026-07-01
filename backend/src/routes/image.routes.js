@@ -9,6 +9,7 @@ import { processImage, getPreview } from "../controllers/image.controller.js";
 
 const router = express.Router();
 
+// Legacy sync processing endpoint
 router.post("/", processImage);
 router.get("/preview/:filename", getPreview);
 

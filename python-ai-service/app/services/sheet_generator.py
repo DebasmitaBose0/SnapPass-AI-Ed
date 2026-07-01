@@ -9,37 +9,41 @@ from pathlib import Path
 from PIL import Image, ImageDraw
 
 # ── Constants ────────────────────────────────────────────────────────────────
-DPI       = 300
-A4_W_MM   = 210.0
-A4_H_MM   = 297.0
+DPI = 300
+A4_W_MM = 210.0
+A4_H_MM = 297.0
 
 MARGIN_MM = 10.0
 GUTTER_MM = 3.0
+
 
 def mm_to_px(mm: float) -> int:
     """Convert millimetres to pixels at 300 DPI."""
     return round(mm / 25.4 * DPI)
 
-A4_W_PX   = mm_to_px(A4_W_MM)
-A4_H_PX   = mm_to_px(A4_H_MM)
+
+A4_W_PX = mm_to_px(A4_W_MM)
+A4_H_PX = mm_to_px(A4_H_MM)
 MARGIN_PX = mm_to_px(MARGIN_MM)
 GUTTER_PX = mm_to_px(GUTTER_MM)
 
 # ── Presets ──────────────────────────────────────────────────────────────────
 PRESETS = {
-    "35x45": {"label": "India/UK Passport", "w": 35,   "h": 45},
-    "51x51": {"label": "USA Visa",          "w": 51,   "h": 51},
-    "33x48": {"label": "Schengen Visa",     "w": 33,   "h": 48},
-    "40x60": {"label": "China Visa",        "w": 40,   "h": 60},
-    "2x2in": {"label": "US Passport",       "w": 50.8, "h": 50.8},
-    "100x150": {"label": "Postcard Size",   "w": 100,  "h": 150},
-    "25x25": {"label": "Stamp Size",        "w": 25,   "h": 25},
-    "50x70": {"label": "Canada Passport",   "w": 50,   "h": 70},
+    "35x45": {"label": "India/UK Passport", "w": 35, "h": 45},
+    "51x51": {"label": "USA Visa", "w": 51, "h": 51},
+    "33x48": {"label": "Schengen Visa", "w": 33, "h": 48},
+    "40x60": {"label": "China Visa", "w": 40, "h": 60},
+    "2x2in": {"label": "US Passport", "w": 50.8, "h": 50.8},
+    "100x150": {"label": "Postcard Size", "w": 100, "h": 150},
+    "25x25": {"label": "Stamp Size", "w": 25, "h": 25},
+    "50x70": {"label": "Canada Passport", "w": 50, "h": 70},
     "45x45": {"label": "Japan Passport/Visa", "w": 45, "h": 45},
-    "35x50": {"label": "Malaysia Passport", "w": 35,   "h": 50},
+    "35x50": {"label": "Malaysia Passport", "w": 35, "h": 50},
 }
 
-# ── Main Function ─────────────────────────────────────────────────────────────
+# ── Main Function ───────────────────────────────────────────────────────
+
+
 def generate_a4_sheet(
     photo_path: str,
     preset_id: str = "35x45",
@@ -63,9 +67,10 @@ def generate_a4_sheet(
         Absolute path to the saved sheet image.
     """
     if preset_id not in PRESETS:
-        raise ValueError(f"Unknown preset '{preset_id}'. Choose from: {list(PRESETS)}")
+        raise ValueError(
+            f"Unknown preset '{preset_id}'. Choose from: {list(PRESETS)}")
 
-    preset  = PRESETS[preset_id]
+    preset = PRESETS[preset_id]
     photo_w = mm_to_px(preset["w"])
     photo_h = mm_to_px(preset["h"])
 
@@ -79,11 +84,11 @@ def generate_a4_sheet(
 
     # Create A4 canvas
     canvas = Image.new("RGB", (A4_W_PX, A4_H_PX), bg_color)
-    draw   = ImageDraw.Draw(canvas) if draw_guides else None
+    draw = ImageDraw.Draw(canvas) if draw_guides else None
 
     # Centre the grid on canvas
-    grid_w   = cols * photo_w + (cols - 1) * GUTTER_PX
-    grid_h   = rows * photo_h + (rows - 1) * GUTTER_PX
+    grid_w = cols * photo_w + (cols - 1) * GUTTER_PX
+    grid_h = rows * photo_h + (rows - 1) * GUTTER_PX
     origin_x = (A4_W_PX - grid_w) // 2
     origin_y = (A4_H_PX - grid_h) // 2
 
@@ -108,7 +113,7 @@ def generate_a4_sheet(
     return str(Path(output_path).resolve())
 
 
-# ── Private Helpers ───────────────────────────────────────────────────────────
+# ── Private Helpers ─────────────────────────────────────────────────────
 def _prepare_photo(photo_path: str, w: int, h: int) -> Image.Image:
     """
     Load photo, flatten alpha channel to white, resize to passport dimensions.
@@ -164,20 +169,20 @@ def _draw_crop_marks(
         w    : Photo width in pixels.
         h    : Photo height in pixels.
     """
-    color    = (180, 180, 180)
+    color = (180, 180, 180)
     tick_len = mm_to_px(2)
-    offset   = GUTTER_PX // 2
+    offset = GUTTER_PX // 2
 
     corners = [(x, y), (x + w, y), (x, y + h), (x + w, y + h)]
     for cx, cy in corners:
         hx0 = cx - tick_len if cx == x else cx
-        hx1 = cx            if cx == x else cx + tick_len
-        sy  = -1 if cy == y else 1
+        hx1 = cx if cx == x else cx + tick_len
+        sy = -1 if cy == y else 1
         draw.line([(hx0, cy - sy * offset), (hx1, cy - sy * offset)],
                   fill=color, width=1)
 
         vy0 = cy - tick_len if cy == y else cy
-        vy1 = cy            if cy == y else cy + tick_len
-        sx  = -1 if cx == x else 1
+        vy1 = cy if cy == y else cy + tick_len
+        sx = -1 if cx == x else 1
         draw.line([(cx - sx * offset, vy0), (cx - sx * offset, vy1)],
                   fill=color, width=1)

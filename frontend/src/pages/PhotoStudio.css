@@ -187,7 +187,11 @@
     width: auto;
     height: auto;
     object-fit: contain;
-    transition: filter 0.1s ease-out;
+    transition: filter 0.1s ease-out, opacity 0.15s ease-out;
+}
+
+.image-container--rendering .shared-image-style {
+    opacity: 0.92;
 }
 
 .bottom-toolbar-container {
@@ -199,8 +203,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 90%;
-    max-width: 500px;
+    width: 94%;
+    max-width: 920px;
 }
 
 .floating-panel {
@@ -276,8 +280,11 @@
 .main-toolbar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    width: 100%;
+    justify-content: center;
+    gap: 8px;
+    width: fit-content;
+    max-width: 100%;
+    margin: 0 auto;
     background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -294,16 +301,26 @@
 }
 
 .tools-group {
-    flex: 1;
-    justify-content: center;
-    gap: 8px;
+    flex: 0 1 auto;
+    justify-content: flex-start;
+    gap: 4px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding: 0 2px;
+}
+
+.tools-group::-webkit-scrollbar {
+    display: none;
 }
 
 .toolbar-divider {
     width: 1px;
     height: 32px;
     background: #cbd5e1;
-    margin: 0 12px;
+    margin: 0 4px;
+    flex-shrink: 0;
 }
 
 .tool-btn {
@@ -312,7 +329,8 @@
     align-items: center;
     justify-content: center;
     gap: 4px;
-    width: 64px;
+    width: 58px;
+    min-width: 58px;
     height: 56px;
     background: transparent;
     border: none;
@@ -513,6 +531,39 @@
 [data-theme='dark'] .btn-outline:hover:not(:disabled) {
     border-color: #29ccf1;
     color: #6a6666;
+}
+
+[data-theme='dark'] .floating-panel,
+[data-theme='dark'] .main-toolbar {
+    background: rgba(15, 15, 15, 0.92);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+[data-theme='dark'] .panel-header {
+    color: #f8fafc;
+}
+
+[data-theme='dark'] .value-display {
+    color: #facc15;
+    background: rgba(250, 204, 21, 0.12);
+}
+
+[data-theme='dark'] .tool-btn {
+    color: #a1a1aa;
+}
+
+[data-theme='dark'] .tool-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+}
+
+[data-theme='dark'] .tool-btn.active {
+    background: rgba(250, 204, 21, 0.15);
+    color: #facc15;
+}
+
+[data-theme='dark'] .toolbar-divider {
+    background: rgba(255, 255, 255, 0.15);
 }
 
 .compare-active {

@@ -3,6 +3,7 @@ import io
 from PIL import Image
 from dpi_optimizer import optimise_dpi, get_preset_dimensions, list_presets, PRESETS
 
+
 def test_get_preset_dimensions_valid():
     dimensions = get_preset_dimensions("35x45")
     assert dimensions["preset"] == "35x45"
@@ -12,14 +13,17 @@ def test_get_preset_dimensions_valid():
     assert "width_px" in dimensions
     assert "height_px" in dimensions
 
+
 def test_get_preset_dimensions_invalid():
     with pytest.raises(ValueError):
         get_preset_dimensions("invalid_preset")
+
 
 def test_list_presets():
     presets = list_presets()
     assert len(presets) == len(PRESETS)
     assert any(p["preset"] == "51x51" for p in presets)
+
 
 def test_optimise_dpi():
     # Create a small dummy image in memory
@@ -30,11 +34,12 @@ def test_optimise_dpi():
 
     # Run optimizer
     output_bytes = optimise_dpi(img_bytes, "35x45")
-    
+
     # Verify resulting image properties
     output_img = Image.open(io.BytesIO(output_bytes))
     assert output_img.format == "PNG"
     assert output_img.info.get("dpi") == (300, 300)
+
 
 def test_optimise_dpi_invalid_preset():
     img = Image.new("RGB", (100, 100), color="blue")

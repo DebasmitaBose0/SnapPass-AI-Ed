@@ -13,6 +13,7 @@ from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import config
 from app.routes.process_routes import process_bp
+from app.routes.compliance_routes import compliance_bp
 from app.services.errors import ai_error_handler
 
 logging.basicConfig(
@@ -27,15 +28,16 @@ def validate_file_magic(file_path: str) -> bool:
     try:
         with open(file_path, "rb") as f:
             header = f.read(4)
-            if header.startswith(b"\xff\xd8\xff"): # JPEG
+            if header.startswith(b"\xff\xd8\xff"):  # JPEG
                 return True
-            if header.startswith(b"\x89PNG"): # PNG
+            if header.startswith(b"\x89PNG"):  # PNG
                 return True
-            if header.startswith(b"RIFF") and b"WEBP" in header: # WEBP
+            if header.startswith(b"RIFF") and b"WEBP" in header:  # WEBP
                 return True
     except Exception:
         pass
     return False
+
 
 def _safe_photo_path(raw: str) -> str:
     """
@@ -61,32 +63,39 @@ def _safe_photo_path(raw: str) -> str:
     try:
         resolved.relative_to(allowed_dir)
     except ValueError:
-        raise ValueError("Invalid photo_path: file is outside the allowed upload directory.")
+        raise ValueError(
+            "Invalid photo_path: file is outside the allowed upload directory.")
     return str(resolved)
+
 
 app = Flask(__name__)
 CORS(app)
 
 os.makedirs(config.UPLOAD_DIR, exist_ok=True)
 
-# Blueprints 
+# Blueprints
 app.register_blueprint(process_bp)
+app.register_blueprint(compliance_bp)
+
+
 
 # Health Check
 @app.get("/health")
 def health():
     return {"status": "ok", "service": "python-ai-service"}
+
+
 # Face Quality Gate
 @app.route("/face-quality-check", methods=["POST"])
 def face_quality_check():
     from app.services.face_quality_gate import assess_face_quality
-    
+
     data = request.get_json()
     file_path = data.get("file_path")
-    
+
     if not file_path:
         return jsonify({"error": "file_path is required"}), 400
-    
+
     try:
         report = assess_face_quality(file_path)
         return jsonify({
@@ -99,20 +108,27 @@ def face_quality_check():
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
 # Sheet Generator
 @app.route("/generate-sheet", methods=["POST"])
 @ai_error_handler
 def generate_sheet():
     from app.services.sheet_generator import generate_a4_sheet
-    
-    data= request.get_json()
+
+    data = request.get_json()
     raw_photo_path = data.get("photo_path")
     # Sanitize preset_id to alphanumeric + dash/underscore only so it cannot
     # inject path separators into the output filename (e.g. '../evil').
-    preset_id = re.sub(r"[^a-zA-Z0-9_\-]", "", data.get("preset_id", "35x45")) or "35x45"
-    quantity= int(data.get("quantity", 8))
-    bg_color= tuple(data.get("bg_color", [255, 255, 255]))
-    draw_guides= bool(data.get("draw_guides", True))
+    preset_id = re.sub(
+        r"[^a-zA-Z0-9_\-]",
+        "",
+        data.get(
+            "preset_id",
+            "35x45")) or "35x45"
+    quantity = int(data.get("quantity", 8))
+    bg_color = tuple(data.get("bg_color", [255, 255, 255]))
+    draw_guides = bool(data.get("draw_guides", True))
 
     if not raw_photo_path:
         return jsonify({"error": "photo_path is required"}), 400
@@ -122,20 +138,20 @@ def generate_sheet():
     except ValueError:
         return jsonify({"error": "Invalid photo_path."}), 400
 
-    output_dir= os.environ.get("OUTPUT_DIR", "outputs")
+    output_dir = os.environ.get("OUTPUT_DIR", "outputs")
     os.makedirs(output_dir, exist_ok=True)
     # Include a UUID in the filename so concurrent requests using the same
     # preset_id do not race on the same file path.
-    output_path= os.path.join(output_dir, f"sheet_{preset_id}_{uuid.uuid4().hex}.jpg")
+    output_path = os.path.join(
+        output_dir, f"sheet_{preset_id}_{uuid.uuid4().hex}.jpg")
 
-    from app.services.sheet_generator import generate_a4_sheet
     saved = generate_a4_sheet(
-        photo_path= photo_path,
-        preset_id= preset_id,
-        quantity= quantity,
-        bg_color= bg_color,
-        draw_guides= draw_guides,
-        output_path= output_path,
+        photo_path=photo_path,
+        preset_id=preset_id,
+        quantity=quantity,
+        bg_color=bg_color,
+        draw_guides=draw_guides,
+        output_path=output_path,
     )
 
     # Build the response first, then register cleanup via call_on_close so
@@ -154,6 +170,10 @@ def generate_sheet():
     response.call_on_close(_delete_sheet)
     return response
 
-# Run 
+
+
+# NOTE: Compliance endpoint wired via Blueprint above.
+
+# Run
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=config.PORT, debug=config.DEBUG)

@@ -9,7 +9,7 @@ export const translations = {
     getStarted: 'Get Started',
     language: 'Language',
     history: "History",
-    
+
     heroTitle: 'Open-source AI-powered passport photo studio',
     heroSubtitle:
       'Upload → Auto-process → Generate a print-ready sheet — in seconds.',
@@ -164,6 +164,14 @@ export const translations = {
     contrast: 'Contrast',
 
     saturation: 'Saturation',
+
+    warmth: 'Warmth',
+
+    sharpness: 'Sharpness',
+
+    shadows: 'Shadows',
+
+    highlights: 'Highlights',
 
     reset: 'Reset',
 
@@ -332,6 +340,43 @@ export const translations = {
     uploadFormatsLimit: 'JPEG, PNG, WebP · Max 10 MB',
     showOriginal: "Show Original",
     backToEdit: "Back To Edit",
+
+    testimonialsTitle: 'What Our Users Say',
+
+    testimonialsSubtitle:
+      'Join thousands of satisfied users who trust SnapPass AI for their passport photos',
+
+    review: 'review',
+    reviews: 'reviews',
+
+    writeReview: 'Write a Review',
+    editReview: 'Edit Your Review',
+    editReviewTitle: 'Edit Your Review',
+    shareExperience: 'Share Your Experience',
+    submitReview: 'Submit Review',
+    updateReview: 'Update Review',
+    submittingReview: 'Submitting...',
+    reviewSubmitted: 'Thank you! Your review has been submitted.',
+    reviewUpdated: 'Your review has been updated.',
+    reviewSubmitError: 'Unable to submit your review. Please try again.',
+    reviewNameLabel: 'Name *',
+    reviewNamePlaceholder: 'Enter your name',
+    reviewNameRequired: 'Name is required',
+    reviewNameMin: 'Name must be at least 2 characters',
+    reviewRatingLabel: 'Rating *',
+    reviewRatingRequired: 'Please select a rating',
+    reviewCommentLabel: 'Your Review *',
+    reviewCommentPlaceholder: 'Share your experience with SnapPass AI...',
+    reviewCommentRequired: 'Comment is required',
+    reviewCommentMin: 'Comment must be at least 10 characters',
+    reviewCommentMax: 'Comment must be less than 500 characters',
+    cancel: 'Cancel',
+    formalAttire: 'Formal Attire (AI Swap)',
+    formalAttireSubtitle: 'Swap your outfit into a professional formal suit instantly.',
+    attireNone: 'None (Original)',
+    attireMaleSuit: "Men's Black Suit",
+    attireFemaleBlazer: "Women's Navy Blazer",
+    attireMaleBowtie: 'Black Suit & Bowtie',
   },
 
   hi: {
@@ -504,6 +549,14 @@ export const translations = {
 
     saturation: 'सैचुरेशन',
 
+    warmth: 'वार्म्थ',
+
+    sharpness: 'शार्पनेस',
+
+    shadows: 'शैडो',
+
+    highlights: 'हाइलाइट्स',
+
     reset: 'रीसेट',
 
     download: 'डाउनलोड',
@@ -669,5 +722,41 @@ export const translations = {
     browseFiles: 'फाइल ब्राउज़ करें',
 
     uploadFormatsLimit: 'JPEG, PNG, WebP · अधिकतम 10 MB',
+    testimonialsTitle: 'हमारे उपयोगकर्ता क्या कहते हैं',
+
+    testimonialsSubtitle:
+      'हजारों संतुष्ट उपयोगकर्ताओं के साथ जुड़ें जो अपनी पासपोर्ट फोटो के लिए SnapPass AI पर भरोसा करते हैं',
+
+    review: 'समीक्षा',
+    reviews: 'समीक्षाएँ',
+
+    writeReview: 'समीक्षा लिखें',
+    editReview: 'अपनी समीक्षा संपादित करें',
+    editReviewTitle: 'अपनी समीक्षा संपादित करें',
+    shareExperience: 'अपना अनुभव साझा करें',
+    submitReview: 'समीक्षा जमा करें',
+    updateReview: 'समीक्षा अपडेट करें',
+    submittingReview: 'जमा हो रहा है...',
+    reviewSubmitted: 'धन्यवाद! आपकी समीक्षा जमा हो गई है।',
+    reviewUpdated: 'आपकी समीक्षा अपडेट हो गई है।',
+    reviewSubmitError: 'समीक्षा जमा नहीं हो सकी। कृपया पुनः प्रयास करें।',
+    reviewNameLabel: 'नाम *',
+    reviewNamePlaceholder: 'अपना नाम दर्ज करें',
+    reviewNameRequired: 'नाम आवश्यक है',
+    reviewNameMin: 'नाम कम से कम 2 अक्षरों का होना चाहिए',
+    reviewRatingLabel: 'रेटिंग *',
+    reviewRatingRequired: 'कृपया रेटिंग चुनें',
+    reviewCommentLabel: 'आपकी समीक्षा *',
+    reviewCommentPlaceholder: 'SnapPass AI के साथ अपना अनुभव साझा करें...',
+    reviewCommentRequired: 'टिप्पणी आवश्यक है',
+    reviewCommentMin: 'टिप्पणी कम से कम 10 अक्षरों की होनी चाहिए',
+    reviewCommentMax: 'टिप्पणी 500 अक्षरों से कम होनी चाहिए',
+    cancel: 'रद्द करें',
+    formalAttire: 'औपचारिक पोशाक (AI स्वैप)',
+    formalAttireSubtitle: 'अपने पहनावे को तुरंत एक पेशेवर औपचारिक सूट में बदलें।',
+    attireNone: 'कोई नहीं (मूल)',
+    attireMaleSuit: 'पुरुषों का काला सूट',
+    attireFemaleBlazer: 'महिलाओं का नेवी ब्लेज़र',
+    attireMaleBowtie: 'काला सूट और बो टाई',
   },
 };

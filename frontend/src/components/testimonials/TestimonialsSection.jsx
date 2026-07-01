@@ -1,60 +1,70 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import TestimonialCard from './TestimonialCard';
 import AddTestimonialForm from './AddTestimonialForm';
 import './TestimonialsSection.css';
+import { useLanguage } from '../../context/LanguageContext';
+import { translations } from '../../translations/translations';
+import {
+  fetchTestimonials,
+  submitTestimonial,
+  updateTestimonial,
+} from '../../services/testimonialService';
 
-const TestimonialsSection = ({ darkMode }) => {  
+const TestimonialsSection = ({ darkMode }) => {
+  const { language } = useLanguage();
+  const t = translations[language];
   const [testimonials, setTestimonials] = useState([]);
+  const [stats, setStats] = useState({ averageRating: 0, count: 0 });
+  const [userReview, setUserReview] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [statusMessage, setStatusMessage] = useState('');
 
-  useEffect(() => {
-    const savedTestimonials = localStorage.getItem('snappass_testimonials');
-    if (savedTestimonials) {
-      setTestimonials(JSON.parse(savedTestimonials));
-    } else {
-      const sampleTestimonials = [
-        {
-          id: 1,
-          name: 'Tanya Oberio',
-          rating: 5,
-          comment: 'As a photographer and Instagram handler, SnapPassAI is one of the best tools for me. It helps me quickly maintain lot of time with its simple and minimal workflow.',
-          date: '2026-05-25T10:00:00Z'
-        },
-        {
-          id: 2,
-          name: 'Rahul Sharma',
-          rating: 5,
-          comment: 'Amazing tool! Got my passport photo ready in seconds. Highly recommended!',
-          date: '2026-05-24T14:30:00Z'
-        },
-        {
-          id: 3,
-          name: 'Priya Patel',
-          rating: 4,
-          comment: 'Very easy to use. The background removal works perfectly.',
-          date: '2026-05-23T09:15:00Z'
-        }
-      ];
-      setTestimonials(sampleTestimonials);
-      localStorage.setItem('snappass_testimonials', JSON.stringify(sampleTestimonials));
+  const loadTestimonials = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await fetchTestimonials();
+      setTestimonials(data.testimonials || []);
+      setStats(data.stats || { averageRating: 0, count: 0 });
+      setUserReview(data.userReview || null);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    if (testimonials.length > 0) {
-      localStorage.setItem('snappass_testimonials', JSON.stringify(testimonials));
-    }
-  }, [testimonials]);
+    loadTestimonials();
+  }, [loadTestimonials]);
 
-  const addTestimonial = (newTestimonial) => {
-    setTestimonials(prev => [newTestimonial, ...prev]);
-    setShowForm(false);
+  const handleSubmitReview = async (formData) => {
+    setStatusMessage('');
+    const payload = {
+      name: formData.name,
+      rating: formData.rating,
+      comment: formData.comment,
+      commentHi: formData.commentHi || '',
+      website: formData.website || '',
+    };
+
+    try {
+      if (userReview) {
+        await updateTestimonial(payload);
+        setStatusMessage(t.reviewUpdated);
+      } else {
+        await submitTestimonial(payload);
+        setStatusMessage(t.reviewSubmitted);
+      }
+
+      setShowForm(false);
+      await loadTestimonials();
+    } catch (error) {
+      setStatusMessage(error.message || t.reviewSubmitError);
+    }
   };
 
-  const calculateAverageRating = () => {
-    if (testimonials.length === 0) return 0;
-    const sum = testimonials.reduce((acc, curr) => acc + curr.rating, 0);
-    return (sum / testimonials.length).toFixed(1);
+  const openReviewForm = () => {
+    setStatusMessage('');
+    setShowForm(true);
   };
 
   return (
@@ -62,48 +72,56 @@ const TestimonialsSection = ({ darkMode }) => {
       <div className="testimonials-container">
         <div className="testimonials-header">
           <h2 className={`section-title ${darkMode ? 'section-title-dark' : 'section-title-light'}`}>
-            What Our Users Say
+            {t.testimonialsTitle}
           </h2>
           <p className={`testimonials-subtitle ${darkMode ? 'testimonials-subtitle-dark' : 'testimonials-subtitle-light'}`}>
-            Join thousands of satisfied users who trust SnapPass AI for their passport photos
+            {t.testimonialsSubtitle}
           </p>
         </div>
 
-        {testimonials.length > 0 && (
+        {!loading && stats.count > 0 && (
           <div style={{ textAlign: 'center' }}>
             <div className={`rating-summary ${darkMode ? 'rating-summary-dark' : 'rating-summary-light'}`}>
               <span className={`average-rating ${darkMode ? 'average-rating-dark' : 'average-rating-light'}`}>
-                ⭐ {calculateAverageRating()}
+                ⭐ {stats.averageRating}
               </span>
               <span className={`review-count ${darkMode ? 'review-count-dark' : 'review-count-light'}`}>
-                ({testimonials.length} {testimonials.length === 1 ? 'review' : 'reviews'})
+                ({stats.count} {stats.count === 1 ? t.review : t.reviews})
               </span>
             </div>
           </div>
         )}
 
+        {statusMessage && (
+          <p className={`testimonials-status ${darkMode ? 'testimonials-status-dark' : 'testimonials-status-light'}`}>
+            {statusMessage}
+          </p>
+        )}
+
         <div className="testimonials-grid">
           {testimonials.map((testimonial) => (
-            <TestimonialCard 
-              key={testimonial.id} 
-              testimonial={testimonial} 
-              darkMode={darkMode}  
+            <TestimonialCard
+              key={testimonial.id}
+              testimonial={testimonial}
+              darkMode={darkMode}
             />
           ))}
         </div>
 
         {!showForm ? (
-          <button 
+          <button
             className={`write-review-btn ${darkMode ? 'write-review-btn-dark' : 'write-review-btn-light'}`}
-            onClick={() => setShowForm(true)}
+            onClick={openReviewForm}
           >
-            Write a Review
+            {userReview ? t.editReview : t.writeReview}
           </button>
         ) : (
-          <AddTestimonialForm 
-            onSubmit={addTestimonial} 
+          <AddTestimonialForm
+            onSubmit={handleSubmitReview}
             onCancel={() => setShowForm(false)}
-            darkMode={darkMode}  
+            darkMode={darkMode}
+            initialData={userReview}
+            isEditing={Boolean(userReview)}
           />
         )}
       </div>

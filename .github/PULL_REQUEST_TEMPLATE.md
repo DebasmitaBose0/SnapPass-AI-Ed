@@ -1,28 +1,48 @@
-## Description
+## Summary
 
-Please include a summary of the changes and the related issue.
+### Issue / Ticket
 
-Closes # (issue number)
+Closes #<issue-number>
 
-## Type of Change
+### What does this PR do?
 
-- [ ] Bug fix (non-breaking change which fixes an issue)
-- [ ] New feature (non-breaking change which adds functionality)
-- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
-- [ ] Documentation update (non-breaking chore/doc change)
+-
 
-## How Has This Been Tested?
+### Changes
 
-Please describe the tests that you ran to verify your changes.
+-
+-
 
-- [ ] Manually tested local server
-- [ ] Frontend build verification
-- [ ] Unit/Integration tests added or updated
+## Testing & Verification
+
+### How to test
+
+- **Local testing:**
+- **Build / Lint:**
+- **Responsive checks:** Mobile / Tablet / Desktop
+- **Accessibility checks:** Keyboard + semantic HTML
+
+### Results
+
+-
+
+## Screenshots / Screencast (if applicable)
+
+- Before:
+- After:
+
+## Release Notes
+
+<!-- Describe in one sentence what this PR changes for end users. This will be used in the automated release drafter. -->
+```release-note
+
+```
 
 ## Checklist
 
-- [ ] My code follows the style guidelines of this project
-- [ ] I have performed a self-review of my own code
-- [ ] I have commented my code, particularly in hard-to-understand areas
-- [ ] I have made corresponding changes to the documentation
-- [ ] My changes generate no new warnings
+- [ ] I followed the project's code style guidelines.
+- [ ] I performed a self-review of my own changes.
+- [ ] My changes do not introduce new warnings or console errors.
+- [ ] I verified responsiveness and accessibility requirements.
+- [ ] I included no unrelated modifications.
+- [ ] I added a `release-note` block describing user-facing changes.
