@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UploadBox from '../components/UploadBox';
+import CameraCapture from '../components/CameraCapture';
 import LoadingSpinner from '../components/LoadingSpinner';
 import usePhotoUpload from '../hooks/usePhotoUpload';
 import './UploadPage.css';
@@ -21,6 +22,7 @@ function UploadPage({ darkMode, toggleTheme }) {
   const t = translations[language];
   const navigate = useNavigate();
   const { uploadFile, uploadedFile, isUploading, error } = usePhotoUpload();
+  const [activeTab, setActiveTab] = useState('upload'); // 'upload' or 'camera'
 
   const tips = [
     { type: 'ok', text: t.tipPlainBg },
@@ -131,19 +133,41 @@ function UploadPage({ darkMode, toggleTheme }) {
           ))}
         </div>
 
-        {/* Upload Box (Wrapped in a motion div to animate together) */}
+        {/* Upload Tabs and Box / Camera container */}
         <motion.div
+          className="upload-interactive-container"
           variants={fadeUpVariant}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          custom={0.5} // Loads after the tips
+          custom={0.5}
         >
-          {isUploading ? (
-            <LoadingSpinner message={t.uploadPreparing} size="lg" />
-          ) : (
-            <UploadBox onFileSelect={uploadFile} />
-          )}
+          <div className="upload-tabs">
+            <button
+              type="button"
+              className={`upload-tab-btn ${activeTab === 'upload' ? 'active' : ''}`}
+              onClick={() => setActiveTab('upload')}
+            >
+              📂 File Upload
+            </button>
+            <button
+              type="button"
+              className={`upload-tab-btn ${activeTab === 'camera' ? 'active' : ''}`}
+              onClick={() => setActiveTab('camera')}
+            >
+              📷 Live Camera
+            </button>
+          </div>
+
+          <div className="upload-tab-content">
+            {isUploading ? (
+              <LoadingSpinner message={t.uploadPreparing} size="lg" />
+            ) : activeTab === 'upload' ? (
+              <UploadBox onFileSelect={uploadFile} />
+            ) : (
+              <CameraCapture onCapture={uploadFile} darkMode={darkMode} />
+            )}
+          </div>
         </motion.div>
 
         <motion.p
