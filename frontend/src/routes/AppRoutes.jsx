@@ -1,6 +1,6 @@
 import React, { Suspense, lazy } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import DelayedFallback from '../components/DelayedFallback';
+import LoadingSpinner from '../components/LoadingSpinner';
 import RouteErrorBoundary from '../components/RouteErrorBoundary';
 import ScrollToTop from './ScrollToTop';
 
@@ -13,6 +13,7 @@ const TermsPage = lazy(() => import('../pages/TermsPage'));
 const PrivacyPage = lazy(() => import('../pages/PrivacyPage'));
 const PhotoStudio = lazy(() => import('../pages/PhotoStudio'));
 const HistoryPage = lazy(() => import('../pages/HistoryPage'));
+const SettingsPage = lazy(() => import('../pages/SettingsPage'));
 const PassportComparatorPage = lazy(
   () => import('../pages/PassportComparatorPage')
 );
@@ -28,7 +29,7 @@ function AppRoutes({ darkMode, toggleTheme }) {
   return (
     <RouteErrorBoundary key={location.pathname}>
       <ScrollToTop />
-      <Suspense fallback={<DelayedFallback delayMs={250} />}>
+      <Suspense fallback={<LoadingSpinner fullPage delayMs={250} />}>
         <Routes>
           <Route
             path="/"
@@ -65,6 +66,12 @@ function AppRoutes({ darkMode, toggleTheme }) {
             path="/history"
             element={
               <HistoryPage darkMode={darkMode} toggleTheme={toggleTheme} />
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <SettingsPage darkMode={darkMode} toggleTheme={toggleTheme} />
             }
           />
           <Route
