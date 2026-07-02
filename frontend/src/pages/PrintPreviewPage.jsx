@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import QuantityInput from '../components/QuantityInput';
 import PrintButton from '../components/PrintButton';
+import PrintLayoutSelector from '../components/PrintLayoutSelector';
 import './PrintPreviewPage.css';
 import EmptyState from '../components/EmptyState';
 import { motion } from 'framer-motion';
@@ -31,6 +32,10 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
   const [password, setPassword] = useState('');
   const [strength, setStrength] = useState(0);
   const [strengthLabel, setStrengthLabel] = useState('');
+  
+  const [paperSize, setPaperSize] = useState('a4');
+  const [photoGap, setPhotoGap] = useState(10);
+  const [showCropMarks, setShowCropMarks] = useState(true);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -154,13 +159,22 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
             viewport={{ once: true }}
             custom={0.2}
           >
-            <p className="print-page__sheet-label">{t.a4SheetPreview}</p>
+            <p className="print-page__sheet-label">
+              {paperSize === 'a4'
+                ? t.a4SheetPreview || 'A4 Sheet Preview (210mm x 297mm)'
+                : paperSize === 'letter'
+                ? 'US Letter Sheet Preview (8.5" x 11")'
+                : '4"x6" Photo Sheet Preview (102mm x 152mm)'}
+            </p>
             <div
-              className="sheet-grid"
-              style={{ '--cols': Math.ceil(Math.sqrt(quantity)) }}
+              className={`sheet-grid sheet-grid--${paperSize}`}
+              style={{
+                '--cols': Math.ceil(Math.sqrt(quantity)),
+                gap: `${photoGap}px`,
+              }}
             >
               {slots.map((_, i) => (
-                <div key={i} className="sheet-slot">
+                <div key={i} className={`sheet-slot ${showCropMarks ? 'sheet-slot--crop-marks' : ''}`}>
                   <img
                     src={state?.processedUrl || savedSession?.processedUrl}
                     alt={`Sheet slot ${i + 1}`}
@@ -206,6 +220,18 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
               toggleTheme={toggleTheme}
               value={quantity}
               onChange={setQuantity}
+            />
+
+            <hr className="divider" />
+
+            <PrintLayoutSelector
+              paperSize={paperSize}
+              onPaperSizeChange={setPaperSize}
+              photoGap={photoGap}
+              onPhotoGapChange={setPhotoGap}
+              showCropMarks={showCropMarks}
+              onShowCropMarksChange={setShowCropMarks}
+              darkMode={darkMode}
             />
 
             <hr className="divider" />

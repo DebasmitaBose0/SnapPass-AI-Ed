@@ -37,6 +37,21 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: var(--space-md);
+  transition: all 0.3s ease;
+}
+
+.sheet-grid--a4 {
+  aspect-ratio: 1 / 1.414;
+}
+
+.sheet-grid--letter {
+  aspect-ratio: 8.5 / 11;
+}
+
+.sheet-grid--4x6 {
+  aspect-ratio: 4 / 6;
+  max-width: 420px;
+  margin: 0 auto;
 }
 
 .sheet-slot {
@@ -44,7 +59,13 @@
   border-radius: var(--radius-sm);
   overflow: hidden;
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.sheet-slot--crop-marks {
+  border: 1px dashed #94a3b8;
+  padding: 2px;
 }
 
 .sheet-slot__img {
