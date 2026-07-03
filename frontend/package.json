@@ -27,7 +27,10 @@
     "start": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "vitest"
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest --watch"
   },
   "eslintConfig": {
     "extends": [
@@ -49,6 +52,8 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.1",
-    "vite": "^5.2.0"
+    "jsdom": "^29.1.1",
+    "vite": "^5.2.0",
+    "vitest": "^4.1.9"
   }
 }

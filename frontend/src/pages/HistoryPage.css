@@ -15,7 +15,7 @@
 .upload-history-page__title {
   font-size: 2.25rem;
   font-weight: 800;
-  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
@@ -46,7 +46,7 @@
 
 .upload-history-page__search-input:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
@@ -177,7 +177,7 @@
 }
 
 .upload-history-page__action--download {
-  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
   color: white;
 }
 
