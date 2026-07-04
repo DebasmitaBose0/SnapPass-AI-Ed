@@ -11,7 +11,7 @@ import './PrintButton.css';
  *   disabled   (bool)   — disables the button
  *   label      (string) — button text (default: "Generate & Download Sheet")
  */
-function PrintButton({ onClick, isLoading = false, darkMode, toggleTheme, disabled = false, label = 'Generate & Download Sheet' }) {
+function PrintButton({ onClick, isLoading = false, darkMode, disabled = false, label = 'Generate & Download Sheet' }) {
   return (
     <button
       className={`print-btn ${darkMode? isLoading ? ' print-btn--loading-dark' : ' print-btn-dark' : ''}`}
