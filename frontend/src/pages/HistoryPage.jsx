@@ -65,7 +65,7 @@ function HistoryPage({ darkMode }) {
               onClick={() => setShowConfirm(true)}
               aria-label="Clear all history"
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                 <polyline points="3 6 5 6 21 6" />
                 <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2l-1-14" />
               </svg>
@@ -77,7 +77,7 @@ function HistoryPage({ darkMode }) {
 
       {history.length > 0 && (
         <div className="history-page__search">
-          <svg className="history-page__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg className="history-page__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
             <circle cx="11" cy="11" r="8" />
             <line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
@@ -128,7 +128,7 @@ function HistoryPage({ darkMode }) {
         </motion.div>
       ) : (
         <div className="history-page__empty">
-          <svg className="history-page__empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <svg className="history-page__empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
             <rect x="3" y="3" width="18" height="18" rx="3" />
             <circle cx="12" cy="12" r="3" />
           </svg>
