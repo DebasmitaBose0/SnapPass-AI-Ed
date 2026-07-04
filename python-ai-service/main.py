@@ -122,7 +122,12 @@ def face_quality_check():
         return jsonify({"error": "file_path is required"}), 400
 
     try:
-        report = assess_face_quality(file_path)
+        safe_path = _safe_photo_path(file_path)
+    except ValueError:
+        return jsonify({"error": "Invalid photo_path."}), 400
+
+    try:
+        report = assess_face_quality(safe_path)
         return jsonify({
             "passed": report.passed,
             "face_count": report.face_count,
