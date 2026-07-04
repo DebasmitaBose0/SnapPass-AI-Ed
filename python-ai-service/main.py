@@ -29,12 +29,12 @@ def validate_file_magic(file_path: str) -> bool:
     # Basic check for JPEG, PNG, WEBP magic bytes
     try:
         with open(file_path, "rb") as f:
-            header = f.read(4)
+            header = f.read(12)
             if header.startswith(b"\xff\xd8\xff"):  # JPEG
                 return True
             if header.startswith(b"\x89PNG"):  # PNG
                 return True
-            if header.startswith(b"RIFF") and b"WEBP" in header:  # WEBP
+            if header.startswith(b"RIFF") and header[8:12] == b"WEBP":  # WEBP
                 return True
     except Exception:
         pass
