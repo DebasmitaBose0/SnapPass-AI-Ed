@@ -1,11 +1,29 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import './CompliancePanel.css';
 
+const STATUS_ICONS = {
+  pass: (
+    <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+      <path fill="currentColor" d="M6.5 11.5l-3-3 1-1 2 2 5-5 1 1z"/>
+    </svg>
+  ),
+  warn: (
+    <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+      <path fill="currentColor" d="M8 1L1 14h14zM7 5h2v4H7zm0 5h2v2H7z"/>
+    </svg>
+  ),
+  fail: (
+    <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+      <path fill="currentColor" d="M8 6.59L11.29 3.3l1.41 1.42L9.42 8l3.28 3.29-1.41 1.41L8 9.42l-3.29 3.28-1.42-1.41L6.59 8 3.3 4.71l1.42-1.42z"/>
+    </svg>
+  ),
+};
+
 const statusToBadge = (status) => {
-  if (status === 'pass') return { label: 'PASS', cls: 'badge-pass' };
-  if (status === 'warn') return { label: 'WARN', cls: 'badge-warn' };
-  if (status === 'fail') return { label: 'FAIL', cls: 'badge-fail' };
-  return { label: String(status || '—').toUpperCase(), cls: 'badge-neutral' };
+  if (status === 'pass') return { label: 'PASS', cls: 'badge-pass', icon: STATUS_ICONS.pass };
+  if (status === 'warn') return { label: 'WARN', cls: 'badge-warn', icon: STATUS_ICONS.warn };
+  if (status === 'fail') return { label: 'FAIL', cls: 'badge-fail', icon: STATUS_ICONS.fail };
+  return { label: String(status || '—').toUpperCase(), cls: 'badge-neutral', icon: null };
 };
 
 function CompliancePanel({ compliance, loading, error, darkMode }) {
@@ -52,7 +70,7 @@ function CompliancePanel({ compliance, loading, error, darkMode }) {
                   <div className="compliance-panel__item-title">{it.title}</div>
                   <div className="compliance-panel__item-detail">{it.detail}</div>
                 </div>
-                <div className={`compliance-panel__badge ${badge.cls}`}>{badge.label}</div>
+                <div className={`compliance-panel__badge ${badge.cls}`}>{badge.icon} {badge.label}</div>
               </div>
             );
           })}
