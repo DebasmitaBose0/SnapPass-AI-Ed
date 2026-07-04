@@ -8,7 +8,6 @@ import './PrintPreviewPage.css';
 import EmptyState from '../components/EmptyState';
 import { motion } from 'framer-motion';
 import { generateSheet } from '../services/photoService';
-import { calculatePasswordStrength } from '../utils/validators';
 import { useLanguage } from '../context/LanguageContext';
 import { translations } from '../translations/translations';
 import {
@@ -32,18 +31,6 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
   const [quantity, setQuantity] = useState(savedSession?.quantity || 6);
   const [layout, setLayout] = useState('a4');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [password, setPassword] = useState('');
-  const [strength, setStrength] = useState(0);
-  const [strengthLabel, setStrengthLabel] = useState('');
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const result = calculatePasswordStrength(password);
-      setStrength(result.score);
-      setStrengthLabel(result.label);
-    }, 100);
-    return () => clearTimeout(timer);
-  }, [password]);
 
   useEffect(() => {
     const sessionData = {
@@ -223,53 +210,12 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
 
             <hr className="divider" />
 
-            <div className="password-section">
-              <label className="print-info-label">{t.securePassword}</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder={t.enterPassword}
-                className="password-input"
-              />
-              <div className="password-meter">
-                <div
-                  className={`password-meter__fill ${
-                    strength <= 1
-                      ? 'password-meter__fill--weak'
-                      : strength === 2
-                        ? 'password-meter__fill--medium'
-                        : strength === 3
-                          ? 'password-meter__fill--strong'
-                          : 'password-meter__fill--excellent'
-                  }`}
-                  style={{ width: `${(strength / 4) * 100}%` }}
-                />
-              </div>
-              <span
-                aria-live="polite"
-                className={`password-feedback ${
-                  strength <= 1
-                    ? 'password-feedback--weak'
-                    : strength === 2
-                      ? 'password-feedback--medium'
-                      : strength === 3
-                        ? 'password-feedback--strong'
-                        : 'password-feedback--excellent'
-                }`}
-              >
-                {strengthLabel}
-              </span>
-            </div>
-
-            <hr className="divider" />
-
             <PrintButton
               onClick={handleGenerateSheet}
               isLoading={isGenerating}
               darkMode={darkMode}
               toggleTheme={toggleTheme}
-              disabled={isGenerating || strength === 0}
+              disabled={isGenerating}
             />
 
             <button
