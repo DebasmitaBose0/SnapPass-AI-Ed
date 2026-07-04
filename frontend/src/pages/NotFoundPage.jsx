@@ -8,7 +8,9 @@ function NotFoundPage({ darkMode }) {
   const location = useLocation();
 
   useEffect(() => {
-    console.warn(`404: Page not found — ${location.pathname}`);
+    if (import.meta.env.DEV) {
+      console.warn(`404: Page not found — ${location.pathname}`);
+    }
   }, [location.pathname]);
 
   const suggestions = [
