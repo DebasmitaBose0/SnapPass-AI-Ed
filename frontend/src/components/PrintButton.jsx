@@ -14,7 +14,7 @@ import './PrintButton.css';
 function PrintButton({ onClick, isLoading = false, darkMode, toggleTheme, disabled = false, label = 'Generate & Download Sheet' }) {
   return (
     <button
-      className={`print-btn ${darkMode? isLoading ? ' print-btn--loading-dark' : ' print-btn-dark' : ''}`}
+      className={`print-btn${darkMode ? ' print-btn-dark' : ''}${isLoading ? ' print-btn--loading' : ''}${darkMode && isLoading ? ' print-btn--loading-dark' : ''}`}
       onClick={onClick}
       disabled={disabled || isLoading}
       aria-label={isLoading ? 'Generating sheet, please wait…' : label}
