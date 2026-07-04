@@ -37,8 +37,9 @@ function App() {
   return (
     <ToastProvider>
       <div className="app-shell">
+        <a href="#main-content" className="skip-link">Skip to main content</a>
         <Navbar darkMode={darkMode} toggleTheme={toggleTheme} />
-        <main className="app-main">
+        <main className="app-main" id="main-content" tabIndex={-1}>
           <AppRoutes darkMode={darkMode} toggleTheme={toggleTheme} />
         </main>
         <Footer darkMode={darkMode} toggleTheme={toggleTheme} />
