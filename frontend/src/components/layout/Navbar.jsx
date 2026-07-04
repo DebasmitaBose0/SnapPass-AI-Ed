@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import './Navbar.css';
@@ -22,6 +22,40 @@ export const Navbar = ({ darkMode = false, toggleTheme }) => {
   const themeClass = darkMode ? 'dark' : 'light';
 
   const closeMenu = () => setIsMenuOpen(false);
+  const mobileMenuRef = useRef(null);
+  const hamburgerRef = useRef(null);
+
+  useEffect(() => {
+    if (!isMenuOpen) return;
+
+    const menu = mobileMenuRef.current;
+    if (!menu) return;
+
+    const focusable = menu.querySelectorAll('a, button, select, input, [tabindex]:not([tabindex="-1"])');
+    if (focusable.length > 0) {
+      focusable[0].focus();
+    }
+
+    const handleTabKey = (e) => {
+      if (e.key !== 'Tab') return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleTabKey);
+    return () => {
+      document.removeEventListener('keydown', handleTabKey);
+      hamburgerRef.current?.focus();
+    };
+  }, [isMenuOpen]);
 
   const getNavLinkClass = ({ isActive }) =>
     [
@@ -103,6 +137,7 @@ export const Navbar = ({ darkMode = false, toggleTheme }) => {
 
           <button
             type="button"
+            ref={hamburgerRef}
             className={`navbar__hamburger navbar__hamburger-${themeClass}`}
             aria-label={isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
             aria-expanded={isMenuOpen}
@@ -116,6 +151,7 @@ export const Navbar = ({ darkMode = false, toggleTheme }) => {
 
       <div
         id="primary-mobile-navigation"
+        ref={mobileMenuRef}
         className={`navbar__mobile-menu navbar__mobile-menu-${themeClass} ${
           isMenuOpen ? 'active' : ''
         }`}
