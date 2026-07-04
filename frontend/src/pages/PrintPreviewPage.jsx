@@ -10,6 +10,7 @@ import { motion } from 'framer-motion';
 import { generateSheet } from '../services/photoService';
 import { calculatePasswordStrength } from '../utils/validators';
 import { useLanguage } from '../context/LanguageContext';
+import { fadeUpVariant } from '../animations/variants';
 import { translations } from '../translations/translations';
 import {
   saveSession,
@@ -113,15 +114,6 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
       />
     );
   }
-
-  const fadeUpVariant = {
-    hidden: { opacity: 0, y: 30 },
-    visible: (delay = 0) => ({
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.8, ease: 'easeOut', delay },
-    }),
-  };
 
   return (
     <div

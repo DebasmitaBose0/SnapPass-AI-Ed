@@ -4,19 +4,12 @@ import './TermsPage.css';
 import { useLanguage } from '../context/LanguageContext';
 import { translations } from '../translations/translations';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
+import { fadeUpVariant } from '../animations/variants';
 
 const TermsPage = () => {
     const { language } = useLanguage();
     useDocumentMeta({ title: 'Terms of Service', description: 'SnapPass AI terms of service and usage agreement.' });
     const t = translations[language];
-    const fadeUpVariant = {
-        hidden: { opacity: 0, y: 30 },
-        visible: (delay = 0) => ({
-            opacity: 1,
-            y: 0,
-            transition: { duration: 0.8, ease: "easeOut", delay }
-        })
-    };
 
     return (
         <div className="terms-page page-content">

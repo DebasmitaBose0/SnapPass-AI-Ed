@@ -4,19 +4,12 @@ import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import './PrivacyPage.css';
 import { useLanguage } from '../context/LanguageContext';
 import { translations } from '../translations/translations';
+import { fadeUpVariant } from '../animations/variants';
 
 const PrivacyPage = () => {
     const { language } = useLanguage();
     useDocumentMeta({ title: 'Privacy Policy', description: 'SnapPass AI privacy policy - how we handle your photos and data.' });
     const t = translations[language];
-    const fadeUpVariant = {
-        hidden: { opacity: 0, y: 30 },
-        visible: (delay = 0) => ({
-            opacity: 1,
-            y: 0,
-            transition: { duration: 0.8, ease: "easeOut", delay }
-        })
-    };
 
     return (
         <div className="privacy-page page-content">
