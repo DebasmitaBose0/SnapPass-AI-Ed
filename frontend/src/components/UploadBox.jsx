@@ -76,7 +76,7 @@ function UploadBox({ onFileSelect }) {
       role="button"
       tabIndex={0}
       aria-label="Click or drag a photo to upload"
-      onKeyDown={(e) => e.key === 'Enter' && inputRef.current.click()}
+      onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), inputRef.current.click())}
     >
       <input
         ref={inputRef}
