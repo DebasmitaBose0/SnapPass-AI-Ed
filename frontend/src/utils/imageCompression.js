@@ -40,3 +40,17 @@ export const compressImage = (file, options = {}) => {
     };
   });
 };
+
+export const compressImageWithPreview = (file, options = {}) => {
+  return compressImage(file, options).then((compressedFile) => {
+    const previewUrl = URL.createObjectURL(compressedFile);
+    return { compressedFile, previewUrl, originalSize: file.size, compressedSize: compressedFile.size };
+  });
+};
+
+export const estimateCompressionRatio = (file, options = {}) => {
+  return compressImage(file, options).then((compressedFile) => ({
+    ratio: ((1 - compressedFile.size / file.size) * 100).toFixed(1),
+    savedBytes: file.size - compressedFile.size,
+  }));
+};
