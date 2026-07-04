@@ -29,6 +29,7 @@ function EmptyState({
       </p>
 
       <button
+        type="button"
         className={`btn btn-primary empty-state__button ${
           darkMode ? "empty-state__button-dark" : ""
         }`} 
