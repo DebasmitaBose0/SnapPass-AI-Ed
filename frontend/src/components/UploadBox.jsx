@@ -10,38 +10,39 @@ import { useToast } from '../context/ToastContext';
  *
  * Props:
  *   onFileSelect(file) — called when a valid image file is chosen
+ *   queue — optional upload queue array from useUploadQueue
+ *   addToQueue — function to add files to the queue
  */
-function UploadBox({ onFileSelect }) {
+function UploadBox({ onFileSelect, queue, addToQueue }) {
   const { language } = useLanguage();
   const t = translations[language];
   const inputRef = useRef(null);
   const { showToast } = useToast();
   const [isDragging, setIsDragging] = useState(false);
-  // error state kept for potential UI fallback
   const [error, setError] = useState('');
 
   const handleFile = async (file) => {
-    // Clear any previous error UI state
     setError('');
 
     if (!file) {
-      // Show toast for missing file
       showToast('Please select an image file.', 'error');
       return;
     }
 
     const result = validateImageFile(file);
     if (!result.valid) {
-      // Show toast with validation error
       showToast(result.error, 'error');
       return;
     }
 
-    // Validate magic bytes to verify actual image signature
     const isValidMagic = await validateImageMagicBytes(file);
     if (!isValidMagic) {
-      // Show toast for invalid file structure
-      showToast('Invalid file structure. The file signature does not match a valid JPG, PNG, or WEBP image.', 'error');
+      showToast('Invalid file structure.', 'error');
+      return;
+    }
+
+    if (addToQueue) {
+      addToQueue([file]);
       return;
     }
 
@@ -50,19 +51,26 @@ function UploadBox({ onFileSelect }) {
     }
   };
 
-  /* Drag handlers */
   const onDragOver = (e) => { e.preventDefault(); setIsDragging(true); };
   const onDragLeave = () => setIsDragging(false);
   const onDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
-    const file = e.dataTransfer.files[0];
-    handleFile(file);
+    const files = e.dataTransfer.files;
+    if (files.length > 1 && addToQueue) {
+      addToQueue(files);
+    } else {
+      handleFile(files[0]);
+    }
   };
 
-  /* Input change */
   const onChange = (e) => {
-    handleFile(e.target.files[0]);
+    const files = e.target.files;
+    if (files.length > 1 && addToQueue) {
+      addToQueue(files);
+    } else {
+      handleFile(files[0]);
+    }
     e.target.value = '';
   };
 
@@ -100,6 +108,32 @@ function UploadBox({ onFileSelect }) {
 
       {error && (
         <p className="upload-box__error" role="alert">{error}</p>
+      )}
+
+      {queue && queue.length > 0 && (
+        <div className="upload-queue">
+          <div className="upload-queue__header">
+            <span>{queue.length} file{queue.length !== 1 ? 's' : ''}</span>
+            <span className="upload-queue__badge">{queue.filter(f => f.status === 'done').length}/{queue.length}</span>
+          </div>
+          <div className="upload-queue__items">
+            {queue.slice(0, 5).map((item) => (
+              <div key={item.id} className={`upload-queue__item upload-queue__item--${item.status}`}>
+                <span className="upload-queue__name">{item.name}</span>
+                <span className="upload-queue__status">
+                  {item.status === 'queued' && 'Waiting'}
+                  {item.status === 'uploading' && `${item.progress}%`}
+                  {item.status === 'done' && 'Done'}
+                  {item.status === 'failed' && 'Failed'}
+                  {item.status === 'cancelled' && 'Cancelled'}
+                </span>
+              </div>
+            ))}
+            {queue.length > 5 && (
+              <div className="upload-queue__more">+{queue.length - 5} more</div>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );
