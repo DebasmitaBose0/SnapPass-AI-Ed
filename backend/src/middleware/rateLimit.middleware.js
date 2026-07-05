@@ -1,7 +1,54 @@
+/**
+ * rateLimit.middleware.js — Express rate-limiting configuration.
+ *
+ * Provides two limiters:
+ *   apiLimiter   — general limiter applied to all /api/* routes (100 req / 15 min)
+ *   uploadLimiter — stricter limiter for upload + processing routes (20 req / 15 min)
+ *                   Upload operations are computationally expensive (background
+ *                   removal, face detection) so we apply a tighter ceiling to
+ *                   prevent resource exhaustion from a single client.
+ *
+ * Both limiters return a consistent JSON error shape that matches the rest of
+ * the API, include a Retry-After header so clients can back off correctly, and
+ * are disabled in test environments to avoid flaky integration tests.
+ */
+
 import rateLimit from 'express-rate-limit';
 
+const isTest = process.env.NODE_ENV === 'test';
+
+/**
+ * Build a standard rate-limit error handler that returns JSON matching the
+ * application's error shape rather than the plain-text express-rate-limit default.
+ */
+const buildHandler = (windowMinutes) => (_req, res) => {
+  res.status(429).json({
+    success: false,
+    message: `Too many requests. You have exceeded the allowed rate. Please wait ${windowMinutes} minutes before trying again.`,
+    retryAfter: windowMinutes * 60,
+  });
+};
+
 export const apiLimiter = rateLimit({
+  skip: () => isTest,
   windowMs: 15 * 60 * 1000,
   max: 100,
-  message: 'Too many requests, please try again later.'
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: buildHandler(15),
+});
+
+/**
+ * Tighter limit for compute-heavy endpoints:
+ *   POST /api/upload
+ *   POST /api/process
+ *   POST /api/print/generate-sheet
+ */
+export const uploadLimiter = rateLimit({
+  skip: () => isTest,
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: buildHandler(15),
 });
