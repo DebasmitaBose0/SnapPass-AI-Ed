@@ -22,6 +22,7 @@ import {
     DEFAULT_ADJUSTMENTS,
     renderAdjustedImageDataUrl,
 } from '../utils/imageAdjustments';
+import ComparisonSlider from '../components/ComparisonSlider';
 
 const ADJUSTMENT_TOOLS = [
     { id: 'brightness', labelKey: 'brightness', min: 0, max: 200, format: (v) => `${v}%` },
@@ -249,6 +250,10 @@ function PhotoStudio() {
                             <Upload className="upload-icon" size={48} />
                             <p>{t.clickUploadPhoto}</p>
                             <span className="upload-hint">{t.uploadFormats}</span>
+                        </div>
+                    ) : showOriginal && previewImageSrc && imageSrc ? (
+                        <div className="comparison-section">
+                            <ComparisonSlider beforeSrc={imageSrc} afterSrc={previewImageSrc} alt="Photo edit comparison" />
                         </div>
                     ) : (
                         <div className={`image-container crop-container ${isRenderingPreview ? 'image-container--rendering' : ''}`}>
