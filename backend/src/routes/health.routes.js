@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import axios from 'axios';
 import { config } from '../config/config.js';
+import { isRedisAvailable } from '../config/redis.js';
 
 const router = express.Router();
 
@@ -28,6 +29,7 @@ router.get('/diagnostics', async (req, res) => {
     },
     services: {
       mongodb: 'unknown',
+      redis: isRedisAvailable() ? 'connected' : 'disconnected',
       pythonService: 'unknown'
     }
   };
