@@ -8,6 +8,7 @@ import healthRoutes from './health.routes.js';
 import complianceRoutes from './compliance.routes.js';
 import testimonialRoutes from './testimonial.routes.js';
 import uploadHistoryRoutes from './uploadHistory.routes.js';
+import metricsRoutes from './metrics.routes.js';
 
 const router = Router();
 
@@ -19,6 +20,7 @@ router.use('/print', printRoutes);
 router.use('/compliance', complianceRoutes);
 router.use('/testimonials', testimonialRoutes);
 router.use('/upload-history', uploadHistoryRoutes);
+router.use('/metrics', metricsRoutes);
 
 export { healthRoutes };
 export default router;
