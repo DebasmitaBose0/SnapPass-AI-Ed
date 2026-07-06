@@ -44,14 +44,20 @@ export const Navbar = ({ darkMode = false, toggleTheme }) => {
       .join(' ');
 
   return (
-    <nav className={`navbar navbar--${themeClass}`} aria-label="Primary navigation">
+    <nav
+      className={`navbar navbar--${themeClass}`}
+      aria-label="Primary navigation"
+    >
       <div className="navbar__inner">
         <Link className="navbar__brand" to="/" onClick={closeMenu}>
           <span className="navbar__logo-icon" aria-hidden="true">
             📷
           </span>
-          <span className={`navbar__brand-name navbar__brand-name-${themeClass}`}>
-            SnapPass <span className={`navbar__brand-highlight-${themeClass}`}>AI</span>
+          <span
+            className={`navbar__brand-name navbar__brand-name-${themeClass}`}
+          >
+            SnapPass{' '}
+            <span className={`navbar__brand-highlight-${themeClass}`}>AI</span>
           </span>
         </Link>
 
@@ -104,7 +110,9 @@ export const Navbar = ({ darkMode = false, toggleTheme }) => {
           <button
             type="button"
             className={`navbar__hamburger navbar__hamburger-${themeClass}`}
-            aria-label={isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-label={
+              isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'
+            }
             aria-expanded={isMenuOpen}
             aria-controls="primary-mobile-navigation"
             onClick={() => setIsMenuOpen((current) => !current)}
