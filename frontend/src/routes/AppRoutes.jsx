@@ -71,20 +71,12 @@ function AppRoutes({ darkMode, toggleTheme }) {
           />
           <Route
             path="/diagnostics"
-            element={
-              <DiagnosticsPage darkMode={darkMode} />
-            }
+            element={<DiagnosticsPage darkMode={darkMode} />}
           />
           <Route
             path="/history"
             element={
               <HistoryPage darkMode={darkMode} toggleTheme={toggleTheme} />
-            }
-          />
-          <Route
-            path="/settings"
-            element={
-              <SettingsPage darkMode={darkMode} toggleTheme={toggleTheme} />
             }
           />
           <Route
@@ -97,10 +89,7 @@ function AppRoutes({ darkMode, toggleTheme }) {
             }
           />
           {/* Fallback — 404 page for unknown routes */}
-          <Route
-            path="*"
-            element={<NotFoundPage darkMode={darkMode} />}
-          />
+          <Route path="*" element={<NotFoundPage darkMode={darkMode} />} />
         </Routes>
       </Suspense>
     </ErrorBoundary>

@@ -50,7 +50,6 @@
 }
 
 .editor-page__preview {
-
   display: flex;
   flex-direction: column;
   /* Allow preview to participate in grid stretching */
@@ -171,6 +170,15 @@
   background: linear-gradient(135deg, #3b82f6, #1e40af);
 }
 
+.editor-page__error {
+  color: #dc2626;
+  font-size: var(--font-size-sm, 0.85rem);
+  padding: 8px 12px;
+  background: rgba(220, 38, 38, 0.08);
+  border-radius: 8px;
+  border: 1px solid rgba(220, 38, 38, 0.2);
+}
+
 .editor-page__process-btn-dark:hover {
   transform: translateY(-2px);
   box-shadow:
@@ -221,6 +229,14 @@
   stroke-width: 2.2px;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+.section-title-dark {
+  color: #f1f5f9;
+}
+
+.section-subtitle-dark {
+  color: #94a3b8;
 }
 
 @media (max-width: 992px) {

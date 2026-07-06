@@ -1,14 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import QuantityInput from '../components/QuantityInput';
-import PrintButton from '../components/PrintButton';
-import PrintLayoutSelector from '../components/PrintLayoutSelector';
-import { useDocumentMeta } from '../hooks/useDocumentMeta';
+import DownloadPackagePanel from '../components/DownloadPackagePanel';
 import './PrintPreviewPage.css';
 import EmptyState from '../components/EmptyState';
+import ConfirmModal from '../components/ConfirmModal';
 import { motion } from 'framer-motion';
 import { generateSheet } from '../services/photoService';
-import { calculatePasswordStrength } from '../utils/validators';
 import { useLanguage } from '../context/LanguageContext';
 import { translations } from '../translations/translations';
 import {
@@ -16,34 +14,22 @@ import {
   getSession,
   saveSessionToHistory,
 } from '../utils/sessionManager';
+import './PrintPreviewPage.css';
 
-/**
- * PrintPreviewPage — Step 3 & 4.
- * Shows the processed photo in a simulated A4 sheet grid.
- * User picks quantity, then downloads or prints the sheet.
- */
 function PrintPreviewPage({ darkMode, toggleTheme }) {
-  const { locale } = useLanguage();
-  const t = translations[locale] || translations.en;
+  const { language } = useLanguage();
+  const t = translations[language] || translations.en;
   const { state } = useLocation();
   const savedSession = getSession();
-  useDocumentMeta({ title: 'Print Preview', description: 'Preview and print your passport photos on A4 paper.' });
+  useDocumentMeta({
+    title: 'Print Preview',
+    description: 'Preview and print your passport photos on A4 paper.',
+  });
 
   const [quantity, setQuantity] = useState(savedSession?.quantity || 6);
   const [layout, setLayout] = useState('a4');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [password, setPassword] = useState('');
-  const [strength, setStrength] = useState(0);
-  const [strengthLabel, setStrengthLabel] = useState('');
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const result = calculatePasswordStrength(password);
-      setStrength(result.score);
-      setStrengthLabel(result.label);
-    }, 100);
-    return () => clearTimeout(timer);
-  }, [password]);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   useEffect(() => {
     const sessionData = {
@@ -60,7 +46,7 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
     }
   }, [state, quantity]);
 
-  const handleGenerateSheet = async () => {
+  const handleGenerateSheet = useCallback(async () => {
     setIsGenerating(true);
     try {
       const blob = await generateSheet({
@@ -82,7 +68,7 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
         background: state?.background || savedSession?.background,
         photoSizePreset: state?.sizePreset || savedSession?.sizePreset,
         quantity,
-        status: 'processed',
+        status: 'completed',
         outputStatus: 'downloaded',
         hasOutput: true,
         exportType: 'print-sheet',
@@ -91,17 +77,16 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
       alert(error.message || 'Sheet generation failed.');
     } finally {
       setIsGenerating(false);
+      setShowConfirm(false);
     }
-  };
+  }, [state, savedSession, quantity, layout]);
 
   const handlePrintDirect = () => {
     window.print();
   };
 
-  // Build grid of photo slots
   const slots = Array.from({ length: quantity });
 
-  // If user lands here directly without uploading, redirect
   if (!(state?.processedUrl || savedSession?.processedUrl)) {
     return (
       <EmptyState
@@ -109,7 +94,7 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
         description={t.uploadBeforePrint}
         buttonText={t.uploadPhotoButton}
         darkMode={darkMode}
-        toggleTheme={toggleTheme}
+        redirectTo="/upload"
       />
     );
   }
@@ -149,7 +134,6 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
         </motion.div>
 
         <div className="print-page__layout">
-          {/* A4 Sheet Preview */}
           <motion.section
             className="print-page__sheet card"
             aria-label="A4 sheet preview"
@@ -176,7 +160,6 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
             </div>
           </motion.section>
 
-          {/* Controls */}
           <motion.aside
             className="print-page__controls card"
             aria-label="Print settings"
@@ -264,12 +247,9 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
 
             <hr className="divider" />
 
-            <PrintButton
-              onClick={handleGenerateSheet}
-              isLoading={isGenerating}
-              darkMode={darkMode}
-              toggleTheme={toggleTheme}
-              disabled={isGenerating || strength === 0}
+            <DownloadPackagePanel
+              processedUrl={state?.processedUrl || savedSession?.processedUrl}
+              originalFileName={state?.filename || savedSession?.filename}
             />
 
             <button
@@ -285,10 +265,10 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
                 padding: '12px',
                 borderRadius: '8px',
                 cursor: 'pointer',
-                fontWeight: '600'
+                fontWeight: '600',
               }}
             >
-              📷 Print Direct (A4 / PDF)
+              Print Direct (A4 / PDF)
             </button>
 
             <Link
@@ -302,9 +282,40 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
               </span>
               {t.backToEditor}
             </Link>
+
+            <Link
+              to="/"
+              className={`print-page__home-btn ${darkMode ? 'print-page__home-btn-dark' : ''}`}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                width="14"
+                height="14"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path d="M3 12l9-9 9 9" />
+                <path d="M5 10v9a1 1 0 0 0 1 1h3v-5h6v5h3a1 1 0 0 0 1-1v-9" />
+              </svg>
+              Back to Home
+            </Link>
           </motion.aside>
         </div>
       </div>
+
+      {showConfirm && (
+        <ConfirmModal
+          title="Generate Print Sheet?"
+          message={`This will create an A4 sheet with ${quantity} photos. You can download it as a PNG file.`}
+          confirmLabel="Generate"
+          cancelLabel="Cancel"
+          onConfirm={handleGenerateSheet}
+          onCancel={() => setShowConfirm(false)}
+          darkMode={darkMode}
+          loading={isGenerating}
+        />
+      )}
     </div>
   );
 }
