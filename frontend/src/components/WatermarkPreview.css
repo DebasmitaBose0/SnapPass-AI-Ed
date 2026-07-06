@@ -1,0 +1,13 @@
+.watermark-preview {
+  position: relative;
+  display: inline-block;
+}
+.watermark-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-45deg);
+  opacity: 0.4;
+  color: red;
+  font-size: 24px;
+}
