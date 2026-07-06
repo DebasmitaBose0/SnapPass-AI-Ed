@@ -1,0 +1,4 @@
+.custom-template-builder {
+  padding: 20px;
+  border: 1px dashed var(--color-border);
+}
