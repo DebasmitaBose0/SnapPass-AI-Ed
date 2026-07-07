@@ -16,7 +16,7 @@ import presetsRoutes from './presets.routes.js';
 import docsRoutes from './docs.routes.js';
 import analyticsRoutes from './analytics.routes.js';
 import batchRoutes from './batch.routes.js';
-import metricsRoutes from './metrics.routes.js';
+import cleanupRoutes from './cleanup.routes.js';
 
 const router = Router();
 
@@ -36,7 +36,7 @@ router.use('/presets', presetsRoutes);
 router.use('/docs', docsRoutes);
 router.use('/analytics', analyticsRoutes);
 router.use('/batch', batchRoutes);
-router.use('/metrics', metricsRoutes);
+router.use('/cleanup', cleanupRoutes);
 
 export { healthRoutes };
 export default router;
