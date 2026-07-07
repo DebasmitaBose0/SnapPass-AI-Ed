@@ -82,3 +82,35 @@ export const createValidator = (rules) => {
     return errors;
   };
 };
+
+export const validatePhone = (phone) => {
+  return /^\+?[\d\s\-()]{7,15}$/.test(String(phone));
+};
+
+export const validateUrl = (url) => {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+export const validateFullName = (name) => {
+  return String(name).trim().length >= 2 && /^[a-zA-Z\s'-]+$/.test(String(name));
+};
+
+export const validatePassportNumber = (num) => {
+  return /^[A-Z0-9]{5,20}$/i.test(String(num));
+};
+
+export const VALIDATION_MESSAGES = {
+  required: 'This field is required',
+  email: 'Please enter a valid email address',
+  phone: 'Please enter a valid phone number',
+  url: 'Please enter a valid URL (e.g. https://example.com)',
+  name: 'Name must be at least 2 characters and contain only letters, spaces, hyphens, and apostrophes',
+  passport: 'Passport number must be 5-20 alphanumeric characters',
+  minLength: (n) => `Minimum ${n} characters required`,
+  maxLength: (n) => `Maximum ${n} characters allowed`,
+};

@@ -10,6 +10,7 @@ import AttireSelector from '../components/AttireSelector';
 import CompliancePanel from '../components/CompliancePanel';
 import useImageProcessor from '../hooks/useImageProcessor';
 import { iconMap, backgroundHexMap } from '../data/EditorPageData';
+import EditorPageDiagnostics from './EditorPageDiagnostics';
 import api from '../services/api';
 import './EditorPage.css';
 
@@ -147,6 +148,12 @@ function EditorPage({ darkMode, toggleTheme }) {
 
   return (
     <div className={darkMode ? 'editor-toggle-dark' : ''}>
+      <EditorPageDiagnostics
+        sizePreset={sizePreset}
+        background={background}
+        attire={attire}
+        filename={filename}
+      />
       <div className="editor-page">
         <motion.div
           className="editor-page__header"

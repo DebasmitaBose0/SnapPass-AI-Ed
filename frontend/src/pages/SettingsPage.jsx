@@ -1,37 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import './SettingsPage.css';
 import { motion } from 'framer-motion';
-import {
-  validateEmail,
-  validateRequired,
-  validateMinLength,
-  createValidator,
-} from '../utils/validators';
+import FormField from '../components/FormField';
+import useFormValidation, { defaultRules as R } from '../hooks/useFormValidation';
+import { useTheme } from '../context/ThemeContext';
 
-const preferencesRules = {
-  fullName: [validateRequired, (v) => validateMinLength(v, 2, 'Full name')],
-  email: [
-    validateRequired,
-    (v) => {
-      if (!validateEmail(v)) return 'Enter a valid email address';
-      return '';
-    },
-  ],
-};
-
-const validator = createValidator(preferencesRules);
-
-function SettingsPage({ darkMode, toggleTheme }) {
+function SettingsPage() {
+  const { darkMode, toggleTheme } = useTheme();
   const [activeTab, setActiveTab] = useState('preferences');
-  const [form, setForm] = useState({
-    fullName: 'John Doe',
-    email: 'john.doe@example.com',
-    language: 'en',
-    autoSave: true,
-    hiRes: false,
-  });
-  const [errors, setErrors] = useState({});
-  const [saved, setSaved] = useState(false);
+  const form = useFormValidation({
+    fullName: { initialValue: 'John Doe', rules: [R.required, (v) => v.length >= 2 || 'Name too short'] },
+    email: { initialValue: 'john.doe@example.com', rules: [R.required, R.email] },
+    language: { initialValue: 'en' },
+    autoSave: { initialValue: true },
+    hiRes: { initialValue: false },
+  }, { validateOnChange: true });
 
   const [sessions, setSessions] = useState([]);
   const [loadingSessions, setLoadingSessions] = useState(false);
@@ -123,14 +106,9 @@ function SettingsPage({ darkMode, toggleTheme }) {
     setRevoking(false);
   };
 
-  const handleSavePreferences = (e) => {
-    e.preventDefault();
-    const errs = validator(form);
-    setErrors(errs);
-    if (Object.keys(errs).length > 0) return;
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
-  };
+  const handleSave = form.handleSubmit(async (values) => {
+    alert('Preferences saved successfully!');
+  });
 
   const containerVariants = {
     hidden: { opacity: 0, y: 15 },
@@ -176,90 +154,73 @@ function SettingsPage({ darkMode, toggleTheme }) {
 
           <main className="settings-main card">
             {activeTab === 'preferences' && (
-              <form
-                onSubmit={handleSavePreferences}
-                className="settings-form"
-                noValidate
-              >
+              <form onSubmit={handleSave} className="settings-form" noValidate>
                 <h2 className="form-section-title">Application Preferences</h2>
 
-                <div className="form-group">
-                  <label className="form-label" htmlFor="fullName">
-                    Profile Full Name
-                  </label>
-                  <input
-                    id="fullName"
-                    type="text"
-                    value={form.fullName}
-                    onChange={(e) => handleChange('fullName', e.target.value)}
-                    className={`form-input ${errors.fullName ? 'form-input--error' : ''}`}
-                    placeholder="Enter your name"
-                  />
-                  {errors.fullName && (
-                    <div className="form-error">{errors.fullName}</div>
-                  )}
-                </div>
+                <FormField
+                  label="Profile Full Name"
+                  name="fullName"
+                  value={form.values.fullName}
+                  error={form.errors.fullName}
+                  touched={form.touched.fullName}
+                  onChange={form.handleChange}
+                  onBlur={form.handleBlur}
+                  placeholder="Enter your name"
+                  required
+                />
 
-                <div className="form-group">
-                  <label className="form-label" htmlFor="email">
-                    Email Address
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    value={form.email}
-                    onChange={(e) => handleChange('email', e.target.value)}
-                    className={`form-input ${errors.email ? 'form-input--error' : ''}`}
-                    placeholder="Enter your email"
-                  />
-                  {errors.email && (
-                    <div className="form-error">{errors.email}</div>
-                  )}
-                </div>
+                <FormField
+                  label="Email Address"
+                  name="email"
+                  type="email"
+                  value={form.values.email}
+                  error={form.errors.email}
+                  touched={form.touched.email}
+                  onChange={form.handleChange}
+                  onBlur={form.handleBlur}
+                  placeholder="Enter your email"
+                  required
+                />
 
-                <div className="form-group">
-                  <label className="form-label" htmlFor="language">
-                    Default Language
-                  </label>
-                  <select
-                    id="language"
-                    value={form.language}
-                    onChange={(e) => handleChange('language', e.target.value)}
-                    className="form-select-elem"
-                  >
-                    <option value="en">English (US)</option>
-                    <option value="es">Español (ES)</option>
-                    <option value="fr">Français (FR)</option>
-                  </select>
-                </div>
+                <FormField
+                  label="Default Language"
+                  name="language"
+                  type="select"
+                  value={form.values.language}
+                  error={form.errors.language}
+                  touched={form.touched.language}
+                  onChange={form.handleChange}
+                  onBlur={form.handleBlur}
+                  options={[
+                    { value: 'en', label: 'English (US)' },
+                    { value: 'es', label: 'Español (ES)' },
+                    { value: 'fr', label: 'Français (FR)' },
+                  ]}
+                />
 
-                <div className="form-group-checkbox">
-                  <input
-                    type="checkbox"
-                    id="autoSave"
-                    checked={form.autoSave}
-                    onChange={(e) => handleChange('autoSave', e.target.checked)}
-                    className="form-checkbox"
-                  />
-                  <label htmlFor="autoSave" className="checkbox-label">
-                    <strong>Auto-save Uploads:</strong> Temporarily cache
-                    uploads locally for faster editing
+                <FormField
+                  label="Auto-save Uploads"
+                  name="autoSave"
+                  type="checkbox"
+                  value={form.values.autoSave}
+                  onChange={form.handleChange}
+                >
+                  <label className="checkbox-label">
+                    <strong>Auto-save Uploads:</strong> Temporarily cache uploads locally for faster editing
                   </label>
-                </div>
+                </FormField>
 
-                <div className="form-group-checkbox">
-                  <input
-                    type="checkbox"
-                    id="hiRes"
-                    checked={form.hiRes}
-                    onChange={(e) => handleChange('hiRes', e.target.checked)}
-                    className="form-checkbox"
-                  />
-                  <label htmlFor="hiRes" className="checkbox-label">
-                    <strong>High-Resolution Exports:</strong> Export sheets with
-                    maximum DPI formatting
+                <FormField
+                  label="High-Resolution Exports"
+                  name="hiRes"
+                  type="checkbox"
+                  value={form.values.hiRes}
+                  onChange={form.handleChange}
+                >
+                  <label className="checkbox-label">
+                    <strong>High-Resolution Exports:</strong> Export sheets with maximum DPI formatting
                   </label>
-                </div>
+                </FormField>
 
                 <div className="form-group">
                   <label className="form-label">Interface Theme Mode</label>
@@ -281,8 +242,8 @@ function SettingsPage({ darkMode, toggleTheme }) {
                   </div>
                 </div>
 
-                <button type="submit" className="btn btn-primary submit-btn">
-                  {saved ? 'Saved!' : 'Save Changes'}
+                <button type="submit" className="btn btn-primary submit-btn" disabled={form.submitting}>
+                  Save Changes
                 </button>
               </form>
             )}

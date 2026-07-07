@@ -12,6 +12,7 @@ import uploadHistoryRoutes from './uploadHistory.routes.js';
 import auditRoutes from './audit.routes.js';
 import presetsRoutes from './presets.routes.js';
 import docsRoutes from './docs.routes.js';
+import analyticsRoutes from './analytics.routes.js';
 
 const router = Router();
 
@@ -27,6 +28,7 @@ router.use('/upload-history', uploadHistoryRoutes);
 router.use('/audit-logs', auditRoutes);
 router.use('/presets', presetsRoutes);
 router.use('/docs', docsRoutes);
+router.use('/analytics', analyticsRoutes);
 
 export { healthRoutes };
 export default router;

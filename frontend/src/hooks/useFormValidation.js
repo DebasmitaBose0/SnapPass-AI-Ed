@@ -1,127 +1,126 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback } from 'react';
 
-export default function useFormValidation(validationRules, initialValues = {}) {
-  const [values, setValues] = useState(initialValues);
+const EMAIL_RE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const URL_RE = /^https?:\/\/.+/;
+const PHONE_RE = /^\+?[\d\s\-()]{7,15}$/;
+
+const defaultRules = {
+  required: (v) => (v !== null && v !== undefined && String(v).trim() !== '') || 'This field is required',
+  email: (v) => !v || EMAIL_RE.test(v) || 'Invalid email address',
+  minLength: (min) => (v) => !v || String(v).length >= min || `Minimum ${min} characters required`,
+  maxLength: (max) => (v) => !v || String(v).length <= max || `Maximum ${max} characters allowed`,
+  url: (v) => !v || URL_RE.test(v) || 'Invalid URL',
+  phone: (v) => !v || PHONE_RE.test(v) || 'Invalid phone number',
+  pattern: (re, msg) => (v) => !v || re.test(v) || msg || 'Invalid format',
+  match: (field, label) => (v, values) => !v || v === values[field] || `Must match ${label || field}`,
+  number: (v) => !v || !isNaN(Number(v)) || 'Must be a number',
+  min: (min) => (v) => !v || Number(v) >= min || `Minimum value is ${min}`,
+  max: (max) => (v) => !v || Number(v) <= max || `Maximum value is ${max}`,
+};
+
+export default function useFormValidation(fields, options = {}) {
+  const [values, setValues] = useState(() => {
+    const initial = {};
+    Object.keys(fields).forEach((name) => {
+      initial[name] = fields[name].initialValue ?? '';
+    });
+    return initial;
+  });
+
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
-  const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  const validator = useMemo(() => {
-    return (vals) => {
-      const errs = {};
-      for (const [field, rules] of Object.entries(validationRules)) {
-        for (const rule of rules) {
-          const error = rule(vals[field], vals);
-          if (error) {
-            errs[field] = error;
-            break;
-          }
-        }
-      }
-      return errs;
-    };
-  }, [validationRules]);
-
-  const validateField = useCallback(
-    (name, value) => {
-      const fieldRules = validationRules[name];
-      if (!fieldRules) return '';
-      for (const rule of fieldRules) {
-        const error = rule(value, { ...values, [name]: value });
-        if (error) return error;
-      }
-      return '';
-    },
-    [validationRules, values]
-  );
-
-  const setValue = useCallback(
-    (name, value) => {
-      setValues((prev) => ({ ...prev, [name]: value }));
-      setErrors((prev) => {
-        const error = validateField(name, value);
-        return error
-          ? { ...prev, [name]: error }
-          : Object.fromEntries(
-              Object.entries(prev).filter(([k]) => k !== name)
-            );
-      });
-    },
-    [validateField]
-  );
-
-  const setFieldValue = useCallback((name, value) => {
-    setValues((prev) => ({ ...prev, [name]: value }));
-  }, []);
-
-  const handleBlur = useCallback(
-    (name) => {
-      setTouched((prev) => ({ ...prev, [name]: true }));
-      setErrors((prev) => {
-        const error = validateField(name, values[name]);
-        return error
-          ? { ...prev, [name]: error }
-          : Object.fromEntries(
-              Object.entries(prev).filter(([k]) => k !== name)
-            );
-      });
-    },
-    [validateField, values]
-  );
-
-  const validate = useCallback(() => {
-    const errs = validator(values);
-    setErrors(errs);
-    setSubmitted(true);
-
-    const allTouched = {};
-    for (const key of Object.keys(validationRules)) {
-      allTouched[key] = true;
+  const validateField = useCallback((name, value) => {
+    const field = fields[name];
+    if (!field) return '';
+    const rules = field.rules || [];
+    for (const rule of rules) {
+      const result = rule(value, values);
+      if (typeof result === 'string') return result;
+      if (result === false) return field.errorMessage || 'Invalid value';
     }
-    setTouched(allTouched);
+    return '';
+  }, [fields, values]);
 
-    return Object.keys(errs).length === 0;
-  }, [validator, values, validationRules]);
+  const validateAll = useCallback(() => {
+    const newErrors = {};
+    let valid = true;
+    Object.keys(fields).forEach((name) => {
+      const err = validateField(name, values[name]);
+      if (err) {
+        newErrors[name] = err;
+        valid = false;
+      }
+    });
+    setErrors(newErrors);
+    return valid;
+  }, [fields, values, validateField]);
 
-  const reset = useCallback(
-    (newValues) => {
-      setValues(newValues || initialValues);
-      setErrors({});
-      setTouched({});
-      setSubmitted(false);
-    },
-    [initialValues]
-  );
+  const setValue = useCallback((name, value) => {
+    setValues((prev) => ({ ...prev, [name]: value }));
+    if (options.validateOnChange && touched[name]) {
+      const err = validateField(name, value);
+      setErrors((prev) => ({ ...prev, [name]: err }));
+    }
+  }, [fields, options.validateOnChange, touched, validateField]);
 
-  const isValid = useMemo(() => Object.keys(errors).length === 0, [errors]);
-  const isDirty = useMemo(() => Object.keys(touched).length > 0, [touched]);
+  const handleChange = useCallback((e) => {
+    const { name, value, type, checked } = e.target;
+    setValue(name, type === 'checkbox' ? checked : value);
+  }, [setValue]);
 
-  const getFieldProps = useCallback(
-    (name) => ({
-      name,
-      value: values[name] ?? '',
-      onChange: (e) => {
-        const val = e.target ? e.target.value : e;
-        setFieldValue(name, val);
-      },
-      onBlur: () => handleBlur(name),
-      error: touched[name] || submitted ? errors[name] || '' : '',
-    }),
-    [values, setFieldValue, handleBlur, errors, touched, submitted]
-  );
+  const handleBlur = useCallback((e) => {
+    const { name, value } = e.target;
+    setTouched((prev) => ({ ...prev, [name]: true }));
+    if (options.validateOnBlur !== false) {
+      const err = validateField(name, value);
+      setErrors((prev) => ({ ...prev, [name]: err }));
+    }
+  }, [options.validateOnBlur, validateField]);
+
+  const handleSubmit = useCallback(async (onSubmit) => {
+    return async (e) => {
+      if (e) e.preventDefault();
+      setSubmitting(true);
+      const allTouched = {};
+      Object.keys(fields).forEach((n) => { allTouched[n] = true; });
+      setTouched(allTouched);
+      if (!validateAll()) {
+        setSubmitting(false);
+        return;
+      }
+      try {
+        await onSubmit(values);
+      } finally {
+        setSubmitting(false);
+      }
+    };
+  }, [fields, validateAll, values]);
+
+  const reset = useCallback(() => {
+    const initial = {};
+    Object.keys(fields).forEach((name) => {
+      initial[name] = fields[name].initialValue ?? '';
+    });
+    setValues(initial);
+    setErrors({});
+    setTouched({});
+  }, [fields]);
 
   return {
     values,
     errors,
     touched,
-    submitted,
+    submitting,
     setValue,
-    setFieldValue,
+    handleChange,
     handleBlur,
-    validate,
+    handleSubmit,
+    validateAll,
     reset,
-    isValid,
-    isDirty,
-    getFieldProps,
+    setValues,
   };
 }
+
+export { defaultRules };
