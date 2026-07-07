@@ -11,11 +11,13 @@ import ScrollToTopButton from './components/ScrollToTopButton';
 import SkipToContent from './components/SkipToContent';
 
 function AppContent() {
+  // Retrieve global visual and functional preferences from mounted contexts
   const { darkMode, toggleTheme } = useTheme();
 
   return (
     <div className="app-shell">
       <SkipToContent />
+      {/* Primary content area rendering child routes */}
       <Navbar darkMode={darkMode} toggleTheme={toggleTheme} />
       <main className="app-main" id="main-content" tabIndex={-1}>
         <AppRoutes darkMode={darkMode} toggleTheme={toggleTheme} />
@@ -28,6 +30,7 @@ function AppContent() {
 }
 
 function App() {
+  // Mount primary application providers and routing controls
   return (
     <ToastProvider>
       <ThemeProvider>
