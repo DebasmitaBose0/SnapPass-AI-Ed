@@ -35,7 +35,8 @@ app.use(timingMiddleware);
 // Serve uploaded files statically for frontend canvas access
 app.use('/uploads', express.static(path.resolve(process.cwd(), 'uploads')));
 
-app.use('/api', checkTokenBlacklist, apiRoutes);
+// Route groups for all backend resources and authentication APIs
+app.use('/api', apiRoutes);
 app.use(healthRoutes);
 
 app.use(errorMiddleware);
