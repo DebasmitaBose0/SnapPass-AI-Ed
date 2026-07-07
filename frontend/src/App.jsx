@@ -11,6 +11,7 @@ import ScrollToTopButton from './components/ScrollToTopButton';
 import SkipToContent from './components/SkipToContent';
 
 function AppContent() {
+  // Retrieve global visual and functional preferences from mounted contexts
   const { darkMode, toggleTheme } = useTheme();
 
   return (
