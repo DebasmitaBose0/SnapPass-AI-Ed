@@ -22,6 +22,7 @@ app.use(
   })
 );
 app.use(cookieParser());
+// Limit incoming request payload size to prevent DOS attacks before sanitization runs
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 app.use(requestId);

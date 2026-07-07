@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { sanitizeInput } from '../middleware/sanitize.middleware.js';
+import { deepRequestSanitizer } from '../middleware/requestSanitizer.middleware.js';
 import authRoutes from './auth.routes.js';
 import uploadRoutes from './upload.routes.js';
 import imageRoutes from './image.routes.js';
@@ -17,6 +18,7 @@ import analyticsRoutes from './analytics.routes.js';
 const router = Router();
 
 router.use(sanitizeInput);
+router.use(deepRequestSanitizer);
 router.use('/auth', authRoutes);
 router.use('/upload', uploadRoutes);
 router.use('/process', imageRoutes);
