@@ -41,10 +41,11 @@ function AppRoutes({ darkMode, toggleTheme }) {
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/studio" element={<PhotoStudio />} />
-          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/settings" element={<SettingsPage darkMode={darkMode} toggleTheme={toggleTheme} />} />
           <Route path="/diagnostics" element={<DiagnosticsPage darkMode={darkMode} />} />
           <Route path="/history" element={<HistoryPage darkMode={darkMode} toggleTheme={toggleTheme} />} />
           <Route path="/compare-requirements" element={<PassportComparatorPage darkMode={darkMode} toggleTheme={toggleTheme} />} />
+          <Route path="/api-docs" element={<ApiDocsPage />} />
           <Route path="*" element={<NotFoundPage darkMode={darkMode} />} />
         </Routes>
       </Suspense>
