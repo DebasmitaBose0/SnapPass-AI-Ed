@@ -258,7 +258,7 @@ function EditorPage({ darkMode, toggleTheme }) {
                             strokeDasharray="4 4"
                           />
 
-                          {/* 2. Ideal Oval Positioning Template */}
+                          {/* 2. Ideal Oval Positioning Template (US: 2x2in, India: 35x45mm) from presets.json */}
                           <ellipse
                             cx={(complianceData.meta.dimensions?.w || 600) / 2}
                             cy={

@@ -114,6 +114,7 @@ function PhotoStudio() {
     };
 
     const handleCropAction = () => {
+        // Apply target crop bounds matching the eye/chin constraints in presets.json
         if (isCropping) {
             if (!imgRef.current || !completedCrop || completedCrop.width <= 0 || completedCrop.height <= 0) {
                 setIsCropping(false);
