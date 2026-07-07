@@ -13,6 +13,7 @@ import auditRoutes from './audit.routes.js';
 import presetsRoutes from './presets.routes.js';
 import docsRoutes from './docs.routes.js';
 import analyticsRoutes from './analytics.routes.js';
+import cleanupRoutes from './cleanup.routes.js';
 
 const router = Router();
 
@@ -29,6 +30,7 @@ router.use('/audit-logs', auditRoutes);
 router.use('/presets', presetsRoutes);
 router.use('/docs', docsRoutes);
 router.use('/analytics', analyticsRoutes);
+router.use('/cleanup', cleanupRoutes);
 
 export { healthRoutes };
 export default router;

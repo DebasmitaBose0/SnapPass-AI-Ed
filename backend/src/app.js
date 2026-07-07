@@ -28,6 +28,7 @@ app.use(requestId);
 app.use(loggerMiddleware);
 app.use(auditMiddleware);
 
+// Serve uploaded files statically for frontend canvas access
 app.use('/uploads', express.static(path.resolve(process.cwd(), 'uploads')));
 
 app.use('/api', apiRoutes);
