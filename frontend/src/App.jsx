@@ -29,6 +29,7 @@ function AppContent() {
 }
 
 function App() {
+  // Mount primary application providers and routing controls
   return (
     <ToastProvider>
       <ThemeProvider>
