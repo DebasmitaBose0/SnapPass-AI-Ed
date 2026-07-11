@@ -1,133 +1,142 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './AdminDashboard.css';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { translations } from '../translations/translations';
+import { DASHBOARD_TABS, METRIC_CARDS, EMPTY_STATS, STATUS_BADGE, QUICK_ACTIONS } from '../data/AdminDashboardData';
 
-/**
- * AdminDashboard — placeholder admin panel.
- * Shows summary stats and a table of recent uploads.
- * Backend integration pending — contributors welcome!
- */
 function AdminDashboard() {
   const { darkMode } = useTheme();
   const { language } = useLanguage();
   const t = translations[language];
   const [activeTab, setActiveTab] = useState('overview');
   const [analytics, setAnalytics] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [systemInfo, setSystemInfo] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    let cancelled = false;
-    const fetchStats = async () => {
-      setLoading(true);
-      setError('');
-      try {
-        const res = await fetch('/api/analytics/stats');
-        if (!res.ok) throw new Error('Failed to fetch');
-        const body = await res.json();
-        if (!cancelled && body.success) setAnalytics(body.data);
-      } catch (err) {
-        if (!cancelled) setError('Could not load analytics. Ensure the server is running.');
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    };
-    fetchStats();
-    return () => { cancelled = true; };
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch('/api/analytics/stats');
+      if (!res.ok) throw new Error('Failed to fetch analytics');
+      const body = await res.json();
+      if (body.success) setAnalytics(body.data);
+    } catch (err) {
+      setError('Could not load analytics. Ensure the server is running.');
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const stats = analytics ? [
-    { label: t.totalUploads, value: analytics.stats.totalUploads, icon: 'upload' },
-    { label: t.sheetsGenerated, value: analytics.stats.totalSheets, icon: 'print' },
-    { label: 'Processed Images', value: analytics.stats.totalProcessed, icon: 'palette' },
-    { label: t.activeToday, value: analytics.stats.todayUploads, icon: 'calendar' },
-  ] : [
-    { label: t.totalUploads, value: loading ? '...' : '\u2014', icon: 'upload' },
-    { label: t.sheetsGenerated, value: loading ? '...' : '\u2014', icon: 'print' },
-    { label: 'Processed Images', value: loading ? '...' : '\u2014', icon: 'palette' },
-    { label: t.activeToday, value: loading ? '...' : '\u2014', icon: 'calendar' },
-  ];
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
-  const iconMap = {
-    upload: (
-      <div className={`svg-style ${darkMode ? 'svg-style-dark' : ''}`}>
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path d="M12 16V5" />
-          <circle cx="12" cy="12" r="7" />
-          <path d="M8 9l4-4 4 4" />
-          <path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" />
-        </svg>
-      </div>
-    ),
-    print: (
-      <div className={`svg-style ${darkMode ? 'svg-style-dark' : ''}`}>
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path d="M6 9V4h12v5" />
-          <rect x="4" y="10" width="16" height="7" rx="2" />
-          <path d="M7 17v3h10v-3" />
-          <path d="M9 13h6" />
-        </svg>
-      </div>
-    ),
-    palette: (
-      <div className={`svg-style ${darkMode ? 'svg-style-dark' : ''}`}>
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path d="M12 4a8 8 0 1 0 0 16h1a2 2 0 1 0 0-4h-1a4 4 0 0 1 0-8" />
-          <circle cx="7.5" cy="10" r="1" />
-          <circle cx="10" cy="7.5" r="1" />
-          <circle cx="14" cy="7.5" r="1" />
-          <circle cx="16.5" cy="10" r="1" />
-        </svg>
-      </div>
-    ),
-    calendar: (
-      <div className={`svg-style ${darkMode ? 'svg-style-dark' : ''}`}>
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <rect x="4" y="5" width="16" height="15" rx="3" />
-          <path d="M8 3v4M16 3v4" />
-          <path d="M4 9h16" />
-        </svg>
-      </div>
-    ),
-    chart: (
-      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-        <path d="M4 19h16" />
-        <path d="M6 17V9" />
-        <path d="M12 17V5" />
-        <path d="M18 17v-7" />
-      </svg>
-    ),
+  useEffect(() => {
+    if (activeTab === 'users') {
+      fetch('/api/admin/users')
+        .then(r => r.json())
+        .then(d => { if (d.success) setUsers(d.data); })
+        .catch(() => {});
+    }
+    if (activeTab === 'system') {
+      fetch('/api/admin/system')
+        .then(r => r.json())
+        .then(d => { if (d.success) setSystemInfo(d.data); })
+        .catch(() => {});
+    }
+  }, [activeTab]);
+
+  const stats = analytics
+    ? METRIC_CARDS.map((card) => ({
+        ...card,
+        label: t[card.key] || card.key,
+        value: analytics.stats?.[card.key] ?? analytics[card.key] ?? 0,
+      }))
+    : METRIC_CARDS.map((card) => ({
+        ...card,
+        label: t[card.key] || card.key,
+        value: loading ? '...' : '\u2014',
+      }));
+
+  const handleQuickAction = async (action) => {
+    setActionLoading(true);
+    try {
+      if (action === 'refresh') {
+        await fetchData();
+      } else if (action === 'cleanup') {
+        await fetch('/api/cleanup', { method: 'POST' });
+        await fetchData();
+      }
+    } catch {}
+    setActionLoading(false);
   };
 
-  const tabs = [
-    { key: 'overview', label: t.overview },
-    { key: 'uploads', label: t.uploadsTab },
-    { key: 'settings', label: t.settings },
-  ];
+  const formatUptime = (seconds) => {
+    const d = Math.floor(seconds / 86400);
+    const h = Math.floor((seconds % 86400) / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    return `${d}d ${h}h ${m}m`;
+  };
+
+  const renderIcon = (icon) => {
+    const paths = {
+      upload: 'M12 16V5 M8 9l4-4 4 4 M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3',
+      print: 'M6 9V4h12v5 M4 10h16v7H4z M7 17v3h10v-3 M9 13h6',
+      palette: 'M12 4a8 8 0 1 0 0 16h1a2 2 0 1 0 0-4h-1a4 4 0 0 1 0-8 M7.5 10h1 M10 7.5h1 M14 7.5h1 M16.5 10h1',
+      calendar: 'M4 5h16v15H4z M8 3v4 M16 3v4 M4 9h16',
+      chart: 'M4 19h16 M6 17V9 M12 17V5 M18 17v-7',
+      users: 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M4 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2',
+      trash: 'M3 6h18 M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6 M10 11v6 M14 11v6 M9 6V4h6v2',
+      refresh: 'M23 4v6h-6 M1 20v-6h6 M3.5 9a9 9 0 0 1 14.2-3.2L23 10 M1 14l5.3 4.2A9 9 0 0 0 20.5 15',
+      download: 'M12 16V5 M8 9l4-4 4 4 M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3',
+    };
+    const d = paths[icon] || paths.chart;
+    return (
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        {d.split(' ').map((p, i) => {
+          const match = p.match(/([A-Z])/);
+          return match ? <path key={i} d={p} /> : <path key={i} d={`M${p}`} />;
+        })}
+      </svg>
+    );
+  };
 
   return (
-    <div
-      className={`admin-page-toggle  ${darkMode ? 'admin-page-toggle-dark' : ''}`}
-    >
+    <div className={`admin-page-toggle ${darkMode ? 'admin-page-toggle-dark' : ''}`}>
       <div className="admin-page">
-        <div
-          className={`admin-page__header ${darkMode ? 'admin-page__header-dark' : ''}`}
-        >
+        <div className={`admin-page__header ${darkMode ? 'admin-page__header-dark' : ''}`}>
           <div>
-            <h1 className={`title ${darkMode ? 'title-dark' : ''}`}>
-              {t.adminDashboard}
-            </h1>
+            <h1 className={`title ${darkMode ? 'title-dark' : ''}`}>{t.adminDashboard}</h1>
             <p className="section-subtitle">{t.adminSubtitle}</p>
           </div>
-          {loading && <span className="badge badge-blue">Loading...</span>}
-          {error && <span className="badge badge-red" title={error}>Error</span>}
-          {analytics && <span className="badge badge-green">Live</span>}
+          <div className="admin-page__badges">
+            {loading && <span className="badge badge-blue">Loading...</span>}
+            {error && <span className="badge badge-red" title={error}>Error</span>}
+            {analytics && !loading && <span className="badge badge-green">Live</span>}
+          </div>
+        </div>
+
+        <div className="admin-page__quick-actions">
+          {QUICK_ACTIONS.map((qa) => (
+            <button
+              key={qa.id}
+              className={`admin-quick-btn ${darkMode ? 'admin-quick-btn-dark' : ''}`}
+              onClick={() => handleQuickAction(qa.action)}
+              disabled={actionLoading}
+            >
+              {renderIcon(qa.icon)}
+              <span>{qa.label}</span>
+            </button>
+          ))}
         </div>
 
         <div className={`admin-tabs ${darkMode ? 'admin-tabs-dark' : ''}`}>
-          {tabs.map(({ key, label }) => (
+          {DASHBOARD_TABS.map(({ key, labelKey }) => (
             <button
               key={key}
               className={`admin-tab ${activeTab === key ? (darkMode ? 'admin-tab--active-dark' : 'admin-tab--active-light') : ''}`}
@@ -135,7 +144,7 @@ function AdminDashboard() {
               aria-selected={activeTab === key}
               onClick={() => setActiveTab(key)}
             >
-              {label}
+              {t[labelKey] || labelKey}
             </button>
           ))}
         </div>
@@ -143,10 +152,10 @@ function AdminDashboard() {
         {activeTab === 'overview' && (
           <div className="admin-overview" role="tabpanel">
             <div className="stats-grid">
-              {stats.map(({ label, value, icon }) => (
-                <div key={label} className="stat-card card">
+              {stats.map(({ label, value, icon, color }) => (
+                <div key={label} className="stat-card card" style={{ borderTopColor: color }}>
                   <span className="stat-card__icon" aria-hidden="true">
-                    {iconMap[icon]}
+                    {renderIcon(icon)}
                   </span>
                   <span className="stat-card__value">{value}</span>
                   <span className="stat-card__label">{label}</span>
@@ -157,32 +166,87 @@ function AdminDashboard() {
             {error && (
               <div className="admin-error card">
                 <p>{error}</p>
-                <button
-                  className="btn btn-sm btn-outline"
-                  onClick={() => window.location.reload()}
-                >
-                  Retry
-                </button>
+                <button className="btn btn-sm btn-outline" onClick={fetchData}>Retry</button>
               </div>
             )}
 
             {!analytics && !loading && !error && (
               <div className="admin-placeholder card">
-                <p className="admin-placeholder__icon" aria-hidden="true">
-                  {iconMap.chart}
-                </p>
+                <p className="admin-placeholder__icon">{renderIcon('chart')}</p>
                 <p className={`admin-placeholder__title ${darkMode ? 'admin-placeholder__title-dark' : ''}`}>{t.analyticsSoon}</p>
                 <p className="admin-placeholder__desc">{t.analyticsDesc}</p>
+              </div>
+            )}
+
+            {analytics && (
+              <div className="admin-panel-group">
+                <div className="admin-panel card">
+                  <h3 className="admin-panel__title">Recent Uploads</h3>
+                  {analytics.recentUploads?.length > 0 ? (
+                    <div className="admin-recent-list">
+                      {analytics.recentUploads.slice(0, 5).map((u) => (
+                        <div key={u.id} className="admin-recent-item">
+                          <span className="admin-recent-name">{u.filename}</span>
+                          <span className="admin-recent-date">{new Date(u.date).toLocaleDateString()}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="admin-empty-text">{t.noUploads}</p>
+                  )}
+                </div>
+                <div className="admin-panel card">
+                  <h3 className="admin-panel__title">User Stats</h3>
+                  <div className="admin-stat-rows">
+                    <div className="admin-stat-row">
+                      <span>Total Users</span>
+                      <span className="admin-stat-value">{analytics.stats?.totalUsers || 0}</span>
+                    </div>
+                    <div className="admin-stat-row">
+                      <span>Today New</span>
+                      <span className="admin-stat-value">{analytics.stats?.newToday || analytics.stats?.todayUploads || 0}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </div>
         )}
 
+        {activeTab === 'users' && (
+          <div className="admin-uploads card" role="tabpanel">
+            <table className={`admin-table ${darkMode ? 'admin-table-dark' : ''}`}>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Joined</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.length > 0 ? (
+                  users.map((u) => (
+                    <tr key={u._id}>
+                      <td>{u.fullName || 'N/A'}</td>
+                      <td>{u.email}</td>
+                      <td><span className="badge badge-blue">{u.role}</span></td>
+                      <td>{new Date(u.createdAt).toLocaleDateString()}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr className="admin-table__empty-row">
+                    <td colSpan={4}>{t.noUploads}</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+
         {activeTab === 'uploads' && (
           <div className="admin-uploads card" role="tabpanel">
-            <table
-              className={`admin-table ${darkMode ? 'admin-table-dark' : ''}`}
-            >
+            <table className={`admin-table ${darkMode ? 'admin-table-dark' : ''}`}>
               <thead>
                 <tr>
                   <th>{t.fileName}</th>
@@ -196,7 +260,9 @@ function AdminDashboard() {
                     <tr key={u.id}>
                       <td>{u.filename}</td>
                       <td>{new Date(u.date).toLocaleDateString()}</td>
-                      <td><span className="badge badge-green">Completed</span></td>
+                      <td>
+                        <span className="badge badge-green">Completed</span>
+                      </td>
                     </tr>
                   ))
                 ) : (
@@ -209,14 +275,47 @@ function AdminDashboard() {
           </div>
         )}
 
-        {activeTab === 'settings' && (
+        {activeTab === 'system' && (
           <div className="admin-settings card" role="tabpanel">
-            <p
-              className={`admin-placeholder__title ${darkMode ? 'admin-placeholder__title-dark' : ''}`}
-            >
-              {t.settingsPanel}
-            </p>
-            <p className="admin-placeholder__desc">{t.settingsDesc}</p>
+            <h3 className={`admin-panel__title ${darkMode ? 'admin-placeholder__title-dark' : ''}`}>
+              System Information
+            </h3>
+            {systemInfo ? (
+              <div className="admin-stat-rows">
+                <div className="admin-stat-row">
+                  <span>Node Version</span>
+                  <span className="admin-stat-value">{systemInfo.nodeVersion}</span>
+                </div>
+                <div className="admin-stat-row">
+                  <span>Platform</span>
+                  <span className="admin-stat-value">{systemInfo.platform}</span>
+                </div>
+                <div className="admin-stat-row">
+                  <span>Uptime</span>
+                  <span className="admin-stat-value">{formatUptime(systemInfo.uptime)}</span>
+                </div>
+                <div className="admin-stat-row">
+                  <span>Total Requests</span>
+                  <span className="admin-stat-value">{systemInfo.metrics?.totalRequests || 0}</span>
+                </div>
+                <div className="admin-stat-row">
+                  <span>Active Requests</span>
+                  <span className="admin-stat-value">{systemInfo.metrics?.activeRequests || 0}</span>
+                </div>
+                <div className="admin-stat-row">
+                  <span>Avg Response Time</span>
+                  <span className="admin-stat-value">
+                    {systemInfo.metrics?.latency?.avg
+                      ? `${Math.round(systemInfo.metrics.latency.avg)}ms`
+                      : 'N/A'}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <p className={`admin-placeholder__desc ${darkMode ? 'admin-placeholder__title-dark' : ''}`}>
+                Connect to the backend to view system information.
+              </p>
+            )}
           </div>
         )}
       </div>
