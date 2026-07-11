@@ -1,3 +1,8 @@
+import fr from './fr.json';
+import es from './es.json';
+import de from './de.json';
+import bn from './bn.json';
+
 export const translations = {
   en: {
     home: 'Home',
@@ -372,6 +377,10 @@ export const translations = {
     attireMaleBowtie: 'Black Suit & Bowtie',
   },
 
+  fr,
+  es,
+  de,
+  bn,
   hi: {
     home: 'होम',
     showOriginal: 'मूल फोटो दिखाएँ',
