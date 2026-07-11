@@ -174,7 +174,7 @@ export const getPreview = async (req, res, next) => {
 
 
 
-import { createJob, getJob, updateJob } from '../utils/processJobStore.js';
+import { createJob, getJob, updateJob, getJobEventEmitter } from '../utils/processJobStore.js';
 
 function isAllowedAttire(attire) {
   return ["none", "male_suit", "female_blazer", "male_bowtie"].includes(attire);

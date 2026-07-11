@@ -9,6 +9,7 @@ import BackgroundSelector from '../components/BackgroundSelector';
 import AttireSelector from '../components/AttireSelector';
 import CompliancePanel from '../components/CompliancePanel';
 import useImageProcessor from '../hooks/useImageProcessor';
+import ProcessingStatus from '../components/ProcessingStatus';
 import { iconMap, backgroundHexMap } from '../data/EditorPageData';
 import EditorPageDiagnostics from './EditorPageDiagnostics';
 import api from '../services/api';
@@ -32,11 +33,13 @@ function EditorPage({ darkMode, toggleTheme }) {
   const { processImage, processedUrl, isProcessing, error, reset } =
     useImageProcessor();
 
-  // Selected editor preferences and local preview state containers
   const [background, setBackground] = useState('white');
   const [sizePreset, setSizePreset] = useState('35x45');
   const [attire, setAttire] = useState('none');
   const [filename, setFilename] = useState(state?.filename || '');
+  const [currentJobId, setCurrentJobId] = useState(null);
+  const [processingProgress, setProcessingProgress] = useState(0);
+  const [processingStage, setProcessingStage] = useState('');
   const [complianceData, setComplianceData] = useState(null);
   const [complianceLoading, setComplianceLoading] = useState(false);
   const [complianceError, setComplianceError] = useState(null);
@@ -111,13 +114,27 @@ function EditorPage({ darkMode, toggleTheme }) {
 
   const handleProcess = useCallback(async () => {
     if (!filename) return;
+    setProcessingProgress(0);
+    setProcessingStage('Initializing');
     try {
+      const startResp = await api.post('/process/job', {
+        filename,
+        backgroundColour: background,
+        photoSizePreset: sizePreset,
+        attire,
+      });
+      const jobId = startResp?.data?.data?.jobId;
+      if (jobId) setCurrentJobId(jobId);
+
       const resultUrl = await processImage({
         filename,
         backgroundColour: background,
         photoSizePreset: sizePreset,
         attire,
       });
+      setCurrentJobId(null);
+      setProcessingProgress(100);
+      setProcessingStage('Complete');
       saveSession({
         step: 'editor',
         processedUrl: resultUrl,
@@ -130,7 +147,7 @@ function EditorPage({ darkMode, toggleTheme }) {
         state: { processedUrl: resultUrl, filename, background, sizePreset },
       });
     } catch (err) {
-      // error handled by hook
+      setProcessingStage('Failed');
     }
   }, [filename, background, sizePreset, attire, processImage, navigate]);
 
@@ -418,6 +435,15 @@ function EditorPage({ darkMode, toggleTheme }) {
             />
 
             <hr className="divider" />
+
+            {(isProcessing || currentJobId) && (
+              <ProcessingStatus
+                jobId={currentJobId}
+                progress={processingProgress}
+                stage={processingStage}
+                status={isProcessing ? 'processing' : 'queued'}
+              />
+            )}
 
             {error && (
               <div
