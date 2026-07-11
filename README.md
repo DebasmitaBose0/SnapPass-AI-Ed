@@ -86,14 +86,19 @@ No expensive studio. No complicated software. Just upload, click, and print.
 
 ## 🧭 Project Status
 
-> ⚠️ **This project is in active early development.** The frontend scaffold is complete and functional. The backend and Python AI service stubs are ready for contributors to build on.
+> ✅ **Project is functional with active development.** The frontend, backend, and Python AI service are all implemented with working features.
 
 | Layer | Status |
 |-------|--------|
-| Frontend (React) | ✅ Scaffold complete — fully navigable |
-| Backend (Express) | 🟡 Scaffold ready — needs controller logic |
-| Python AI Service | 🟡 Structure ready — needs OpenCV / rembg logic |
-| Database (MongoDB) | 🔲 Structure planned — not yet implemented |
+| Frontend (React 19) | ✅ Fully implemented — all pages, components, hooks, and i18n |
+| Backend (Express) | ✅ Fully implemented — auth, upload, processing, compliance, admin APIs |
+| Python AI Service (Flask) | ✅ Fully implemented — rembg background removal, face centering, DPI optimization |
+| Database (MongoDB) | 🟡 Schema ready — requires MONGO_URI to be set for persistence |
+| PWA Support | 🆕 Added — service worker, manifest, offline banner |
+| Real-time Progress | 🆕 Added — SSE for live job processing updates |
+| Batch Upload | 🆕 Added — multi-file drag-and-drop with queue management |
+| Admin Dashboard | 🆕 Added — analytics, user management, system monitoring |
+| Security Hardening | 🆕 Added — CSP headers, input sanitization, security utilities |
 
 ---
 
@@ -101,10 +106,12 @@ No expensive studio. No complicated software. Just upload, click, and print.
 
 | Layer | Technology |
 |-------|-----------|
-| **Frontend** | React.js, React Router DOM, Vanilla CSS |
-| **Backend** | Node.js, Express.js, Multer |
-| **AI Microservice** | Python, Flask, OpenCV, Pillow, rembg |
-| **Database** *(planned)* | MongoDB |
+| **Frontend** | React 19, Vite, Tailwind CSS 4, Framer Motion, Axios |
+| **Backend** | Node.js 20, Express.js, Mongoose, JWT, Multer, Redis |
+| **AI Microservice** | Python 3.11, Flask, OpenCV, Pillow, rembg, NumPy |
+| **Database** | MongoDB 7.0 (with Mongoose ODM) |
+| **Real-time** | Server-Sent Events (SSE) |
+| **Infrastructure** | Docker Compose, Vercel, GitHub Actions CI/CD |
 
 ---
 
@@ -113,50 +120,41 @@ No expensive studio. No complicated software. Just upload, click, and print.
 ```
 snappass-ai/
 │
-├── frontend/                          # React frontend application
+├── frontend/                              # React 19 frontend
 │   ├── src/
+│   │   ├── animations/                    # Framer Motion variants
+│   │   ├── chatbot/                       # SnapPassAssistant AI chatbot
 │   │   ├── components/
-│   │   │   ├── layout/               # Shared layout components
-│   │   │   │   ├── Navbar.jsx
-│   │   │   │   └── Footer.jsx
-│   │   │   ├── UploadBox.jsx         # Drag-and-drop uploader
-│   │   │   ├── PhotoPreview.jsx      # Image preview component
-│   │   │   ├── LoadingSpinner.jsx    # Reusable loading UI
-│   │   │   └── ...
+│   │   │   ├── layout/                    # Navbar, Footer
+│   │   │   ├── HomePage/                  # Hero, Features, Steps
+│   │   │   ├── testimonials/              # Testimonial components
+│   │   │   ├── UploadBox.jsx              # Drag-and-drop uploader
+│   │   │   ├── BatchUploadBox.jsx         # Multi-file batch upload
+│   │   │   ├── PhotoPreview.jsx           # Image preview
+│   │   │   ├── ProcessingStatus.jsx       # Real-time progress bar
+│   │   │   ├── OfflineBanner.jsx          # PWA offline indicator
+│   │   │   ├── SecurityBanner.jsx         # HTTPS warning banner
+│   │   │   └── 50+ more components...
 │   │   │
-│   │   ├── pages/                    # Application pages
-│   │   │   ├── HomePage.jsx
-│   │   │   ├── UploadPage.jsx
-│   │   │   ├── EditorPage.jsx
-│   │   │   ├── PrintPreviewPage.jsx
-│   │   │   └── AdminDashboard.jsx
-│   │   │
-│   │   ├── hooks/                    # Custom React hooks
-│   │   │   ├── usePhotoUpload.jsx
-│   │   │   └── useImageProcessor.jsx
-│   │   │
-│   │   ├── services/                 # API communication layer
-│   │   │   ├── api.jsx
-│   │   │   └── photoService.jsx
-│   │   │
-│   │   ├── utils/                    # Utility/helper functions
-│   │   │   ├── fileValidation.jsx
-│   │   │   └── formatters.jsx
-│   │   │
-│   │   └── routes/                   # App routing configuration
-│   │       └── AppRoutes.jsx
+│   │   ├── context/                       # ThemeContext, LanguageContext, ToastContext
+│   │   ├── data/                          # Static data (presets, backgrounds, requirements)
+│   │   ├── hooks/                         # 18 custom React hooks
+│   │   ├── pages/                         # 15 page components
+│   │   ├── routes/                        # AppRoutes, RouteGuard
+│   │   ├── services/                      # API client (axios), photo service
+│   │   ├── translations/                  # i18n (en, hi, fr, es, de, bn)
+│   │   └── utils/                         # 20+ utility modules
 │   │
-│   ├── Dockerfile
-│   ├── package.json
-│   └── README.md
+│   ├── public/
+│   │   ├── sw.js                          # Service worker
+│   │   └── manifest.json                  # PWA manifest
+│   │
+│   └── package.json
 │
-├── backend/                           # Express.js backend API
+├── backend/                               # Express.js backend API
 │   ├── src/
-│   │   ├── config/                   # Environment & DB configs
-│   │   │   ├── config.js
-│   │   │   └── db.js
-│   │   │
-│   │   ├── controllers/              # Route controllers
+│   │   ├── config/                        # App, database, Redis config
+│   │   ├── controllers/                   # 15 route controllers
 │   │   │   ├── auth.controller.js
 │   │   │   ├── upload.controller.js
 │   │   │   ├── image.controller.js
