@@ -9,11 +9,32 @@ import { requestId } from './middleware/requestId.middleware.js';
 import { loggerMiddleware } from './middleware/logger.middleware.js';
 import { auditMiddleware } from './middleware/audit.middleware.js';
 import { checkTokenBlacklist } from './middleware/blacklist.middleware.js';
+import { securityHeaders } from './middleware/securityHeaders.middleware.js';
 import apiRoutes, { healthRoutes } from './routes/index.js';
 
 const app = express();
 
-app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", 'data:', 'blob:'],
+      fontSrc: ["'self'"],
+      connectSrc: ["'self'", config.AI_SERVICE_URL].filter(Boolean),
+      frameAncestors: ["'none'"],
+      formAction: ["'self'"],
+    },
+  },
+  hsts: {
+    maxAge: 63072000,
+    includeSubDomains: true,
+    preload: true,
+  },
+}));
+app.use(securityHeaders);
 app.use(
   cors({
     origin: config.CORS_ORIGIN || 'http://localhost:5173',
