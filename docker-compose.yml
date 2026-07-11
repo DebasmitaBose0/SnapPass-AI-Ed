@@ -65,6 +65,7 @@ services:
       - "5173:5173"
     environment:
       VITE_API_URL: http://localhost:5000/api
+      VITE_APP_VERSION: 0.1.0
     depends_on:
       - backend
 

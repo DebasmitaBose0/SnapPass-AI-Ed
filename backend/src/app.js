@@ -9,6 +9,7 @@ import { requestId } from './middleware/requestId.middleware.js';
 import { loggerMiddleware } from './middleware/logger.middleware.js';
 import { auditMiddleware } from './middleware/audit.middleware.js';
 import { checkTokenBlacklist } from './middleware/blacklist.middleware.js';
+import { timingMiddleware } from './middleware/timing.middleware.js';
 import apiRoutes, { healthRoutes } from './routes/index.js';
 
 const app = express();
