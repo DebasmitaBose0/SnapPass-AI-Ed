@@ -1,0 +1,46 @@
+.offline-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+  background: #fef3c7;
+  border-bottom: 1px solid #f59e0b;
+  color: #92400e;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.offline-banner--dark {
+  background: #451a03;
+  border-bottom-color: #b45309;
+  color: #fbbf24;
+}
+
+.offline-banner__icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.offline-banner__text {
+  flex: 1;
+}
+
+.offline-banner__dismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  border-radius: 4px;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.offline-banner__dismiss:hover {
+  opacity: 1;
+}

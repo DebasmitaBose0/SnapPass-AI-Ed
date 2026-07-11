@@ -4,6 +4,7 @@ import Footer from './components/layout/Footer';
 import AppRoutes from './routes/AppRoutes';
 import SkipToContent from './components/SkipToContent';
 import SnapPassAssistant from './chatbot/SnapPassAssistant';
+import OfflineBanner from './components/OfflineBanner';
 import { ToastProvider } from './context/ToastContext';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import './App.css';
@@ -11,13 +12,12 @@ import ScrollToTopButton from './components/ScrollToTopButton';
 
 
 function AppContent() {
-  // Retrieve global visual and functional preferences from mounted contexts
   const { darkMode, toggleTheme } = useTheme();
 
   return (
     <div className="app-shell">
       <SkipToContent />
-      {/* Primary content area rendering child routes */}
+      <OfflineBanner darkMode={darkMode} />
       <Navbar darkMode={darkMode} toggleTheme={toggleTheme} />
       <main className="app-main" id="main-content" tabIndex={-1}>
         <AppRoutes darkMode={darkMode} toggleTheme={toggleTheme} />
