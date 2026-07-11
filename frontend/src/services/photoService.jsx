@@ -70,3 +70,16 @@ export const getSizePresets = async () => {
   const { data } = await api.get('/print/presets');
   return data.data;
 };
+
+export const uploadPhotos = async (files, onProgress) => {
+  const formData = new FormData();
+  for (const file of files) {
+    formData.append('photos', file);
+  }
+  const { data } = await api.post('/upload/batch', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    onUploadProgress: onProgress,
+    timeout: 300000,
+  });
+  return data.data;
+};

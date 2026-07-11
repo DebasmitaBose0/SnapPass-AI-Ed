@@ -236,6 +236,58 @@
   }
 }
 
+.upload-page__mode-toggle {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.upload-mode-btn {
+  padding: 0.4rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 9999px;
+  background: transparent;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.upload-mode-btn:hover {
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.upload-mode-btn--active {
+  background: #3b82f6;
+  color: #fff;
+  border-color: #3b82f6;
+}
+
+.upload-mode-btn--active:hover {
+  background: #2563eb;
+  color: #fff;
+}
+
+.batch-summary {
+  padding: 1rem;
+}
+
+.batch-summary__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.batch-summary__counts {
+  font-weight: 400;
+  color: #64748b;
+}
+
 @media (max-width: 768px) {
   .upload-page {
     gap: 2rem;

@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import UploadBox from '../components/UploadBox';
 import PhotoPreview from '../components/PhotoPreview';
 import UploadProgress from '../components/UploadProgress';
+import BatchUploadBox from '../components/BatchUploadBox';
 import usePhotoUpload from '../hooks/usePhotoUpload';
+import { useBatchUpload } from '../hooks/useBatchUpload';
 import { compressImage } from '../utils/imageCompression';
 import { useLanguage } from '../context/LanguageContext';
 import { translations } from '../translations/translations';
 import { iconMap } from '../data/UploadPageData';
+import { uploadPhoto } from '../services/photoService';
 import './UploadPage.css';
 
 function UploadPage({ darkMode, toggleTheme }) {
@@ -23,7 +26,9 @@ function UploadPage({ darkMode, toggleTheme }) {
     uploadProgress,
     reset,
   } = usePhotoUpload();
+  const batch = useBatchUpload();
   const [localPreview, setLocalPreview] = useState(null);
+  const [uploadMode, setUploadMode] = useState('single');
 
   const tips = [
     { type: 'ok', text: t.tipPlainBg },
@@ -92,6 +97,20 @@ function UploadPage({ darkMode, toggleTheme }) {
           >
             {t.uploadSubtitle}
           </p>
+          <div className="upload-page__mode-toggle">
+            <button
+              className={`upload-mode-btn ${uploadMode === 'single' ? 'upload-mode-btn--active' : ''}`}
+              onClick={() => setUploadMode('single')}
+            >
+              Single Photo
+            </button>
+            <button
+              className={`upload-mode-btn ${uploadMode === 'batch' ? 'upload-mode-btn--active' : ''}`}
+              onClick={() => setUploadMode('batch')}
+            >
+              Batch Upload
+            </button>
+          </div>
         </motion.div>
 
         <motion.div
@@ -100,19 +119,57 @@ function UploadPage({ darkMode, toggleTheme }) {
           animate="visible"
           custom={0.2}
         >
-          {displayUrl ? (
-            <PhotoPreview
-              imageUrl={displayUrl}
-              filename={uploadedFile?.filename || 'preview'}
-              onReset={reset}
-              onProceed={handleProceed}
-              isUploading={isUploading}
-              darkMode={darkMode}
-            />
+          {uploadMode === 'single' ? (
+            displayUrl ? (
+              <PhotoPreview
+                imageUrl={displayUrl}
+                filename={uploadedFile?.filename || 'preview'}
+                onReset={reset}
+                onProceed={handleProceed}
+                isUploading={isUploading}
+                darkMode={darkMode}
+              />
+            ) : (
+              <>
+                <UploadBox onFileSelect={handleFileSelect} />
+                <UploadProgress progress={uploadProgress} darkMode={darkMode} />
+              </>
+            )
           ) : (
             <>
-              <UploadBox onFileSelect={handleFileSelect} />
-              <UploadProgress progress={uploadProgress} darkMode={darkMode} />
+              <BatchUploadBox onFilesSelected={(files) => batch.addFiles(files)} maxFiles={10} />
+              {batch.results.length > 0 && (
+                <div className="batch-summary card" style={{ marginTop: '1rem' }}>
+                  <div className="batch-summary__header">
+                    <span>{batch.results.length} files</span>
+                    <span className="batch-summary__counts">
+                      {batch.progress.completed} uploaded
+                      {batch.progress.failed > 0 && `, ${batch.progress.failed} failed`}
+                    </span>
+                  </div>
+                  <UploadProgress
+                    progress={batch.progress.total > 0 ? Math.round((batch.progress.completed / batch.progress.total) * 100) : 0}
+                    darkMode={darkMode}
+                    label="Total Progress"
+                  />
+                  <div className="batch-summary__actions" style={{ marginTop: '0.75rem', display: 'flex', gap: '0.5rem' }}>
+                    {batch.hasPending && !batch.uploading && (
+                      <button className="btn btn-primary" onClick={() => batch.startUpload('/api/upload')}>
+                        Upload All ({batch.results.filter(r => r.status === 'queued').length} files)
+                      </button>
+                    )}
+                    {batch.uploading && (
+                      <button className="btn btn-secondary" onClick={batch.abort}>Cancel</button>
+                    )}
+                    {batch.results.some(r => r.status === 'done') && !batch.uploading && (
+                      <Link to="/editor" state={{ batchFiles: batch.results.filter(r => r.status === 'done').map(r => r.response?.data) }}
+                        className="btn btn-primary">
+                        Edit Uploaded Photos
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              )}
             </>
           )}
         </motion.div>
