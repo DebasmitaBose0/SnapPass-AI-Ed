@@ -11,6 +11,7 @@ import { auditMiddleware } from './middleware/audit.middleware.js';
 import { checkTokenBlacklist } from './middleware/blacklist.middleware.js';
 import { timingMiddleware } from './middleware/timing.middleware.js';
 import apiRoutes, { healthRoutes } from './routes/index.js';
+import { securityLimiter } from './middleware/securityLimiter.js';
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use(
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID'],
   })
 );
+app.use('/api/image/process', securityLimiter(config.RATE_LIMIT_MAX, config.RATE_LIMIT_WINDOW_MS));
 app.use(cookieParser());
 // Limit incoming request payload size to prevent DOS attacks before sanitization runs
 app.use(express.json({ limit: '5mb' }));

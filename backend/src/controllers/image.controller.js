@@ -22,7 +22,10 @@ const localDirname = path.dirname(localFilename);
 export const processImage = async (req, res, next) => {
   try {
     const { filename, backgroundColour = "white", photoSizePreset = "35x45", attire = "none" } = req.body;
-
+    
+    // Security tracking and audit log association
+    const requestId = req.headers['x-request-id'] || 'no-id';
+    
     if (!filename) {
       return res.status(400).json({ success: false, message: "filename is required." });
     }
