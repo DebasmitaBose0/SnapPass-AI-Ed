@@ -174,7 +174,40 @@ export const getPreview = async (req, res, next) => {
 
 
 
-import { createJob, getJob, updateJob } from '../utils/processJobStore.js';
+import crypto from 'crypto';
+import { broadcastJobUpdate } from '../routes/queue.routes.js';
+
+const jobs = new Map();
+
+export function createJob({ payload }) {
+  const jobId = crypto.randomUUID();
+  const job = {
+    id: jobId,
+    status: 'queued',
+    progress: 0,
+    stage: '',
+    createdAt: Date.now(),
+    payload,
+    processedUrl: null,
+    error: null,
+  };
+  jobs.set(jobId, job);
+  broadcastJobUpdate(jobId, job);
+  return jobId;
+}
+
+export function getJob(jobId) {
+  return jobs.get(jobId) || null;
+}
+
+export function updateJob(jobId, patch) {
+  const job = jobs.get(jobId);
+  if (!job) return null;
+  const next = { ...job, ...patch };
+  jobs.set(jobId, next);
+  broadcastJobUpdate(jobId, next);
+  return next;
+}
 
 function isAllowedAttire(attire) {
   return ["none", "male_suit", "female_blazer", "male_bowtie"].includes(attire);

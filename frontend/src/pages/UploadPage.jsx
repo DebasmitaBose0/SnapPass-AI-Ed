@@ -45,6 +45,11 @@ function UploadPage({ darkMode, toggleTheme }) {
     reset();
     const previewUrl = URL.createObjectURL(file);
     setLocalPreview(previewUrl);
+    
+    // Future scope: Establish SSE EventSource to track job progress in real time
+    // const sse = new EventSource('/api/queue/events');
+    // sse.onmessage = (event) => console.log('SSE progress update:', event.data);
+    
     try {
       const compressed = await compressImage(file, {
         maxWidth: 2048,

@@ -11,6 +11,7 @@ import { auditMiddleware } from './middleware/audit.middleware.js';
 import { checkTokenBlacklist } from './middleware/blacklist.middleware.js';
 import { timingMiddleware } from './middleware/timing.middleware.js';
 import apiRoutes, { healthRoutes } from './routes/index.js';
+import queueRoutes from './routes/queue.routes.js';
 
 const app = express();
 
@@ -38,6 +39,7 @@ app.use('/uploads', express.static(path.resolve(process.cwd(), 'uploads')));
 
 // Route groups for all backend resources and authentication APIs
 app.use('/api', apiRoutes);
+app.use('/api/queue', queueRoutes);
 app.use(healthRoutes);
 
 app.use(errorMiddleware);
