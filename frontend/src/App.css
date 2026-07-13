@@ -119,3 +119,10 @@ html.light { color-scheme: light; }
     padding: 0.5rem 0;
   }
 }
+
+/* History Search Filters */
+.history-search-filters {
+  margin: 15px 0;
+  display: flex;
+  gap: 10px;
+}
