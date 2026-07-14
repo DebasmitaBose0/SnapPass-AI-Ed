@@ -748,4 +748,12 @@ html.light { color-scheme: light; }
 .navbar__language-menu-light button:hover {
   background: #eff6ff;
   color: #2563eb;
+
+/* Image Adjustments Style */
+.image-adjustments-card {
+  border-color: var(--color-border);
+  transition: all 0.3s ease;
+}
+.image-adjustments-card input[type='range'] {
+  accent-color: var(--color-primary);
 }
