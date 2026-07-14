@@ -11,6 +11,8 @@ import CompliancePanel from '../components/CompliancePanel';
 import useImageProcessor from '../hooks/useImageProcessor';
 import { iconMap, backgroundHexMap } from '../data/EditorPageData';
 import EditorPageDiagnostics from './EditorPageDiagnostics';
+import { ImageAdjustments } from '../components/ImageAdjustments';
+import { cachePhotoOffline } from '../services/indexedDb';
 import api from '../services/api';
 import { ImageAdjustments } from '../components/ImageAdjustments';
 import './EditorPage.css';
@@ -124,6 +126,13 @@ function EditorPage({ darkMode, toggleTheme }) {
         photoSizePreset: sizePreset,
         attire,
       });
+      await cachePhotoOffline({
+        processedUrl: resultUrl,
+        filename,
+        background,
+        sizePreset,
+        attire,
+      }).catch(() => {});
       saveSession({
         step: 'editor',
         processedUrl: resultUrl,
