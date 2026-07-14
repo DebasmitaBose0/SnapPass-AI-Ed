@@ -13,6 +13,7 @@ import { iconMap, backgroundHexMap } from '../data/EditorPageData';
 import EditorPageDiagnostics from './EditorPageDiagnostics';
 import api from '../services/api';
 import { autoEnhanceImage } from '../utils/imageEnhancer';
+import { ImageAdjustments } from '../components/ImageAdjustments';
 import './EditorPage.css';
 
 const SIZE_PRESETS = [
@@ -38,6 +39,11 @@ function EditorPage({ darkMode, toggleTheme }) {
   const [sizePreset, setSizePreset] = useState('35x45');
   const [attire, setAttire] = useState('none');
   const [filename, setFilename] = useState(state?.filename || '');
+  const [filters, setFilters] = useState({
+    brightness: 100,
+    contrast: 100,
+    saturation: 100,
+  });
   const [complianceData, setComplianceData] = useState(null);
   const [complianceLoading, setComplianceLoading] = useState(false);
   const [complianceError, setComplianceError] = useState(null);
@@ -238,6 +244,7 @@ function EditorPage({ darkMode, toggleTheme }) {
                         objectFit: 'contain',
                         transition: 'opacity 0.3s ease',
                         opacity: isProcessing || complianceLoading ? 0.5 : 1,
+                        filter: `brightness(${filters.brightness}%) contrast(${filters.contrast}%) saturate(${filters.saturation}%)`,
                       }}
                     />
                     {!isProcessing &&
@@ -417,6 +424,10 @@ function EditorPage({ darkMode, toggleTheme }) {
             <hr className="divider" />
 
             <AttireSelector selected={attire} onChange={setAttire} />
+
+            <hr className="divider" />
+
+            <ImageAdjustments filters={filters} onChange={setFilters} />
 
             <hr className="divider" />
 
