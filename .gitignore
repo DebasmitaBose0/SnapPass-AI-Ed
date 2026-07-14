@@ -40,3 +40,10 @@ temp/
 # Security and audit reports
 audit-report.json
 security-scan/
+
+# Local cache JSON files
+all_data.json
+issues*.json
+my_prs.json
+prs.json
+upstream_prs*.json
