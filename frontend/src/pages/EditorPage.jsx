@@ -14,6 +14,7 @@ import EditorPageDiagnostics from './EditorPageDiagnostics';
 import { ImageAdjustments } from '../components/ImageAdjustments';
 import { cachePhotoOffline } from '../services/indexedDb';
 import api from '../services/api';
+import { AttireManualAdjuster } from '../components/AttireManualAdjuster';
 import { ImageAdjustments } from '../components/ImageAdjustments';
 import './EditorPage.css';
 
@@ -49,6 +50,9 @@ function EditorPage({ darkMode, toggleTheme }) {
   const [complianceLoading, setComplianceLoading] = useState(false);
   const [complianceError, setComplianceError] = useState(null);
   const [cacheBuster, setCacheBuster] = useState(0);
+  const [attireScale, setAttireScale] = useState(1.0);
+  const [attireX, setAttireX] = useState(0);
+  const [attireY, setAttireY] = useState(0);
 
   const apiBaseUrl =
     import.meta.env.VITE_API_URL ??
@@ -422,6 +426,16 @@ function EditorPage({ darkMode, toggleTheme }) {
             <hr className="divider" />
 
             <AttireSelector selected={attire} onChange={setAttire} />
+            {attire !== 'none' && (
+              <AttireManualAdjuster
+                scale={attireScale}
+                xOffset={attireX}
+                yOffset={attireY}
+                onChangeScale={setAttireScale}
+                onChangeX={setAttireX}
+                onChangeY={setAttireY}
+              />
+            )}
 
             <hr className="divider" />
 
