@@ -11,6 +11,7 @@ export const config = {
     MONGO_URI: process.env.MONGO_URI,
     CORS_ORIGIN: process.env.CORS_ORIGIN || "http://localhost:5173",
     MAX_FILE_SIZE: parseInt(process.env.MAX_FILE_SIZE, 10) || 10 * 1024 * 1024, // 10MB default
+    RETENTION_MAX_AGE_MS: parseInt(process.env.RETENTION_MAX_AGE_MS, 10) || 24 * 60 * 60 * 1000,
     UPLOAD_DIR: process.env.UPLOAD_DIR || 'uploads',
     upload: {
         allowedMimeTypes: ["image/jpeg", "image/png", "image/webp"],
