@@ -11,20 +11,20 @@ describe('getApiBaseUrl', () => {
     expect(getApiBaseUrl()).toBe('http://localhost:3000/api');
   });
 
-  it('returns dev fallback when VITE_API_URL is undefined and DEV is true', () => {
-    vi.stubGlobal('import', { meta: { env: { DEV: true } } });
-    expect(getApiBaseUrl()).toBe('http://localhost:3000/api');
-  });
-
-  it('returns /api when VITE_API_URL is undefined and DEV is false', () => {
-    vi.stubGlobal('import', { meta: { env: { DEV: false } } });
+  it('returns /api when VITE_API_URL is undefined (Vite proxy handles dev)', () => {
+    vi.stubGlobal('import', { meta: { env: {} } });
     expect(getApiBaseUrl()).toBe('/api');
   });
 });
 
 describe('getBackendRoot', () => {
-  it('strips /api suffix', () => {
+  it('strips /api suffix from full URL', () => {
     vi.stubGlobal('import', { meta: { env: { VITE_API_URL: 'http://localhost:3000/api' } } });
     expect(getBackendRoot()).toBe('http://localhost:3000');
+  });
+
+  it('returns empty string when base is /api (Vite proxy mode)', () => {
+    vi.stubGlobal('import', { meta: { env: {} } });
+    expect(getBackendRoot()).toBe('');
   });
 });

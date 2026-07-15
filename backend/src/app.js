@@ -17,7 +17,7 @@ const app = express();
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(
   cors({
-    origin: config.CORS_ORIGIN || 'http://localhost:5173',
+    origin: config.CORS_ORIGIN || 'http://localhost:5174',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID'],
