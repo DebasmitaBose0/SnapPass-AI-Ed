@@ -48,12 +48,6 @@ function UploadBox({ onFileSelect, queue, addToQueue }) {
         return;
       }
 
-      const isValidMagic = await validateImageMagicBytes(file);
-      if (!isValidMagic) {
-        showToast('Invalid file structure.', 'error');
-        return;
-      }
-
       if (addToQueue) {
         addToQueue([file]);
         return;

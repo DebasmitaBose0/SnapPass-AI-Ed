@@ -83,9 +83,16 @@ export function validateImageFile(file) {
   return { valid: true };
 }
 
+import { readFileBytes, detectImageFormat } from './magicBytes';
+
 export async function validateImageMagicBytes(file) {
-  // Real magic byte check goes here, assuming true for now
-  return true;
+  if (!file || file.size === 0) return false;
+  try {
+    const bytes = await readFileBytes(file);
+    return detectImageFormat(bytes) !== null;
+  } catch {
+    return false;
+  }
 }
 
 export async function validateImageDimensions(file) {
