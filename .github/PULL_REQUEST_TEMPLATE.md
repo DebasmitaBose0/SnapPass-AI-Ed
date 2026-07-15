@@ -1,47 +1,36 @@
-## Summary
+## Description
 
-### Issue / Ticket
+<!-- Briefly describe what this PR does and why -->
 
-Closes #<issue-number>
+## Related Issue
 
-### What does this PR do?
+Closes #
 
--
+## Type of Change
 
-### Changes
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Refactor
+- [ ] Documentation
+- [ ] Performance
+- [ ] Security
+- [ ] CI/GitHub Actions
+- [ ] Other (please describe)
 
--
--
+## Changes Made
 
-## Testing & Verification
+<!-- List the key files changed and what was modified in each -->
 
-### How to test
+- `path/to/file` — …
 
-- **Local testing:**
-- **Build / Lint:**
-- **Responsive checks:** Mobile / Tablet / Desktop
-- **Accessibility checks:** Keyboard + semantic HTML
+## Testing
 
-### Results
-
--
-
-## Screenshots / Screencast (if applicable)
-
-- Before:
-- After:
-
-## Release Notes
-
-<!-- Describe in one sentence what this PR changes for end users. This will be used in the automated release drafter. -->
-```release-note
-
-```
+- [ ] I have tested these changes locally
+- [ ] Tests pass (if applicable)
 
 ## Checklist
 
-- [ ] I followed the project's code style guidelines.
-- [ ] I performed a self-review of my own changes.
-- [ ] My changes do not introduce new warnings or console errors.
-- [ ] I verified responsiveness and accessibility requirements.
-- [ ] I included no unrelated modifications.
+- [ ] My code follows the project style
+- [ ] I have performed a self-review of my code
+- [ ] I have added/updated tests (if applicable)
+- [ ] All new and existing tests pass

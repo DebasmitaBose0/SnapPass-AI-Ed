@@ -17,6 +17,8 @@ node_modules/
 # OS files
 Thumbs.db
 Desktop.ini
+ehthumbs.db
+*.lnk
 
 # Build outputs
 dist/
@@ -41,9 +43,20 @@ temp/
 audit-report.json
 security-scan/
 
-# Local cache JSON files
+# Local cache JSON files (GitHub API exports, PR data, issues)
 all_data.json
 issues*.json
 my_prs.json
 prs.json
 upstream_prs*.json
+
+# Test upload artifacts
+test_uploads/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Windows reserved names
+nul

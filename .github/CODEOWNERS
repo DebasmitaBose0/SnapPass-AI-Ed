@@ -1,0 +1,18 @@
+# Default owners for all files
+* @souma9830
+
+# Frontend changes
+/frontend/ @souma9830
+
+# Backend changes
+/backend/ @souma9830
+
+# Python AI service
+/python-ai-service/ @souma9830
+
+# CI/CD workflows
+/.github/ @souma9830
+
+# Documentation
+/docs/ @souma9830
+*.md @souma9830
