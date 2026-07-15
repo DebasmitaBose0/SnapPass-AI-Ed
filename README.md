@@ -277,7 +277,7 @@ docker compose up --build
 
 Default ports:
 - Frontend: http://localhost:5173
-- Backend: http://localhost:5000
+- Backend: http://localhost:3000
 - Python AI: http://localhost:8000
 - MongoDB: mongodb://localhost:27017
 

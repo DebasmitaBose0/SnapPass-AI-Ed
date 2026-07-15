@@ -26,6 +26,7 @@ import {
 import ComparisonSlider from '../components/ComparisonSlider';
 import useProcessImage from '../hooks/useProcessImage';
 import usePhotoUpload from '../hooks/usePhotoUpload';
+import { getBackendRoot } from '../utils/apiConfig';
 
 
 const ADJUSTMENT_TOOLS = [
@@ -55,10 +56,7 @@ function PhotoStudio() {
     const processor = useProcessImage();
     const { uploadFile, uploadedFile, isUploading: isUploadingToServer, error: uploadError } = usePhotoUpload();
 
-    const apiBaseUrl =
-        import.meta.env.VITE_API_URL ??
-        (import.meta.env.DEV ? 'http://localhost:5005/api' : '/api');
-    const backendRoot = apiBaseUrl.replace(/\/api\/?$/, '');
+    const backendRoot = getBackendRoot();
 
     const [imageSrc, setImageSrc] = useState(null);
     // Base64 and blob reference links for local preview renders

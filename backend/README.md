@@ -2,7 +2,7 @@
 
 The Express.js REST API for SnapPass AI. Handles photo uploads, connects to the Python AI service for processing, and manages user authentication.
 
-Runs on **`http://localhost:5000`**
+Runs on **`http://localhost:3000`** (configurable via `PORT` in `.env`)
 
 ---
 
@@ -54,7 +54,7 @@ brew services start mongodb-community
 npm run dev
 ```
 
-Backend will be running at `http://localhost:5000`
+Backend will be running at `http://localhost:3000`
 
 ---
 
@@ -63,7 +63,7 @@ Backend will be running at `http://localhost:5000`
 Create a `.env` file in the `backend/` folder:
 
 ```env
-PORT=5000
+PORT=3000
 NODE_ENV=development
 AI_SERVICE_URL=http://localhost:8000
 UPLOAD_DIR=uploads
@@ -212,7 +212,7 @@ It is called once when the server starts in `server.js`:
   "data": {
     "fileId": "uuid-here",
     "filename": "photo-123.jpg",
-    "fileUrl": "http://localhost:5000/uploads/photo-123.jpg"
+    "fileUrl": "http://localhost:3000/uploads/photo-123.jpg"
   }
 }
 ```
@@ -266,7 +266,7 @@ It is called once when the server starts in `server.js`:
 ```
 React Frontend
      ↓  POST /api/upload  (multipart/form-data)
-Express Backend (port 5000)
+Express Backend (port 3000)
      ↓  saves file to uploads/
      ↓  returns filename to frontend
 React Frontend

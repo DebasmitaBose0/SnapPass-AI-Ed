@@ -12,6 +12,7 @@ import useImageProcessor from '../hooks/useImageProcessor';
 import { iconMap, backgroundHexMap } from '../data/EditorPageData';
 import EditorPageDiagnostics from './EditorPageDiagnostics';
 import api from '../services/api';
+import { getBackendRoot } from '../utils/apiConfig';
 import './EditorPage.css';
 
 const SIZE_PRESETS = [
@@ -42,10 +43,7 @@ function EditorPage({ darkMode, toggleTheme }) {
   const [complianceError, setComplianceError] = useState(null);
   const [cacheBuster, setCacheBuster] = useState(0);
 
-  const apiBaseUrl =
-    import.meta.env.VITE_API_URL ??
-    (import.meta.env.DEV ? 'http://localhost:5000/api' : '/api');
-  const backendRoot = apiBaseUrl.replace(/\/api\/?$/, '');
+  const backendRoot = getBackendRoot();
   const baseImageUrl = filename ? `${backendRoot}/uploads/${filename}` : '';
   const currentImageUrl = processedUrl
     ? `${backendRoot}${processedUrl}?t=${cacheBuster}`
