@@ -25,6 +25,14 @@ class ErrorBoundary extends React.Component {
     });
   }
 
+  getErrorCategory() {
+    const msg = this.state.error?.message || '';
+    if (msg.includes('Network') || msg.includes('network') || msg.includes('fetch')) return 'network';
+    if (msg.includes('ChunkLoadError') || msg.includes('Loading chunk')) return 'chunk';
+    if (msg.includes('Module not found') || msg.includes('import')) return 'module';
+    return 'unknown';
+  }
+
   handleReset = () => {
     this.setState({
       hasError: false,

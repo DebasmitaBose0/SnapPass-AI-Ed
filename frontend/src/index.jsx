@@ -5,6 +5,8 @@ import './index.css';
 import App from './App';
 import { LanguageProvider } from './context/LanguageContext';
 import ErrorBoundary from './components/ErrorBoundary';
+import { setupGlobalErrorHandler } from './utils/globalErrorHandler';
+setupGlobalErrorHandler();
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -12,7 +14,9 @@ root.render(
     <ErrorBoundary>
       <BrowserRouter>
         <LanguageProvider>
-          <App />
+          <ToastProvider>
+            <App />
+          </ToastProvider>
         </LanguageProvider>
       </BrowserRouter>
     </ErrorBoundary>
