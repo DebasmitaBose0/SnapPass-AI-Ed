@@ -4,7 +4,7 @@
   "private": true,
   "description": "SnapPass AI — Monorepo root for passport photo generation platform",
   "scripts": {
-    "lint": "npm run lint --workspaces --if-present",
+    "lint": "eslint . --ext .js,.jsx,.json --ignore-pattern node_modules --ignore-pattern dist --ignore-pattern build --ignore-pattern '*.json'",
     "test": "npm run test --workspaces --if-present",
     "build": "npm run build --workspaces --if-present",
     "format": "prettier --write \"**/*.{js,jsx,json,css,md}\"",
@@ -12,6 +12,7 @@
     "security-audit": "npm audit"
   },
   "devDependencies": {
+    "eslint": "^8.56.0",
     "prettier": "^3.2.5"
   },
   "engines": {

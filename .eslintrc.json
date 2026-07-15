@@ -1,0 +1,31 @@
+{
+  "root": true,
+  "env": {
+    "browser": true,
+    "node": true,
+    "jest": true,
+    "es2022": true
+  },
+  "extends": ["eslint:recommended"],
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module"
+  },
+  "rules": {
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "no-console": "warn",
+    "prefer-const": "error",
+    "no-var": "error"
+  },
+  "overrides": [
+    {
+      "files": ["backend/**/*.js"],
+      "env": { "node": true }
+    },
+    {
+      "files": ["frontend/**/*.{js,jsx}"],
+      "env": { "browser": true },
+      "extends": ["eslint:recommended"]
+    }
+  ]
+}
