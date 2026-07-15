@@ -41,6 +41,9 @@ temp/
 audit-report.json
 security-scan/
 
+# Test artifacts
+test_uploads/
+
 # Local cache JSON files
 all_data.json
 issues*.json
