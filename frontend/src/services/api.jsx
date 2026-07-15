@@ -4,13 +4,13 @@
  * Import this in service files instead of raw fetch/axios calls.
  *
  * Requires the VITE_API_URL environment variable to be set.
- * In development: create frontend/.env and set VITE_API_URL=http://localhost:5005/api
+ * In development: create frontend/.env and set VITE_API_URL=http://localhost:3000/api
  * In production:  set VITE_API_URL to your deployed backend URL in your hosting dashboard.
  */
 
 import axios from 'axios';
 
-const apiBaseUrl = import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? 'http://localhost:5000/api' : '/api');
+const apiBaseUrl = import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? 'http://localhost:3000/api' : '/api');
 
 if (!apiBaseUrl && import.meta.env.DEV) {
   console.warn(
