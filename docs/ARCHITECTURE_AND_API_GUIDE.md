@@ -22,7 +22,7 @@ graph TD
 ### Authentication API (Express Backend)
 
 #### **Register User**
-* **Endpoint:** `POST /api/v1/auth/register`
+* **Endpoint:** `POST /api/auth/register`
 * **Request Body:**
   ```json
   {
@@ -46,7 +46,7 @@ graph TD
   ```
 
 #### **Login User**
-* **Endpoint:** `POST /api/v1/auth/login`
+* **Endpoint:** `POST /api/auth/login`
 * **Request Body:**
   ```json
   {
@@ -74,7 +74,7 @@ graph TD
 ### Image Processing API (Express Gateway & Python AI Service)
 
 #### **Process Image (Base Endpoint)**
-* **Endpoint:** `POST /api/v1/process`
+* **Endpoint:** `POST /api/process`
 * **Headers:** `Content-Type: application/json`
 * **Request Body:**
   ```json

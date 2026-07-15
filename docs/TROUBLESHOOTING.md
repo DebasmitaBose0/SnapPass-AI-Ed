@@ -74,3 +74,27 @@ This guide outlines common issues encountered during the installation, configura
 * **Reason**: Frontend origin is not whitelisted by the backend server.
 * **Resolution**:
   - Inspect backend's `.env` config file and ensure `CORS_ORIGIN` matches the protocol and port of the frontend client (e.g., `http://localhost:5173`). Avoid trailing slashes.
+
+### Symptom: `Could not reach the server. Please check your connection or try again later.`
+* **Reason**: The frontend is trying to reach the backend API on an incorrect port. The backend runs on port `3000` by default, but the frontend's `VITE_API_URL` may point to port `5000` or `5005`.
+* **Resolution**:
+  1. Check `frontend/.env` — ensure `VITE_API_URL=http://localhost:3000/api`.
+  2. Verify the backend is running: `curl http://localhost:3000/health`.
+  3. If the backend is on a different port, update `VITE_API_URL` to match.
+  4. Restart the frontend dev server after changing `.env`.
+
+---
+
+## 5. Analytics & Audit Log Queries
+
+### Symptom: Analytics page shows zero data despite having uploads
+* **Reason**: The `analytics.controller.js` queries MongoDB aggregations that may time out on large collections without proper indexes.
+* **Resolution**:
+  - Run `npm run indexes` in the backend directory to ensure all MongoDB indexes are created.
+  - Check that `MONGO_URI` points to the correct database.
+
+### Symptom: Audit logs are not being recorded
+* **Reason**: The audit middleware (`auditMiddleware`) requires a MongoDB connection. If the database is unreachable, audit entries are silently skipped.
+* **Resolution**:
+  - Verify MongoDB is connected: check backend logs for `MongoDB connected`.
+  - Ensure the `auditLog` model's collection exists (it is created automatically on first write).

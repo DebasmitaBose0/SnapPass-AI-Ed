@@ -1,5 +1,8 @@
 # 🤝 Contributing to SnapPass AI
 
+> **Note:** This project participated in GSSoC (GirlScript Summer of Code).  
+> Contributions from everyone are always welcome, regardless of GSSoC participation status.
+
 <div align="center">
   <img src="https://img.shields.io/badge/GSSoC-Participant-orange?style=for-the-badge&logo=appveyor" alt="GSSoC Participant" />
   <img src="https://img.shields.io/badge/PRs-Welcome-brightgreen.svg?style=for-the-badge" alt="PRs Welcome" />

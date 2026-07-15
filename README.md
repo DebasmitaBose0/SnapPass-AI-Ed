@@ -11,6 +11,8 @@ Upload → Auto-process → Generate a print-ready sheet — in seconds.</p>
 [![Made with React](https://img.shields.io/badge/Frontend-React.js-61dafb?logo=react)](https://reactjs.org)
 [![Node.js](https://img.shields.io/badge/Backend-Node.js-339933?logo=node.js)](https://nodejs.org)
 [![Python](https://img.shields.io/badge/AI%20Service-Python-3776ab?logo=python)](https://python.org)
+[![CI](https://github.com/souma9830/SnapPass-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/souma9830/SnapPass-AI/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/souma9830/SnapPass-AI/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/souma9830/SnapPass-AI/actions/workflows/codeql-analysis.yml)
 
 </div>
 
