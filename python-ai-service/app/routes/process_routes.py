@@ -11,7 +11,7 @@ process_bp = Blueprint("process", __name__)
 @process_bp.post("/remove-bg")
 def remove_bg():
     """
-    Test endpoint — background removal only.
+    Studio image processing endpoint with automatic EXIF metadata stripping.
     POST multipart/form-data:
       - image             : photo file (required)
       - background_colour : "white" / "blue" / "#ff0000" (optional, default white)
