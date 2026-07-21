@@ -8,6 +8,7 @@ MIN_FACE_W = 300
 MIN_FACE_H = 375
 
 
+# Enhanced Face Quality Gate for Studio Passport Photo AI Pipeline
 @dataclass
 class FaceQualityReport:
     passed: bool
