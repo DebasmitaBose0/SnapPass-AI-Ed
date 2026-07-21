@@ -1,5 +1,6 @@
 /**
- * rateLimit.middleware.js — Express rate-limiting configuration.
+ * rateLimit.middleware.js — Express rate-limiting & abuse prevention middleware.
+ * Studio photo upload and AI background processing protection.
  *
  * Provides two limiters:
  *   apiLimiter   — general limiter applied to all /api/* routes (100 req / 15 min)
