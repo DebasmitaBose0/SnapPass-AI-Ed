@@ -3,6 +3,7 @@ import math
 from pathlib import Path
 from PIL import Image, ImageDraw
 
+# Studio Passport Photo Multi-Standard Print Grid Layout Engine
 DPI = 300
 
 PAGE_SIZES = {
