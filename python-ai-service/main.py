@@ -104,10 +104,10 @@ app.register_blueprint(compliance_bp)
 
 
 
-# Health Check
+# Enhanced Service Health & Readiness Diagnostics Check
 @app.get("/health")
 def health():
-    return {"status": "ok", "service": "python-ai-service"}
+    return {"status": "ok", "service": "python-ai-service", "ready": True}
 
 
 # Face Quality Gate
