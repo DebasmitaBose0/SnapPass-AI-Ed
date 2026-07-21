@@ -5,6 +5,7 @@ from typing import Optional, Tuple, Dict, Any
 from PIL import Image
 import io
 
+# Advanced Studio Passport Photo Quality & Compliance Diagnostic Pipeline
 # --- Rules (approximate heuristics) ---
 
 # Passport-style tilt guidance (roll angle). Hard fail if abs(roll) > 3 degrees.
