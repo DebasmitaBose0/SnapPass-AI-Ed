@@ -11,6 +11,7 @@ import { auditMiddleware } from './middleware/audit.middleware.js';
 import { checkTokenBlacklist } from './middleware/blacklist.middleware.js';
 import { timingMiddleware } from './middleware/timing.middleware.js';
 import { telemetryContextMiddleware } from './middleware/telemetryContext.middleware.js';
+import { apiRateLimiter } from './middleware/rateLimiter.middleware.js';
 import apiRoutes, { healthRoutes } from './routes/index.js';
 
 const app = express();
@@ -39,8 +40,16 @@ app.use(telemetryContextMiddleware);
 app.use('/uploads', express.static(path.resolve(process.cwd(), 'uploads')));
 
 // Route groups for all backend resources and authentication APIs
-app.use('/api', apiRoutes);
+app.use('/api', apiRateLimiter, apiRoutes);
 app.use(healthRoutes);
+
+// 404 Handler for unmatched routes
+app.use((req, res) => {
+  res.status(404).json({
+    status: 'fail',
+    message: `Route not found: ${req.method} ${req.originalUrl}`,
+  });
+});
 
 app.use(errorMiddleware);
 

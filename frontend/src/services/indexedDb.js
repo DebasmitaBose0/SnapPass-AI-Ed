@@ -17,7 +17,7 @@ export function openDatabase() {
     request.onupgradeneeded = (event) => {
       const db = event.target.result;
       if (!db.objectStoreNames.contains(STORE_NAME)) {
-        db.objectStoreStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+        db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
       }
     };
   });
@@ -41,4 +41,40 @@ export async function cachePhotoOffline(photoData) {
     console.error('IndexedDB caching failed:', err);
   }
 }
+
+export async function getAllCachedPhotos() {
+  try {
+    const db = await openDatabase();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([STORE_NAME], 'readonly');
+      const store = transaction.objectStore(STORE_NAME);
+      const request = store.getAll();
+
+      request.onsuccess = () => resolve(request.result || []);
+      request.onerror = () => reject(request.error);
+    });
+  } catch (err) {
+    console.error('Failed to get cached photos from IndexedDB:', err);
+    return [];
+  }
+}
+
+export async function clearOfflineCache() {
+  try {
+    const db = await openDatabase();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([STORE_NAME], 'readwrite');
+      const store = transaction.objectStore(STORE_NAME);
+      const request = store.clear();
+
+      request.onsuccess = () => resolve(true);
+      request.onerror = () => reject(request.error);
+    });
+  } catch (err) {
+    console.error('Failed to clear IndexedDB cache:', err);
+    return false;
+  }
+}
+
 export default cachePhotoOffline;
+

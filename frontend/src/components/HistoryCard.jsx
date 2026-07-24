@@ -66,6 +66,11 @@ function HistoryCard({ session, onDelete, onClick }) {
             >
               {label}
             </span>
+            {session.isOffline && (
+              <span className="history-card__badge history-card__badge--offline" title="Cached in IndexedDB offline storage">
+                Offline
+              </span>
+            )}
           </div>
           <div className="history-card__meta">
             <span>Size: {sizeLabel}</span>
