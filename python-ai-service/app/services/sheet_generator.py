@@ -9,6 +9,7 @@ PAGE_SIZES = {
     "a4": {"w_mm": 210.0, "h_mm": 297.0, "label": "A4"},
     "letter": {"w_mm": 215.9, "h_mm": 279.4, "label": "US Letter"},
     "4x6": {"w_mm": 101.6, "h_mm": 152.4, "label": "4×6"},
+    "5x7": {"w_mm": 127.0, "h_mm": 177.8, "label": "5×7"},
 }
 
 MARGIN_MM = 10.0
