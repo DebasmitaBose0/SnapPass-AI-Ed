@@ -92,6 +92,12 @@
   color: #b91c1c;
 }
 
+.history-card__badge--offline {
+  background: rgba(99, 102, 241, 0.15);
+  color: #6366f1;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
 .history-card__meta {
   font-size: var(--font-size-xs, 0.78rem);
   color: var(--color-text-light, #94a3b8);
