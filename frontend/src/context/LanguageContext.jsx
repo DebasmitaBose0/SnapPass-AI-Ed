@@ -6,7 +6,8 @@ const LanguageContext = createContext();
 export const LanguageProvider = ({ children }) => {
   const [language, setLanguageState] = useState(() => {
     try {
-      return localStorage.getItem('snappass_language') || 'en';
+      const saved = localStorage.getItem('snappass_language');
+      return saved && translations[saved] ? saved : 'en';
     } catch {
       return 'en';
     }
