@@ -9,8 +9,9 @@
  */
 
 import axios from 'axios';
+import { getInitialBaseUrl } from './portSync';
 
-const apiBaseUrl = import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? 'http://localhost:3000/api' : '/api');
+const apiBaseUrl = getInitialBaseUrl();
 
 if (!apiBaseUrl && import.meta.env.DEV) {
   console.warn(
@@ -45,6 +46,11 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     logApiError(error);
+    if (!error.response && import.meta.env.DEV) {
+      import('./portSync').then(({ scanBackendPorts }) => {
+        scanBackendPorts().catch(err => console.error('[PortSync] Failed auto-scan:', err));
+      });
+    }
     const message =
       error.response?.data?.message ||
       error.message ||
