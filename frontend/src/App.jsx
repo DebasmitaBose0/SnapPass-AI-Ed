@@ -6,6 +6,7 @@ import SkipToContent from './components/SkipToContent';
 import SnapPassAssistant from './chatbot/SnapPassAssistant';
 import { ToastProvider, useToast } from './context/ToastContext';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
+import { ThemeCustomizerProvider } from './context/ThemeCustomizerContext';
 import './App.css';
 import ScrollToTopButton from './components/ScrollToTopButton';
 import { scanBackendPorts } from './services/portSync';
@@ -41,14 +42,20 @@ function AppContent() {
   );
 }
 
+import ErrorBoundary from './components/ErrorBoundary';
+
 function App() {
   // Mount primary application providers and routing controls
   return (
-    <ToastProvider>
-      <ThemeProvider>
-        <AppContent />
-      </ThemeProvider>
-    </ToastProvider>
+    <ErrorBoundary>
+      <ToastProvider>
+        <ThemeProvider>
+          <ThemeCustomizerProvider>
+            <AppContent />
+          </ThemeCustomizerProvider>
+        </ThemeProvider>
+      </ToastProvider>
+    </ErrorBoundary>
   );
 }
 

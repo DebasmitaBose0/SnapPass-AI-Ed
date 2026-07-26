@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
 import { translations } from '../translations/translations';
-import { saveSession } from '../utils/sessionManager';
+import { saveSession, getSession } from '../utils/sessionManager';
 import SizeSelector from '../components/SizeSelector';
 import BackgroundSelector from '../components/BackgroundSelector';
 import AttireSelector from '../components/AttireSelector';
@@ -11,7 +11,12 @@ import CompliancePanel from '../components/CompliancePanel';
 import useImageProcessor from '../hooks/useImageProcessor';
 import { iconMap, backgroundHexMap } from '../data/EditorPageData';
 import EditorPageDiagnostics from './EditorPageDiagnostics';
+import { ImageAdjustments } from '../components/ImageAdjustments';
+import { cachePhotoOffline } from '../services/indexedDb';
 import api from '../services/api';
+import { autoEnhanceImage } from '../utils/imageEnhancer';
+import { AttireManualAdjuster } from '../components/AttireManualAdjuster';
+import { uploadPhoto } from '../services/photoService';
 import './EditorPage.css';
 
 const SIZE_PRESETS = [
@@ -37,10 +42,21 @@ function EditorPage({ darkMode, toggleTheme }) {
   const [sizePreset, setSizePreset] = useState('35x45');
   const [attire, setAttire] = useState('none');
   const [filename, setFilename] = useState(state?.filename || '');
+  const [filters, setFilters] = useState({
+    brightness: 100,
+    contrast: 100,
+    saturation: 100,
+  });
   const [complianceData, setComplianceData] = useState(null);
   const [complianceLoading, setComplianceLoading] = useState(false);
   const [complianceError, setComplianceError] = useState(null);
   const [cacheBuster, setCacheBuster] = useState(0);
+  const [attireScale, setAttireScale] = useState(1.0);
+  const [attireX, setAttireX] = useState(0);
+  const [attireY, setAttireY] = useState(0);
+  const [isAutoEnhanced, setIsAutoEnhanced] = useState(false);
+  const [enhancedDataUrl, setEnhancedDataUrl] = useState(null);
+  const [isEnhancing, setIsEnhancing] = useState(false);
 
   const apiBaseUrl =
     import.meta.env.VITE_API_URL ??
@@ -105,6 +121,30 @@ function EditorPage({ darkMode, toggleTheme }) {
     [filename]
   );
 
+  const handleToggleEnhance = async () => {
+    if (!isAutoEnhanced) {
+      if (!enhancedDataUrl) {
+        setIsEnhancing(true);
+        try {
+          const targetUrl = baseImageUrl ? `${baseImageUrl}?t=${cacheBuster}` : state?.localUrl;
+          if (targetUrl) {
+            const enhanced = await autoEnhanceImage(targetUrl);
+            setEnhancedDataUrl(enhanced);
+          }
+        } catch (e) {
+          console.error('Enhancement failed', e);
+        } finally {
+          setIsEnhancing(false);
+        }
+      }
+      setIsAutoEnhanced(true);
+    } else {
+      setIsAutoEnhanced(false);
+    }
+  };
+
+  const displayImageUrl = isAutoEnhanced && enhancedDataUrl ? enhancedDataUrl : currentImageUrl;
+
   useEffect(() => {
     if (state?.filename) setFilename(state.filename);
   }, [state?.filename]);
@@ -112,27 +152,56 @@ function EditorPage({ darkMode, toggleTheme }) {
   const handleProcess = useCallback(async () => {
     if (!filename) return;
     try {
+      let processFilename = filename;
+      
+      if (isAutoEnhanced && enhancedDataUrl) {
+        const res = await fetch(enhancedDataUrl);
+        const blob = await res.blob();
+        const file = new File([blob], 'enhanced.jpg', { type: 'image/jpeg' });
+        const uploadResult = await uploadPhoto(file);
+        processFilename = uploadResult.filename;
+      }
+
       const resultUrl = await processImage({
-        filename,
+        filename: processFilename,
         backgroundColour: background,
         photoSizePreset: sizePreset,
         attire,
       });
-      saveSession({
-        step: 'editor',
+      await cachePhotoOffline({
         processedUrl: resultUrl,
-        filename,
+        filename: processFilename,
         background,
         sizePreset,
         attire,
+      }).catch(() => {});
+      const currentSession = getSession() || {};
+      const processedPhotos = currentSession.processedPhotos || [];
+      const newPhoto = { processedUrl: resultUrl, filename: processFilename, background, sizePreset, attire };
+
+      saveSession({
+        ...currentSession,
+        step: 'editor',
+        processedUrl: resultUrl,
+        filename: processFilename,
+        background,
+        sizePreset,
+        attire,
+        processedPhotos: [...processedPhotos, newPhoto]
       });
       navigate('/print-preview', {
-        state: { processedUrl: resultUrl, filename, background, sizePreset },
+        state: { 
+          processedUrl: resultUrl, 
+          filename: processFilename, 
+          background, 
+          sizePreset,
+          processedPhotos: [...processedPhotos, newPhoto]
+        },
       });
     } catch (err) {
       // error handled by hook
     }
-  }, [filename, background, sizePreset, attire, processImage, navigate]);
+  }, [filename, background, sizePreset, attire, processImage, navigate, isAutoEnhanced, enhancedDataUrl]);
 
   const fadeUp = {
     hidden: { opacity: 0, y: 20 },
@@ -218,7 +287,7 @@ function EditorPage({ darkMode, toggleTheme }) {
                     }}
                   >
                     <img
-                      src={currentImageUrl}
+                      src={displayImageUrl}
                       alt="Preview"
                       style={{
                         display: 'block',
@@ -227,6 +296,7 @@ function EditorPage({ darkMode, toggleTheme }) {
                         objectFit: 'contain',
                         transition: 'opacity 0.3s ease',
                         opacity: isProcessing || complianceLoading ? 0.5 : 1,
+                        filter: `brightness(${filters.brightness}%) contrast(${filters.contrast}%) saturate(${filters.saturation}%)`,
                       }}
                     />
                     {!isProcessing &&
@@ -381,6 +451,13 @@ function EditorPage({ darkMode, toggleTheme }) {
                 </span>
               </div>
             </div>
+
+            <div style={{ marginTop: '1rem' }}>
+              <BackgroundSelector
+                selected={background}
+                onChange={setBackground}
+              />
+            </div>
           </motion.div>
 
           <motion.div
@@ -398,14 +475,25 @@ function EditorPage({ darkMode, toggleTheme }) {
 
             <hr className="divider" />
 
-            <BackgroundSelector
-              selected={background}
-              onChange={setBackground}
-            />
+            <AttireSelector selected={attire} onChange={setAttire} />
+            {attire !== 'none' && (
+              <AttireManualAdjuster
+                scale={attireScale}
+                xOffset={attireX}
+                yOffset={attireY}
+                onChangeScale={setAttireScale}
+                onChangeX={setAttireX}
+                onChangeY={setAttireY}
+              />
+            )}
 
             <hr className="divider" />
 
-            <AttireSelector selected={attire} onChange={setAttire} />
+            <ImageAdjustments
+              filters={filters}
+              onChange={setFilters}
+              onReset={() => setFilters({ brightness: 100, contrast: 100, saturation: 100 })}
+            />
 
             <hr className="divider" />
 
@@ -428,6 +516,22 @@ function EditorPage({ darkMode, toggleTheme }) {
                 {error}
               </div>
             )}
+
+            <div className="toggle-switch-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem', padding: '12px', background: 'rgba(59,130,246,0.1)', borderRadius: '8px', border: '1px dashed #3b82f6' }}>
+              <span style={{ fontWeight: '600', color: '#3b82f6' }}>🪄 Auto-Enhance Lighting</span>
+              <label className="switch" style={{ position: 'relative', display: 'inline-block', width: '44px', height: '24px' }}>
+                <input
+                  type="checkbox"
+                  checked={isAutoEnhanced}
+                  onChange={handleToggleEnhance}
+                  disabled={!filename || isEnhancing}
+                  style={{ opacity: 0, width: 0, height: 0 }}
+                />
+                <span className="slider round" style={{ position: 'absolute', cursor: 'pointer', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: isAutoEnhanced ? '#3b82f6' : '#ccc', transition: '.4s', borderRadius: '24px' }}>
+                  <span style={{ position: 'absolute', content: '""', height: '18px', width: '18px', left: isAutoEnhanced ? '23px' : '3px', bottom: '3px', backgroundColor: 'white', transition: '.4s', borderRadius: '50%' }} />
+                </span>
+              </label>
+            </div>
 
             <button
               className={`editor-page__process-btn ${darkMode ? 'editor-page__process-btn-dark' : ''}`}

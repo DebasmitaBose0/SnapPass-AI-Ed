@@ -3,6 +3,8 @@ import './SettingsPage.css';
 import { motion } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
 import { validateSettingsInput } from '../utils/settingsValidator.js';
+import { ThemeColorSelector } from '../components/ThemeColorSelector';
+import { ActivityLogViewer } from '../components/ActivityLogViewer';
 
 function SettingsPage() {
   const { darkMode, toggleTheme } = useTheme();
@@ -241,6 +243,8 @@ function SettingsPage() {
                   </div>
                 </div>
 
+                <ThemeColorSelector />
+
                 <button type="submit" className="btn btn-primary submit-btn" disabled={form.submitting}>
                   Save Changes
                 </button>
@@ -323,6 +327,7 @@ function SettingsPage() {
                     </div>
                   </div>
                 )}
+                <ActivityLogViewer />
               </div>
             )}
           </main>

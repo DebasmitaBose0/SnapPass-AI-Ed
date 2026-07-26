@@ -1,5 +1,4 @@
-import React from 'react';
-import './FormField.css';
+import './layout/FormField.css';
 
 function FormField({
   label,

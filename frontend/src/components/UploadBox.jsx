@@ -8,6 +8,8 @@ import {
 import { useLanguage } from '../context/LanguageContext';
 import { translations } from '../translations/translations';
 import { useToast } from '../context/ToastContext';
+import { correctImageOrientation } from '../utils/exifRotation';
+import { compressImagePipeline } from '../utils/imageCompressorPipeline';
 
 /**
  * UploadBox — drag-and-drop + click-to-browse photo uploader.
@@ -42,25 +44,24 @@ function UploadBox({ onFileSelect, queue, addToQueue }) {
 
     setIsValidating(true);
     try {
-      const result = validateImageFile(file);
+      // Auto-rotate the image if EXIF orientation is present
+      const rotatedFile = await correctImageOrientation(file);
+      const { compressedFile } = await compressImagePipeline(rotatedFile);
+      const processedFile = compressedFile;
+
+      const result = validateImageFile(processedFile);
       if (!result.valid) {
         showToast(result.error, 'error');
         return;
       }
 
-      const isValidMagic = await validateImageMagicBytes(file);
-      if (!isValidMagic) {
-        showToast('Invalid file structure.', 'error');
-        return;
-      }
-
       if (addToQueue) {
-        addToQueue([file]);
+        addToQueue([processedFile]);
         return;
       }
 
       // Stage 2 — async: binary magic-byte signature verification
-      const isMagicValid = await validateImageMagicBytes(file);
+      const isMagicValid = await validateImageMagicBytes(processedFile);
       if (!isMagicValid) {
         showToast(
           'Invalid file structure. The file signature does not match a valid JPG, PNG, or WebP image.',
@@ -70,7 +71,7 @@ function UploadBox({ onFileSelect, queue, addToQueue }) {
       }
 
       // Stage 3 — async: pixel dimension gate for 300 DPI print quality
-      const dimResult = await validateImageDimensions(file);
+      const dimResult = await validateImageDimensions(processedFile);
       if (!dimResult.valid) {
         showToast(dimResult.error, 'error');
         return;
@@ -78,7 +79,7 @@ function UploadBox({ onFileSelect, queue, addToQueue }) {
 
       // All checks passed — hand off to parent
       if (onFileSelect) {
-        onFileSelect(file);
+        onFileSelect(processedFile);
       }
     } finally {
       setIsValidating(false);

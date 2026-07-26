@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
 import { translations } from '../translations/translations';
-import { useHistory } from '../hooks/useHistory';
-import HistoryCard from '../components/HistoryCard';
+import useOfflineStorage from '../hooks/useOfflineStorage';
 import './HistoryPage.css';
 
 function HistoryPage({ darkMode }) {
@@ -12,22 +11,32 @@ function HistoryPage({ darkMode }) {
   const t = translations[language];
   const navigate = useNavigate();
   const { history, deleteSession, clearHistory } = useHistory();
-  const [search, setSearch] = useState('');
+  const { cachedPhotos } = useOfflineStorage();
   const [showConfirm, setShowConfirm] = useState(false);
 
-  const filtered = useMemo(() => {
-    if (!search.trim()) return history;
-    const q = search.toLowerCase();
-    return history.filter((s) => {
-      const dateStr = s.savedAt ? new Date(s.savedAt).toLocaleDateString() : '';
-      return (
-        (s.photoSizePreset || '').toLowerCase().includes(q) ||
-        (s.background || '').toLowerCase().includes(q) ||
-        (s.status || '').toLowerCase().includes(q) ||
-        dateStr.toLowerCase().includes(q)
-      );
-    });
-  }, [history, search]);
+  const combinedHistory = useMemo(() => {
+    const offlineItems = (cachedPhotos || []).map((photo) => ({
+      id: `offline-${photo.id}`,
+      filename: photo.filename || 'Cached Photo',
+      savedAt: photo.cachedAt,
+      isOffline: true,
+      status: 'completed',
+      processedUrl: photo.processedUrl,
+      sizePreset: photo.sizePreset || '35x45',
+      hasOutput: true,
+    }));
+    return [...offlineItems, ...history];
+  }, [cachedPhotos, history]);
+
+  const {
+    searchTerm: search,
+    setSearchTerm: setSearch,
+    selectedPreset,
+    setSelectedPreset,
+    dateOrder,
+    setDateOrder,
+    filteredItems: filtered
+  } = useUploadSearch(combinedHistory);
 
   const handleCardClick = (session) => {
     if (session.hasOutput && session.processedUrl) {

@@ -22,6 +22,7 @@ As the Project Admin, my goal is to ensure you have the best possible open-sourc
 - **Real-World Impact:** Build an application that solves a real problem (automated, studio-quality passport photo generation).
 - **Modern Tech Stack:** Gain hands-on experience with **React.js, Node.js, Express, Python, Flask, and AI/OpenCV**.
 - **Mentorship & Growth:** Get your code reviewed with constructive, helpful feedback from maintainers.
+- **Developer Onboarding:** Read our complete [Developer Guide](docs/DEVELOPER_GUIDE.md) and [System Architecture](docs/ARCHITECTURE.md).
 - **GSSoC Points & Recognition:** Issues are strictly labeled by difficulty to help you climb the GSSoC leaderboard! You will also be featured in our Contributors section.
 
 ---

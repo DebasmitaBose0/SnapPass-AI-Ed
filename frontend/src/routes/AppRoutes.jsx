@@ -14,19 +14,14 @@ const TermsPage = lazy(() => import('../pages/TermsPage'));
 const PrivacyPage = lazy(() => import('../pages/PrivacyPage'));
 const PhotoStudio = lazy(() => import('../pages/PhotoStudio'));
 const HistoryPage = lazy(() => import('../pages/HistoryPage'));
-// User configuration panel view loader
 const SettingsPage = lazy(() => import('../pages/SettingsPage'));
 const DiagnosticsPage = lazy(() => import('../pages/DiagnosticsPage'));
-const PassportComparatorPage = lazy(
-  () => import('../pages/PassportComparatorPage')
-);
+const PassportComparatorPage = lazy(() => import('../pages/PassportComparatorPage'));
+const SignIn = lazy(() => import('../pages/SignIn'));
+const SignUp = lazy(() => import('../pages/SignUp'));
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage'));
 const ApiDocsPage = lazy(() => import('../pages/ApiDocsPage'));
 
-/**
- * AppRoutes — central route configuration for SnapPass AI.
- * Handles client-side view navigation mappings and guards.
- */
 function AppRoutes({ darkMode, toggleTheme }) {
   const location = useLocation();
 
@@ -36,6 +31,8 @@ function AppRoutes({ darkMode, toggleTheme }) {
       <Suspense fallback={<LoadingSpinner fullPage delayMs={250} />}>
         <Routes>
           <Route path="/" element={<HomePage darkMode={darkMode} toggleTheme={toggleTheme} />} />
+          <Route path="/signin" element={<SignIn darkMode={darkMode} />} />
+          <Route path="/signup" element={<SignUp darkMode={darkMode} />} />
           <Route path="/upload" element={<UploadPage darkMode={darkMode} toggleTheme={toggleTheme} />} />
           <Route path="/editor" element={<EditorPage darkMode={darkMode} toggleTheme={toggleTheme} />} />
           <Route path="/print-preview" element={<PrintPreviewPage darkMode={darkMode} toggleTheme={toggleTheme} />} />
