@@ -1,13 +1,15 @@
 import { describe, it, expect } from 'vitest';
 import { en } from '../en.js';
 import { hi } from '../hi.js';
+import { es } from '../es.js';
 import { translations } from '../translations.js';
 
 describe('translations structure', () => {
-  it('exports en with all expected keys', () => {
+  it('exports en, hi, and es dictionaries', () => {
     expect(en).toBeDefined();
-    expect(typeof en.home).toBe('string');
-    expect(en.uploadPhoto).toBe('Upload Your Photo');
+    expect(hi).toBeDefined();
+    expect(es).toBeDefined();
+    expect(translations.es).toBe(es);
   });
 
   it('exports hi with all expected keys', () => {

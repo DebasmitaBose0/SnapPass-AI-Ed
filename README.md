@@ -19,6 +19,7 @@ Upload → Auto-process → Generate a print-ready sheet — in seconds.</p>
 ## 📚 Table of Contents
 
 - [📌 What is SnapPass AI?](#-what-is-snappass-ai)
+- [📖 Architecture & Developer Docs](docs/ARCHITECTURE.md)
 - [✨ What It Does](#-what-it-does)
 - [📸 Website Preview](#-website-preview)
 - [🧭 Project Status](#-project-status)
@@ -27,7 +28,7 @@ Upload → Auto-process → Generate a print-ready sheet — in seconds.</p>
 - [🚀 Getting Started](#-getting-started)
 - [🐳 Docker (Compose)](#-docker-compose)
 - [🗺️ App Flow (UI)](#️%EF%B8%8F-app-flow-ui)
-- [📡 API Endpoints](#-api-endpoints)
+- [📡 API Endpoints](docs/API_REFERENCE.md)
 - [🌍 Supported Passport Photo Sizes](#-supported-passport-photo-sizes)
 - [🔧 Environment Variables](#-environment-variables)
 - [🛣️ Roadmap](#️%EF%B8%8F-roadmap)

@@ -35,10 +35,10 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
   const [quantity, setQuantity] = useState(savedSession?.quantity || 6);
   const [layout, setLayout] = useState('a4');
   const [layoutOptions, setLayoutOptions] = useState({
-    paperSize: 'A4',
-    spacing: 10,
-    margins: 20,
-    orientation: 'portrait'
+    paperSize: savedSession?.paperSize || 'A4',
+    spacing: savedSession?.spacing || 10,
+    margins: savedSession?.margins || 20,
+    orientation: savedSession?.orientation || 'portrait'
   });
   const [isGenerating, setIsGenerating] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);

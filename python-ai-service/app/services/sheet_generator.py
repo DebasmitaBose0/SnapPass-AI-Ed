@@ -9,6 +9,7 @@ PAGE_SIZES = {
     "a4": {"w_mm": 210.0, "h_mm": 297.0, "label": "A4"},
     "letter": {"w_mm": 215.9, "h_mm": 279.4, "label": "US Letter"},
     "4x6": {"w_mm": 101.6, "h_mm": 152.4, "label": "4×6"},
+    "5x7": {"w_mm": 127.0, "h_mm": 177.8, "label": "5×7"},
 }
 
 MARGIN_MM = 10.0
@@ -60,7 +61,10 @@ def generate_sheet(
 
     if isinstance(photo_paths, str):
         photo_paths = [photo_paths]
-    
+
+    if not photo_paths:
+        raise ValueError("photo_paths list cannot be empty.")
+
     photos = [_prepare_photo(p, photo_w, photo_h) for p in photo_paths]
     cols, rows = _compute_grid(photo_w, photo_h, page_w_px, page_h_px, margin_px, gutter_px)
 

@@ -1,4 +1,6 @@
 import React from 'react';
+import './PrintLayoutOptions.css';
+import { calculatePrintCapacity } from '../../utils/presetCalculator';
 
 export const PrintLayoutOptions = ({ options, onChange }) => {
   const handleChange = (e) => {
@@ -9,29 +11,40 @@ export const PrintLayoutOptions = ({ options, onChange }) => {
     });
   };
 
+  const capacity = calculatePrintCapacity(
+    options.paperSize || '4x6',
+    35,
+    45,
+    options.spacing || 2,
+    options.margins || 5
+  );
+
   return (
-    <div className="print-layout-options" style={{ padding: '15px', borderRadius: '8px', background: '#f9f9f9', marginTop: '10px' }}>
-      <h3 style={{ margin: '0 0 10px 0', fontSize: '1rem', color: '#333' }}>Print Layout Configuration</h3>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+    <div className="print-layout-options">
+      <div className="print-layout-header">
+        <h3 className="print-layout-title">Print Layout Configuration</h3>
+        <span className="print-capacity-badge">{capacity.totalCapacity} Photos ({capacity.cols}x{capacity.rows} Grid)</span>
+      </div>
+      <div className="print-layout-grid">
         <div>
-          <label style={{ display: 'block', fontSize: '0.8rem', color: '#666' }}>Paper Size</label>
-          <select name="paperSize" value={options.paperSize} onChange={handleChange} style={{ width: '100%', padding: '6px', borderRadius: '4px', border: '1px solid #ccc' }}>
+          <label htmlFor="paper-size-select">Paper Size</label>
+          <select id="paper-size-select" name="paperSize" value={options.paperSize} onChange={handleChange}>
             <option value="4x6">4" x 6" Photo Paper</option>
             <option value="A4">A4 Standard Sheet</option>
             <option value="5x7">5" x 7" Photo Paper</option>
           </select>
         </div>
         <div>
-          <label style={{ display: 'block', fontSize: '0.8rem', color: '#666' }}>Grid Gap (px)</label>
-          <input type="number" name="spacing" min="0" max="50" value={options.spacing} onChange={handleChange} style={{ width: '100%', padding: '6px', borderRadius: '4px', border: '1px solid #ccc' }} />
+          <label htmlFor="spacing-input">Grid Gap (px)</label>
+          <input id="spacing-input" type="number" name="spacing" min="0" max="50" value={options.spacing} onChange={handleChange} />
         </div>
         <div>
-          <label style={{ display: 'block', fontSize: '0.8rem', color: '#666' }}>Margins (px)</label>
-          <input type="number" name="margins" min="0" max="100" value={options.margins} onChange={handleChange} style={{ width: '100%', padding: '6px', borderRadius: '4px', border: '1px solid #ccc' }} />
+          <label htmlFor="margins-input">Margins (px)</label>
+          <input id="margins-input" type="number" name="margins" min="0" max="100" value={options.margins} onChange={handleChange} />
         </div>
         <div>
-          <label style={{ display: 'block', fontSize: '0.8rem', color: '#666' }}>Orientation</label>
-          <select name="orientation" value={options.orientation} onChange={handleChange} style={{ width: '100%', padding: '6px', borderRadius: '4px', border: '1px solid #ccc' }}>
+          <label htmlFor="orientation-select">Orientation</label>
+          <select id="orientation-select" name="orientation" value={options.orientation} onChange={handleChange}>
             <option value="portrait">Portrait</option>
             <option value="landscape">Landscape</option>
           </select>
@@ -40,3 +53,6 @@ export const PrintLayoutOptions = ({ options, onChange }) => {
     </div>
   );
 };
+
+export default PrintLayoutOptions;
+

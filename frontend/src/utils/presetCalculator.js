@@ -38,3 +38,27 @@ export function getComplianceGuidelines(country) {
   };
   return guidelines[country.toLowerCase()] || ["Standard passport specifications apply."];
 }
+
+export function calculatePrintCapacity(paperSize = '4x6', photoWidthMm = 35, photoHeightMm = 45, spacingMm = 2, marginsMm = 5) {
+  const paperDimensions = {
+    '4x6': { widthMm: 101.6, heightMm: 152.4 },
+    '5x7': { widthMm: 127.0, heightMm: 177.8 },
+    'A4': { widthMm: 210.0, heightMm: 297.0 },
+  };
+
+  const paper = paperDimensions[paperSize] || paperDimensions['4x6'];
+  const availW = paper.widthMm - marginsMm * 2;
+  const availH = paper.heightMm - marginsMm * 2;
+
+  const cols = Math.max(1, Math.floor((availW + spacingMm) / (photoWidthMm + spacingMm)));
+  const rows = Math.max(1, Math.floor((availH + spacingMm) / (photoHeightMm + spacingMm)));
+
+  return {
+    cols,
+    rows,
+    totalCapacity: cols * rows,
+    paperWidthMm: paper.widthMm,
+    paperHeightMm: paper.heightMm,
+  };
+}
+
