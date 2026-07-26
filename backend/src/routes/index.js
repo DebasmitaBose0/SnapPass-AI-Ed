@@ -18,6 +18,7 @@ import analyticsRoutes from './analytics.routes.js';
 import batchRoutes from './batch.routes.js';
 import adminRoutes from './admin.routes.js';
 import cleanupRoutes from './cleanup.routes.js';
+import janitorRoutes from './janitor.routes.js';
 import batchExportRoutes from './batchExport.routes.js';
 
 const router = Router();
@@ -41,6 +42,7 @@ router.use('/batch', batchRoutes);
 router.use('/batch-export', batchExportRoutes);
 router.use('/admin', adminRoutes);
 router.use('/cleanup', cleanupRoutes);
+router.use('/admin', janitorRoutes);
 
 export { healthRoutes };
 export default router;
