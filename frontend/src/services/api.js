@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { logApiError } from '../utils/errorTracker';
+import { getInitialBaseUrl } from './portSync';
 
-const apiBaseUrl = import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? 'http://localhost:5000/api' : '/api');
+const apiBaseUrl = getInitialBaseUrl();
 
 if (!apiBaseUrl && import.meta.env.DEV) {
   console.warn(
@@ -29,6 +30,11 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     logApiError(error);
+    if (!error.response && import.meta.env.DEV) {
+      import('./portSync').then(({ scanBackendPorts }) => {
+        scanBackendPorts().catch(err => console.error('[PortSync] Failed auto-scan:', err));
+      });
+    }
     // Pass the original error through so the caller can read error.response.status etc.
     return Promise.reject(error);
   }
