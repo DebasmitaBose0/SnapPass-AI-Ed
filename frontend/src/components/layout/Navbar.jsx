@@ -4,6 +4,8 @@ import { useLanguage } from '../../context/LanguageContext';
 import NavbarAlignmentDetector from './NavbarAlignmentDetector';
 
 
+import PortSyncBadge from './PortSyncBadge';
+
 const navItems = [
   { to: '/', label: 'Home', end: true },
   { to: '/upload', label: 'Upload' },
@@ -79,6 +81,7 @@ export const Navbar = ({ darkMode = false, toggleTheme }) => {
         </div>
 
         <div className="navbar__actions">
+          <PortSyncBadge />
           <select
             className={`navbar__language-selector navbar__language-selector-${themeClass} navbar__desktop-language`}
             value={language}
