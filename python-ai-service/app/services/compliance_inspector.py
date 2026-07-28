@@ -226,6 +226,7 @@ def inspect_compliance(image_path: str, size_preset: Optional[str] = None) -> Di
         # Return a structured failure checklist
         return {
             "passed": False,
+            "overall_passed": False,
             "hard_fail": True,
             "items": [
                 {
@@ -259,6 +260,7 @@ def inspect_compliance(image_path: str, size_preset: Optional[str] = None) -> Di
         })
         return {
             "passed": False,
+            "overall_passed": False,
             "hard_fail": True,
             "items": items,
         }
@@ -467,6 +469,7 @@ def inspect_compliance(image_path: str, size_preset: Optional[str] = None) -> Di
 
     return {
         "passed": passed,
+        "overall_passed": passed,
         "hard_fail": hard_fail,
         "items": items,
         "meta": {

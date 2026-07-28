@@ -40,3 +40,11 @@ def test_rejects_invalid_magic_bytes():
         if os.path.exists(tmp_path):
             os.remove(tmp_path)
 
+
+def test_face_quality_attempt_comparison_metrics():
+    report1 = assess_face_quality("nonexistent_file_1.jpg")
+    report2 = assess_face_quality("nonexistent_file_2.jpg")
+    assert report1.passed == report2.passed
+    assert report1.rejection_code == report2.rejection_code
+
+
