@@ -63,11 +63,12 @@ export async function scanBackendPorts() {
  * Gets the initially configured API base URL, honoring any active port overrides.
  */
 export function getInitialBaseUrl() {
-  if (import.meta.env.DEV) {
-    const savedPort = sessionStorage.getItem('snappass_backend_port');
+  const isDev = Boolean(import.meta?.env?.DEV);
+  if (isDev) {
+    const savedPort = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('snappass_backend_port') : null;
     if (savedPort) {
       return `http://localhost:${savedPort}/api`;
     }
   }
-  return import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? 'http://localhost:3000/api' : '/api');
+  return import.meta?.env?.VITE_API_URL ?? (isDev ? 'http://localhost:3001/api' : '/api');
 }
