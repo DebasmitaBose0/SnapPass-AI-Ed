@@ -63,6 +63,7 @@ function AttireSelector({ selected = 'none', onChange }) {
               onClick={() => onChange && onChange(id)}
               role="radio"
               aria-checked={isActive}
+              tabIndex={isActive ? 0 : -1}
               title={t[labelKey]}
             >
               <div className="attire-card__icon">{emoji}</div>

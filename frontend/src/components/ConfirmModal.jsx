@@ -16,6 +16,16 @@ function ConfirmModal({
   const isDanger = variant === 'danger';
   const modalRef = useFocusTrap(true);
 
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && onCancel) {
+        onCancel();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onCancel]);
+
   return (
     <div
       className="confirm-overlay"
