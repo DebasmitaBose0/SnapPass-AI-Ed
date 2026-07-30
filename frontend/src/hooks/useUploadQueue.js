@@ -29,7 +29,7 @@ export default function useUploadQueue() {
 
     try {
       const formData = new FormData();
-      formData.append('file', item.file);
+      formData.append('photo', item.file);
 
       const xhr = new XMLHttpRequest();
       abortRef.current = xhr;

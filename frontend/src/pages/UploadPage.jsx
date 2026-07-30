@@ -75,6 +75,15 @@ function UploadPage({ darkMode, toggleTheme }) {
     }
   };
 
+  const handleReset = () => {
+    if (localPreview) {
+      URL.revokeObjectURL(localPreview);
+    }
+    setLocalPreview(null);
+    setDiagResults(null);
+    reset();
+  };
+
   const displayUrl = uploadedFile?.localUrl || localPreview;
 
   return (
@@ -110,7 +119,7 @@ function UploadPage({ darkMode, toggleTheme }) {
               <PhotoPreview
                 imageUrl={displayUrl}
                 filename={uploadedFile?.filename || 'preview'}
-                onReset={reset}
+                onReset={handleReset}
                 onProceed={handleProceed}
                 isUploading={isUploading}
                 darkMode={darkMode}
