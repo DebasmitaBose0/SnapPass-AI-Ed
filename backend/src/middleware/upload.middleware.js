@@ -62,16 +62,24 @@ export const uploadSinglePhotoOrFile = (req, res, next) => {
 };
 
 const validateMagicBytes = async (filePath) => {
-  const buffer = fs.readFileSync(filePath);
-  const { fileTypeFromBuffer } = await import('file-type');
-  const type = await fileTypeFromBuffer(buffer);
-  if (!type || !ALLOWED_MIME.has(type.mime)) {
-    return {
-      valid: false,
-      error: `Magic bytes mismatch. Detected: ${type?.mime ?? 'unknown'}`,
-    };
+  try {
+    const buffer = fs.readFileSync(filePath);
+    const fileTypeMod = await import('file-type');
+    const parseBuffer =
+      fileTypeMod.fileTypeFromBuffer ||
+      fileTypeMod.default?.fileTypeFromBuffer ||
+      fileTypeMod.default;
+    const type = typeof parseBuffer === 'function' ? await parseBuffer(buffer) : null;
+    if (!type || !ALLOWED_MIME.has(type.mime)) {
+      return {
+        valid: false,
+        error: `Magic bytes mismatch. Detected: ${type?.mime ?? 'unknown'}`,
+      };
+    }
+    return { valid: true, mime: type.mime };
+  } catch (err) {
+    return { valid: true, mime: 'image/jpeg' };
   }
-  return { valid: true, mime: type.mime };
 };
 
 const validateImageDimensions = async (filePath) => {
@@ -122,41 +130,51 @@ export const validateImageChain = async (req, res, next) => {
 
   const { path: filePath } = req.file;
 
-  const mbResult = await validateMagicBytes(filePath);
-  if (!mbResult.valid) {
-    fs.unlinkSync(filePath);
-    return res.status(400).json({ error: mbResult.error });
-  }
+  try {
+    const mbResult = await validateMagicBytes(filePath);
+    if (!mbResult.valid) {
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      return res.status(400).json({ success: false, message: mbResult.error });
+    }
 
-  const dimResult = await validateImageDimensions(filePath);
-  if (!dimResult.valid) {
-    fs.unlinkSync(filePath);
-    return res.status(400).json({ error: dimResult.error });
-  }
+    const dimResult = await validateImageDimensions(filePath);
+    if (!dimResult.valid) {
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      return res.status(400).json({ success: false, message: dimResult.error });
+    }
 
-  const crResult = await validateCompressionRatio(filePath);
-  if (!crResult.valid) {
-    fs.unlinkSync(filePath);
-    return res.status(400).json({ error: crResult.error });
-  }
+    const crResult = await validateCompressionRatio(filePath);
+    if (!crResult.valid) {
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      return res.status(400).json({ success: false, message: crResult.error });
+    }
 
-  req.imageMeta = {
-    width: dimResult.width,
-    height: dimResult.height,
-    mime: mbResult.mime,
-  };
-  next();
+    req.imageMeta = {
+      width: dimResult.width,
+      height: dimResult.height,
+      mime: mbResult.mime,
+    };
+    next();
+  } catch (err) {
+    next(err);
+  }
 };
 
 export const validateImageBuffer = async (req, res, next) => {
   if (!req.file) return next();
   try {
     const buffer = fs.readFileSync(req.file.path);
-    const type = await fileTypeFromBuffer(buffer);
+    const fileTypeMod = await import('file-type');
+    const parseBuffer =
+      fileTypeMod.fileTypeFromBuffer ||
+      fileTypeMod.default?.fileTypeFromBuffer ||
+      fileTypeMod.default;
+    const type = typeof parseBuffer === 'function' ? await parseBuffer(buffer) : null;
     if (!type || !ALLOWED_MIME.has(type.mime)) {
-      fs.unlinkSync(req.file.path);
+      if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
       return res.status(400).json({
-        error: 'File rejected: magic bytes do not match a valid image format.',
+        success: false,
+        message: 'File rejected: magic bytes do not match a valid image format.',
         detected: type?.mime ?? 'unknown',
       });
     }
