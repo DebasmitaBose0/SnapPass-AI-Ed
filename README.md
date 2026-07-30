@@ -443,3 +443,29 @@ You are free to use, modify, and distribute this project for both personal and c
 [⭐ Star on GitHub](https://github.com/souma9830/SnapPass-AI) · [🐞 Report a Bug](https://github.com/souma9830/SnapPass-AI/issues/new?template=bug_report.md) · [💡 Request a Feature](https://github.com/souma9830/SnapPass-AI/issues/new?template=feature_request.md)
 
 </div>
+
+## Troubleshooting
+
+### Installation fails
+- Ensure you are using the supported Node.js version.
+- Run `npm install` or `npm ci`.
+- Delete `node_modules` and reinstall dependencies if necessary.
+
+### Environment variables not loading
+- Verify that a `.env` file exists.
+- Ensure all required variables are defined.
+- Restart the development server after making changes.
+
+## FAQ
+
+### How do I start the project?
+Run:
+
+```bash
+npm install
+npm run dev
+```
+
+### How do I report a bug?
+Please open a GitHub issue with reproduction steps and relevant logs.
+
