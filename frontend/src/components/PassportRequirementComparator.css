@@ -208,6 +208,48 @@
   color: var(--color-text-muted, #64748b);
 }
 
+/* ── Dark Mode — tr:hover, empty-state, placeholder, clear-btn ── */
+[data-theme='dark'] .passport-comparator__table tr:hover,
+.dark-mode .passport-comparator__table tr:hover {
+  background: rgba(51, 65, 85, 0.5) !important;
+}
+
+[data-theme='dark'] .passport-comparator__empty-state,
+.dark-mode .passport-comparator__empty-state {
+  color: #94a3b8 !important;
+}
+
+[data-theme='dark'] .passport-comparator__search::placeholder,
+.dark-mode .passport-comparator__search::placeholder {
+  color: #64748b !important;
+}
+
+[data-theme='dark'] .passport-comparator__clear-btn,
+.dark-mode .passport-comparator__clear-btn {
+  color: #94a3b8 !important;
+}
+
+[data-theme='dark'] .passport-comparator__clear-btn:hover,
+.dark-mode .passport-comparator__clear-btn:hover {
+  color: #f1f5f9 !important;
+}
+
+[data-theme='dark'] .passport-comparator__preview-section,
+.dark-mode .passport-comparator__preview-section {
+  border-top-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme='dark'] .passport-comparator__preview-frame,
+.dark-mode .passport-comparator__preview-frame {
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  background: rgba(15, 23, 42, 0.6) !important;
+}
+
+[data-theme='dark'] .passport-comparator__preview-title,
+.dark-mode .passport-comparator__preview-title {
+  color: #f1f5f9 !important;
+}
+
 /* ── Dark Mode Explicit High-Contrast Overrides ── */
 [data-theme='dark'] .passport-comparator,
 .dark-mode .passport-comparator,
