@@ -1,6 +1,7 @@
 import { render, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import BackToTop from '../../src/components/HomePage/BackToTop';
+import BackToTop from '../../components/HomePage/BackToTop';
+import { vi } from 'vitest';
 
 describe('BackToTop component', () => {
   beforeEach(() => {
@@ -10,14 +11,12 @@ describe('BackToTop component', () => {
       configurable: true,
       value: 0,
     });
-    window.scrollTo = jest.fn();
+    window.scrollTo = vi.fn();
   });
 
-  test('does not render button when scroll is low', () => {
-    const { queryByRole } = render(<BackToTop />);
-    expect(
-      queryByRole('button', { name: /back to top/i })
-    ).not.toBeInTheDocument();
+  test('does not show active class when scroll is low', () => {
+    const { getByRole } = render(<BackToTop />);
+    expect(getByRole('button', { name: /back to top/i })).not.toHaveClass('show');
   });
 
   test('shows button after scrolling down and scrolls to top on click', () => {

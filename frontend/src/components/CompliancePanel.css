@@ -132,3 +132,32 @@
   border-color: rgba(255, 255, 255, 0.08);
 }
 
+.editor-toggle-dark .compliance-panel-dark {
+  background: rgba(17, 24, 39, 0.4);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.editor-toggle-dark .compliance-panel__item {
+  border-color: #334155;
+  background: rgba(30, 41, 59, 0.7);
+}
+
+.editor-toggle-dark .compliance-panel__item-title {
+  color: #f1f5f9;
+}
+
+.editor-toggle-dark .compliance-panel__item-detail {
+  color: #94a3b8;
+}
+
+.editor-toggle-dark .compliance-panel__loading,
+.editor-toggle-dark .compliance-panel__note {
+  color: #94a3b8;
+}
+
+.editor-toggle-dark .badge-neutral {
+  background: rgba(148, 163, 184, 0.15);
+  color: #cbd5e1;
+  border-color: rgba(148, 163, 184, 0.3);
+}
+

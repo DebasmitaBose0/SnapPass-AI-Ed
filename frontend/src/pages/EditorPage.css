@@ -20,16 +20,45 @@
   min-height: 100vh;
   background:
     radial-gradient(
-      1400px 700px at 10% 10%,
-      rgba(255, 233, 77, 0.32),
-      transparent 35%
+      1200px 600px at 10% 10%,
+      rgba(59, 130, 246, 0.12),
+      transparent 40%
     ),
     radial-gradient(
       1000px 600px at 90% 10%,
-      rgba(255, 191, 0, 0.22),
+      rgba(99, 102, 241, 0.08),
       transparent 40%
     ),
-    linear-gradient(145deg, #000000 10%, #0f0f0f 50%, #1a1200 100%);
+    linear-gradient(145deg, #0b0f19 0%, #111827 50%, #0b0f19 100%);
+  color: #f8fafc;
+}
+
+.editor-toggle-dark .editor-page__preview,
+.editor-toggle-dark .editor-page__controls {
+  background: linear-gradient(
+    145deg,
+    rgba(17, 24, 39, 0.85),
+    rgba(30, 41, 59, 0.75)
+  );
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 10px 40px -8px rgba(0, 0, 0, 0.5),
+    inset 0 1px 1px rgba(255, 255, 255, 0.1);
+}
+
+.editor-toggle-dark .editor-info-label {
+  color: #94a3b8;
+}
+
+.editor-toggle-dark .editor-info-value {
+  color: #f1f5f9;
+  background: rgba(30, 41, 59, 0.8);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.editor-toggle-dark .editor-page__controls hr {
+  border-top-color: rgba(255, 255, 255, 0.1);
 }
 
 .editor-page__header {
@@ -162,11 +191,11 @@
 }
 
 .editor-page__process-btn-dark {
-  background: linear-gradient(135deg, #939e00, #595f00);
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
   color: #ffffff;
   border: none;
   box-shadow:
-    0 4px 14px rgba(37, 99, 235, 0.2),
+    0 4px 14px rgba(37, 99, 235, 0.35),
     inset 0 1px 1px rgba(255, 255, 255, 0.25);
 }
 
@@ -194,9 +223,9 @@
 .editor-page__process-btn-dark:hover {
   transform: translateY(-2px);
   box-shadow:
-    0 6px 20px rgba(37, 99, 235, 0.3),
+    0 6px 20px rgba(37, 99, 235, 0.45),
     inset 0 1px 1px rgba(255, 255, 255, 0.3);
-  background: linear-gradient(135deg, #4c5500, #272c00);
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
 }
 
 /* bug-> changes the width ratio for the button */
