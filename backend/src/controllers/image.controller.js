@@ -142,12 +142,31 @@ export const processImage = async (req, res, next) => {
     const processedUrl = `/uploads/processed/${outFilename}`;
     res.json({ success: true, data: { processedUrl } });
   } catch (error) {
-    // Graceful fallback if AI service is unavailable
-    if (error.code === "ECONNREFUSED") {
-      return res.status(503).json({
-        success: false,
-        message: "AI service is unavailable. Please ensure python-ai-service is running.",
-      });
+    // Graceful local sharp processing fallback if AI service is offline
+    if (error.code === "ECONNREFUSED" || error.code === "ENOTFOUND") {
+      try {
+        const sharp = (await import('sharp')).default;
+        const uploadsDir = path.resolve(process.cwd(), "uploads");
+        const filePath = path.resolve(uploadsDir, req.body?.filename || '');
+        const processedDir = path.resolve(uploadsDir, 'processed');
+        await fs.promises.mkdir(processedDir, { recursive: true });
+        const outFilename = `${path.parse(req.body.filename).name}_processed.png`;
+        const outPath = path.join(processedDir, outFilename);
+
+        const bgHexMap = { white: '#ffffff', blue: '#2563eb', red: '#dc2626', grey: '#64748b', lightblue: '#93c5fd' };
+        const bgHex = bgHexMap[(req.body?.backgroundColour || 'white').toLowerCase()] || '#ffffff';
+
+        await sharp(filePath)
+          .flatten({ background: bgHex })
+          .resize(600, 800, { fit: 'cover', position: 'center' })
+          .png()
+          .toFile(outPath);
+
+        const processedUrl = `/uploads/processed/${outFilename}`;
+        return res.json({ success: true, data: { processedUrl }, fallback: true });
+      } catch (fallbackErr) {
+        return res.status(500).json({ success: false, message: "Local photo processing failed." });
+      }
     }
     next(error);
   }
