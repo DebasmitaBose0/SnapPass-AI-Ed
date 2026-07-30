@@ -5,7 +5,6 @@ import StepsSection from '../components/HomePage/StepsSection';
 import AIShowcaseSection from '../components/HomePage/AIShowcaseSection';
 import TestimonialsSection from '../components/testimonials/TestimonialsSection';
 import CTABanner from '../components/HomePage/CTABanner';
-import BackToTop from '../components/HomePage/BackToTop';
 import { features, steps, chips, iconMap } from '../data/HomePageData';
 import './HomePage.css';
 
@@ -32,7 +31,7 @@ function HomePage({ darkMode, toggleTheme }) {
       />
       <TestimonialsSection darkMode={darkMode} />
       <CTABanner darkMode={darkMode} />
-      <BackToTop />
+      
     </main>
   );
 }
