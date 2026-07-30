@@ -229,7 +229,9 @@ function EditorPage({ darkMode, toggleTheme }) {
 
   const presetInfo =
     SIZE_PRESETS.find((p) => p.id === sizePreset) || SIZE_PRESETS[0];
-  const currentBgHex = backgroundHexMap[background] || '#ffffff';
+  const currentBgHex = background?.startsWith('#')
+    ? background
+    : backgroundHexMap[background] || '#ffffff';
 
   return (
     <div className={darkMode ? 'editor-toggle-dark' : ''}>
