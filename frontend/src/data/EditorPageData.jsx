@@ -50,7 +50,8 @@ export const iconMap = {
 export const backgroundHexMap = {
   white: '#ffffff',
   'off-white': '#f5f0e8',
-  'light-grey': '#d1d5db',
-  'light-blue': '#bfdbfe',
-  'light-red': '#fecaca',
+  blue: '#4372c4',
+  'light-blue': '#cfe2ff',
+  grey: '#c8c8c8',
+  red: '#e53935',
 };
