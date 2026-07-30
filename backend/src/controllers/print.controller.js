@@ -100,11 +100,52 @@ export const generateSheet = async (req, res, next) => {
     res.set("Content-Disposition", `attachment; filename="snappass_sheet_${Date.now()}.png"`);
     res.send(Buffer.from(aiResponse.data));
   } catch (error) {
-    if (error.code === "ECONNREFUSED") {
-      return res.status(503).json({
-        success: false,
-        message: "AI service unavailable. Please start python-ai-service.",
-      });
+    if (error.code === "ECONNREFUSED" || error.code === "ENOTFOUND") {
+      try {
+        const sharp = (await import('sharp')).default;
+        const a4Width = 2480;
+        const a4Height = 3508;
+        const targetPhotoPath = filePaths[0];
+
+        if (targetPhotoPath && fs.existsSync(targetPhotoPath)) {
+          const resizedPhotoBuffer = await sharp(targetPhotoPath)
+            .resize(413, 531, { fit: 'cover' })
+            .toBuffer();
+
+          const composites = [];
+          const cols = 4;
+          const marginX = 120;
+          const marginY = 150;
+          const gapX = 60;
+          const gapY = 80;
+
+          for (let i = 0; i < Math.min(parsedQuantity, 20); i++) {
+            const col = i % cols;
+            const row = Math.floor(i / cols);
+            const left = marginX + col * (413 + gapX);
+            const top = marginY + row * (531 + gapY);
+            composites.push({ input: resizedPhotoBuffer, top, left });
+          }
+
+          const sheetBuffer = await sharp({
+            create: {
+              width: a4Width,
+              height: a4Height,
+              channels: 4,
+              background: { r: 255, g: 255, b: 255, alpha: 1 },
+            },
+          })
+            .composite(composites)
+            .png()
+            .toBuffer();
+
+          res.set("Content-Type", "image/png");
+          res.set("Content-Disposition", `attachment; filename="snappass_sheet_${Date.now()}.png"`);
+          return res.send(sheetBuffer);
+        }
+      } catch (fallbackErr) {
+        return res.status(500).json({ success: false, message: "Sheet generation failed locally." });
+      }
     }
     next(error);
   }
