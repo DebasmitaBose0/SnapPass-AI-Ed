@@ -70,5 +70,5 @@ export function getInitialBaseUrl() {
       return `http://localhost:${savedPort}/api`;
     }
   }
-  return import.meta?.env?.VITE_API_URL ?? (isDev ? 'http://localhost:5000/api' : '/api');
+  return import.meta?.env?.VITE_API_URL ?? (isDev ? 'http://localhost:3001/api' : '/api');
 }
