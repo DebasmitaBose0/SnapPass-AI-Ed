@@ -49,6 +49,18 @@ export const uploadMiddleware = multer({
   fileFilter,
 });
 
+export const uploadSinglePhotoOrFile = (req, res, next) => {
+  const uploadPhoto = uploadMiddleware.single('photo');
+  uploadPhoto(req, res, (err) => {
+    if (err && err.code === 'LIMIT_UNEXPECTED_FILE') {
+      const uploadFile = uploadMiddleware.single('file');
+      return uploadFile(req, res, next);
+    }
+    if (err) return next(err);
+    next();
+  });
+};
+
 const validateMagicBytes = async (filePath) => {
   const buffer = fs.readFileSync(filePath);
   const { fileTypeFromBuffer } = await import('file-type');
