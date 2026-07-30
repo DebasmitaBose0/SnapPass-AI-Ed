@@ -37,6 +37,33 @@ export const ImageAdjustments = ({ filters, onChange, onReset }) => {
         </button>
       </div>
 
+      <div className="image-adjustments-presets" style={{ display: 'flex', gap: '6px', marginBottom: '12px' }}>
+        <button
+          type="button"
+          className="image-adjustments-preset-btn"
+          style={{ flex: 1, padding: '4px 6px', fontSize: '0.75rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.05)', color: 'inherit', cursor: 'pointer' }}
+          onClick={() => onChange({ brightness: 105, contrast: 110, saturation: 105 })}
+        >
+          ✨ Vivid
+        </button>
+        <button
+          type="button"
+          className="image-adjustments-preset-btn"
+          style={{ flex: 1, padding: '4px 6px', fontSize: '0.75rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.05)', color: 'inherit', cursor: 'pointer' }}
+          onClick={() => onChange({ brightness: 102, contrast: 105, saturation: 95 })}
+        >
+          📷 Studio
+        </button>
+        <button
+          type="button"
+          className="image-adjustments-preset-btn"
+          style={{ flex: 1, padding: '4px 6px', fontSize: '0.75rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.05)', color: 'inherit', cursor: 'pointer' }}
+          onClick={() => onChange({ brightness: 100, contrast: 120, saturation: 110 })}
+        >
+          ⚡ Punchy
+        </button>
+      </div>
+
       <div className="adjustment-field">
         <div className="adjustment-label-row">
           <label htmlFor="brightness-slider">Brightness</label>

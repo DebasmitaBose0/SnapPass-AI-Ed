@@ -67,25 +67,75 @@
   width: 32px;
   height: 32px;
   border-radius: var(--radius-md);
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border: 1.5px solid rgba(0, 0, 0, 0.2);
   flex-shrink: 0;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 
 .bg-selector__label {
   font-size: var(--font-size-xs);
-  font-weight: 500;
+  font-weight: 600;
   white-space: nowrap;
 }
 
 /* Country hint shown beneath the label */
 .bg-selector__country {
   font-size: 10px;
-  color: var(--color-text-light);
+  color: #64748b;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 80px;
+  max-width: 85px;
+  transition: color var(--transition-fast);
+}
+
+/* Dark Mode Overrides */
+[data-theme='dark'] .bg-selector__heading,
+.dark-mode .bg-selector__heading,
+.editor-page-dark .bg-selector__heading {
+  color: #94a3b8;
+}
+
+[data-theme='dark'] .bg-selector__item,
+.dark-mode .bg-selector__item,
+.editor-page-dark .bg-selector__item {
+  background: rgba(30, 41, 59, 0.75);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #f1f5f9;
+}
+
+[data-theme='dark'] .bg-selector__item .bg-selector__country,
+.dark-mode .bg-selector__item .bg-selector__country,
+.editor-page-dark .bg-selector__item .bg-selector__country {
+  color: #94a3b8;
+}
+
+[data-theme='dark'] .bg-selector__item:hover,
+.dark-mode .bg-selector__item:hover,
+.editor-page-dark .bg-selector__item:hover {
+  background: rgba(51, 65, 85, 0.9);
+  border-color: #3b82f6;
+  color: #ffffff;
+}
+
+[data-theme='dark'] .bg-selector__item:hover .bg-selector__country,
+.dark-mode .bg-selector__item:hover .bg-selector__country,
+.editor-page-dark .bg-selector__item:hover .bg-selector__country {
+  color: #cbd5e1;
+}
+
+[data-theme='dark'] .bg-selector__item--active,
+.dark-mode .bg-selector__item--active,
+.editor-page-dark .bg-selector__item--active {
+  background: rgba(37, 99, 235, 0.25) !important;
+  border-color: #3b82f6 !important;
+  color: #60a5fa !important;
+}
+
+[data-theme='dark'] .bg-selector__item--active .bg-selector__country,
+.dark-mode .bg-selector__item--active .bg-selector__country,
+.editor-page-dark .bg-selector__item--active .bg-selector__country {
+  color: #93c5fd !important;
 }
 
 /* Hidden native colour-picker input */
