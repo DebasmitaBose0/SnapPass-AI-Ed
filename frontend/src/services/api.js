@@ -4,7 +4,7 @@ import { getInitialBaseUrl } from './portSync';
 
 const apiBaseUrl = getInitialBaseUrl();
 
-if (!apiBaseUrl && import.meta.env.DEV) {
+if (!apiBaseUrl && import.meta?.env?.DEV) {
   console.warn(
     '[SnapPass] VITE_API_URL is not set. ' +
     'Copy frontend/.env.example to frontend/.env and fill in the backend URL.'
@@ -30,7 +30,7 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     logApiError(error);
-    if (!error.response && import.meta.env.DEV) {
+    if (!error.response && import.meta?.env?.DEV) {
       import('./portSync').then(({ scanBackendPorts }) => {
         scanBackendPorts().catch(err => console.error('[PortSync] Failed auto-scan:', err));
       });
