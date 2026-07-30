@@ -28,12 +28,21 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     logApiError(error);
-    if (!error.response && import.meta?.env?.DEV) {
-      import('./portSync').then(({ scanBackendPorts }) => {
-        scanBackendPorts().catch(err => console.error('[PortSync] Failed auto-scan:', err));
-      });
+    const originalRequest = error.config;
+    if (originalRequest && !originalRequest._retried && (!error.response || error.code === 'ERR_NETWORK')) {
+      originalRequest._retried = true;
+      try {
+        const { scanBackendPorts } = await import('./portSync');
+        const activePort = await scanBackendPorts();
+        if (activePort) {
+          originalRequest.baseURL = `http://localhost:${activePort}/api`;
+          return api(originalRequest);
+        }
+      } catch (scanErr) {
+        console.error('[SnapPass API] Auto-retry scan failed:', scanErr);
+      }
     }
     // Pass the original error through so the caller can read error.response.status etc.
     return Promise.reject(error);
