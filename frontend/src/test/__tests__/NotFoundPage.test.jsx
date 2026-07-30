@@ -1,13 +1,16 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
+import { LanguageProvider } from '../../context/LanguageContext';
 import NotFoundPage from '../../pages/NotFoundPage';
 
 const renderNotFoundPage = (darkMode = false) => {
   return render(
-    <BrowserRouter>
-      <NotFoundPage darkMode={darkMode} />
-    </BrowserRouter>
+    <LanguageProvider>
+      <BrowserRouter>
+        <NotFoundPage darkMode={darkMode} />
+      </BrowserRouter>
+    </LanguageProvider>
   );
 };
 
@@ -37,7 +40,7 @@ describe('NotFoundPage', () => {
   it('renders suggestion links', () => {
     renderNotFoundPage();
     expect(screen.getByText('Home')).toBeInTheDocument();
-    expect(screen.getByText('Upload Photo')).toBeInTheDocument();
+    expect(screen.getByText('Upload Your Photo')).toBeInTheDocument();
     expect(screen.getByText('Photo Studio')).toBeInTheDocument();
   });
 

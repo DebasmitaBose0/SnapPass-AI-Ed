@@ -517,8 +517,8 @@ function EditorPage({ darkMode, toggleTheme }) {
               </div>
             )}
 
-            <div className="toggle-switch-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem', padding: '12px', background: 'rgba(59,130,246,0.1)', borderRadius: '8px', border: '1px dashed #3b82f6' }}>
-              <span style={{ fontWeight: '600', color: '#3b82f6' }}>🪄 Auto-Enhance Lighting</span>
+            <div className="toggle-switch-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem', padding: '12px', background: darkMode ? 'rgba(59,130,246,0.15)' : 'rgba(59,130,246,0.1)', borderRadius: '8px', border: darkMode ? '1px dashed #60a5fa' : '1px dashed #3b82f6' }}>
+              <span style={{ fontWeight: '600', color: darkMode ? '#60a5fa' : '#3b82f6' }}>🪄 Auto-Enhance Lighting</span>
               <label className="switch" style={{ position: 'relative', display: 'inline-block', width: '44px', height: '24px' }}>
                 <input
                   type="checkbox"
@@ -527,7 +527,7 @@ function EditorPage({ darkMode, toggleTheme }) {
                   disabled={!filename || isEnhancing}
                   style={{ opacity: 0, width: 0, height: 0 }}
                 />
-                <span className="slider round" style={{ position: 'absolute', cursor: 'pointer', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: isAutoEnhanced ? '#3b82f6' : '#ccc', transition: '.4s', borderRadius: '24px' }}>
+                <span className="slider round" style={{ position: 'absolute', cursor: 'pointer', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: isAutoEnhanced ? '#3b82f6' : (darkMode ? '#475569' : '#ccc'), transition: '.4s', borderRadius: '24px' }}>
                   <span style={{ position: 'absolute', content: '""', height: '18px', width: '18px', left: isAutoEnhanced ? '23px' : '3px', bottom: '3px', backgroundColor: 'white', transition: '.4s', borderRadius: '50%' }} />
                 </span>
               </label>

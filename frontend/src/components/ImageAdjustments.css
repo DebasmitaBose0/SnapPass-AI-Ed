@@ -64,3 +64,27 @@
   accent-color: #6366f1;
   cursor: pointer;
 }
+
+/* Dark mode styles */
+.editor-toggle-dark .image-adjustments-card {
+  background: rgba(30, 41, 59, 0.5);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.editor-toggle-dark .image-adjustments-title {
+  color: #f1f5f9;
+}
+
+.editor-toggle-dark .adjustment-label-row {
+  color: #94a3b8;
+}
+
+.editor-toggle-dark .image-adjustments-reset-btn {
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #94a3b8;
+}
+
+.editor-toggle-dark .image-adjustments-reset-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #f8fafc;
+}
