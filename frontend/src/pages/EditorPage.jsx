@@ -58,16 +58,31 @@ function EditorPage({ darkMode, toggleTheme }) {
   const [enhancedDataUrl, setEnhancedDataUrl] = useState(null);
   const [isEnhancing, setIsEnhancing] = useState(false);
 
-  const apiBaseUrl =
-    import.meta.env.VITE_API_URL ??
-    (import.meta.env.DEV ? 'http://localhost:5000/api' : '/api');
-  const backendRoot = apiBaseUrl.replace(/\/api\/?$/, '');
-  const baseImageUrl = filename ? `${backendRoot}/uploads/${filename}` : '';
+  const getBackendRoot = () => {
+    if (import.meta?.env?.VITE_API_URL) {
+      return import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '');
+    }
+    if (api.defaults?.baseURL) {
+      return api.defaults.baseURL.replace(/\/api\/?$/, '');
+    }
+    return '';
+  };
+  const backendRoot = getBackendRoot();
+
+  const resolveImageUrl = (path) => {
+    if (!path) return '';
+    if (path.startsWith('data:') || path.startsWith('blob:') || path.startsWith('http://') || path.startsWith('https://')) {
+      return path;
+    }
+    return backendRoot ? `${backendRoot}${path.startsWith('/') ? '' : '/'}${path}` : path.startsWith('/') ? path : `/${path}`;
+  };
+
+  const baseImageUrl = filename ? resolveImageUrl(`/uploads/${filename}`) : (state?.localUrl || state?.fileUrl || '');
   const currentImageUrl = processedUrl
-    ? `${backendRoot}${processedUrl}?t=${cacheBuster}`
+    ? `${resolveImageUrl(processedUrl)}?t=${cacheBuster}`
     : baseImageUrl
-      ? `${baseImageUrl}?t=${cacheBuster}`
-      : state?.localUrl || '';
+      ? (baseImageUrl.includes('?') ? baseImageUrl : `${baseImageUrl}?t=${cacheBuster}`)
+      : '';
 
   const runComplianceCheck = useCallback(
     async (fileToCheck) => {
@@ -214,7 +229,9 @@ function EditorPage({ darkMode, toggleTheme }) {
 
   const presetInfo =
     SIZE_PRESETS.find((p) => p.id === sizePreset) || SIZE_PRESETS[0];
-  const currentBgHex = backgroundHexMap[background] || '#ffffff';
+  const currentBgHex = background?.startsWith('#')
+    ? background
+    : backgroundHexMap[background] || '#ffffff';
 
   return (
     <div className={darkMode ? 'editor-toggle-dark' : ''}>
@@ -289,6 +306,14 @@ function EditorPage({ darkMode, toggleTheme }) {
                     <img
                       src={displayImageUrl}
                       alt="Preview"
+                      onError={(e) => {
+                        if (filename && !e.target.dataset.retried) {
+                          e.target.dataset.retried = 'true';
+                          e.target.src = `/uploads/${filename}`;
+                        } else if (state?.localUrl) {
+                          e.target.src = state.localUrl;
+                        }
+                      }}
                       style={{
                         display: 'block',
                         maxWidth: '100%',
