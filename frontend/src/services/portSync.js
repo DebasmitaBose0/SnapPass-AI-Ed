@@ -19,7 +19,7 @@ async function probePort(port) {
     if (!response.ok) return null;
     
     const data = await response.json();
-    if (data && data.service === 'snappass-backend') {
+    if (data && (data.service === 'snappass-backend' || data.service?.toLowerCase().includes('snappass'))) {
       return port;
     }
   } catch (err) {
