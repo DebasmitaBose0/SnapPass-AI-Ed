@@ -120,9 +120,12 @@ function UploadBox({ onFileSelect, queue, addToQueue }) {
       tabIndex={0}
       aria-label="Click or drag a photo to upload"
       aria-busy={isValidating}
-      onKeyDown={(e) =>
-        e.key === 'Enter' && !isValidating && inputRef.current.click()
-      }
+      onKeyDown={(e) => {
+        if ((e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') && !isValidating) {
+          e.preventDefault();
+          inputRef.current?.click();
+        }
+      }}
     >
       <input
         ref={inputRef}
