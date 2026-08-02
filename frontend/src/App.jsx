@@ -9,6 +9,7 @@ import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { ThemeCustomizerProvider } from './context/ThemeCustomizerContext';
 import './App.css';
 import ScrollToTopButton from './components/ScrollToTopButton';
+import CookieConsentBanner from './components/cookie/CookieConsentBanner';
 import { scanBackendPorts } from './services/portSync';
 
 
@@ -38,6 +39,7 @@ function AppContent() {
       <Footer darkMode={darkMode} />
       <SnapPassAssistant />
       <ScrollToTopButton />
+      <CookieConsentBanner darkMode={darkMode} />
     </div>
   );
 }

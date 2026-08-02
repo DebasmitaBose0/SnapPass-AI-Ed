@@ -127,9 +127,23 @@ export const processImage = async (req, res, next) => {
       });
     }
 
+import backgroundQualityRepairService from '../services/backgroundQualityRepair.service.js';
+
     const aiResponse = await axios.post(`${config.aiServiceUrl}/remove-bg`, form, {
       headers: form.getHeaders(),
       responseType: "arraybuffer",
+    });
+
+    const bgHexMap = { white: '#ffffff', blue: '#2563eb', red: '#dc2626', grey: '#64748b', lightblue: '#93c5fd' };
+    const bgHex = bgHexMap[(backgroundColour || 'white').toLowerCase()] || '#ffffff';
+
+    // Apply Background Quality Repair pass (edge smoothing, defringing, noise cleanup)
+    const rawBuffer = Buffer.from(aiResponse.data);
+    const repairedBuffer = await backgroundQualityRepairService.repairQuality(rawBuffer, {
+      refineEdges: true,
+      removeHalos: true,
+      cleanNoise: true,
+      bgHex,
     });
 
     // Save processed image to disk and return URL
@@ -138,7 +152,7 @@ export const processImage = async (req, res, next) => {
     const outExt = path.extname(filename).slice(1) || 'png';
     const outFilename = `${path.parse(filename).name}_processed.${outExt}`;
     const outPath = path.join(processedDir, outFilename);
-    await fs.promises.writeFile(outPath, Buffer.from(aiResponse.data));
+    await fs.promises.writeFile(outPath, repairedBuffer);
     const processedUrl = `/uploads/processed/${outFilename}`;
     res.json({ success: true, data: { processedUrl } });
   } catch (error) {
@@ -347,6 +361,59 @@ export const getProcessJobStatus = async (req, res, next) => {
         processedUrl: job.processedUrl,
         error: job.error,
       },
+    });
+export const repairImageQualityController = async (req, res, next) => {
+  try {
+    const {
+      filename,
+      refineEdges = true,
+      removeHalos = true,
+      cleanNoise = true,
+      backgroundColour = 'white',
+    } = req.body || {};
+
+    if (!filename) {
+      return res.status(400).json({ success: false, message: 'filename is required.' });
+    }
+
+    const cleanFilename = path.basename(filename);
+    const uploadsDir = path.resolve(process.cwd(), 'uploads');
+    const processedDir = path.resolve(uploadsDir, 'processed');
+
+    let filePath = path.resolve(processedDir, cleanFilename);
+    if (!fs.existsSync(filePath)) {
+      filePath = path.resolve(uploadsDir, cleanFilename);
+    }
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ success: false, message: 'Target image file not found.' });
+    }
+
+    const bgHexMap = { white: '#ffffff', blue: '#2563eb', red: '#dc2626', grey: '#64748b', lightblue: '#93c5fd' };
+    const bgHex = bgHexMap[String(backgroundColour).toLowerCase()] || '#ffffff';
+
+    const inputBuffer = await fs.promises.readFile(filePath);
+    const repairedBuffer = await backgroundQualityRepairService.repairQuality(inputBuffer, {
+      refineEdges: Boolean(refineEdges),
+      removeHalos: Boolean(removeHalos),
+      cleanNoise: Boolean(cleanNoise),
+      bgHex,
+    });
+
+    await fs.promises.mkdir(processedDir, { recursive: true });
+    const outFilename = `${path.parse(cleanFilename).name}_repaired.png`;
+    const outPath = path.join(processedDir, outFilename);
+    await fs.promises.writeFile(outPath, repairedBuffer);
+
+    const processedUrl = `/uploads/processed/${outFilename}`;
+    return res.json({
+      success: true,
+      data: {
+        processedUrl,
+        filename: outFilename,
+        repairedOptions: { refineEdges, removeHalos, cleanNoise, backgroundColour },
+      },
+      message: 'Background quality repair completed successfully.',
     });
   } catch (error) {
     next(error);

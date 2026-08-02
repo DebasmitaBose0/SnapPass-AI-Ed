@@ -6,12 +6,24 @@
  */
 
 import express from 'express';
-import { createProcessJob, getProcessJobStatus } from '../controllers/image.controller.js';
+import {
+  createProcessJob,
+  getProcessJobStatus,
+  getAllProcessJobs,
+  retryProcessJob,
+  cancelOrDeleteProcessJob,
+  repairImageQualityController,
+} from '../controllers/image.controller.js';
 
 const router = express.Router();
 
 router.post('/job', createProcessJob);
 router.get('/job/:jobId', getProcessJobStatus);
+router.get('/jobs', getAllProcessJobs);
+router.post('/job/:jobId/retry', retryProcessJob);
+router.delete('/job/:jobId', cancelOrDeleteProcessJob);
+
+router.post('/repair-quality', repairImageQualityController);
 
 export default router;
 
