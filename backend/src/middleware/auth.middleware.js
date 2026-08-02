@@ -4,18 +4,23 @@ import SecurityAudit from "../models/securityAudit.model.js";
 import { tokenRevocationStore } from "../utils/tokenRevocationStore.js";
 
 export default async function authMiddleware(req, res, next) {
-    const token = req.cookies?.token;
+    let token = req.cookies?.token;
+
+    if (!token && req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+        token = req.headers.authorization.split(' ')[1];
+    }
+
     if (!token) {
-        await SecurityAudit.create({
+        await SecurityAudit.logSecurityEvent({
             action: 'AUTH_FAILED',
             email: 'anonymous',
-            ip: req.ip,
+            ip: req.ip || req.socket?.remoteAddress || '127.0.0.1',
             status: 'FAILURE',
             severity: 'WARNING',
             userAgent: req.headers['user-agent'] || '',
-            details: 'No token provided'
+            details: `No token provided for route ${req.method} ${req.originalUrl}`
         }).catch(() => {});
-        return next(new AuthError("No token provided"));
+        return next(new AuthError("No authentication token provided"));
     }
 
     if (tokenRevocationStore.isRevoked(token)) {
@@ -33,25 +38,31 @@ export default async function authMiddleware(req, res, next) {
     try {
         const decoded = await validateSession(token);
         if (!decoded) {
-            await SecurityAudit.create({
+            await SecurityAudit.logSecurityEvent({
                 action: 'AUTH_FAILED',
                 email: 'revoked-session',
-                ip: req.ip,
+                ip: req.ip || req.socket?.remoteAddress || '127.0.0.1',
                 status: 'FAILURE',
-                details: 'Session has expired or has been revoked'
+                severity: 'WARNING',
+                userAgent: req.headers['user-agent'] || '',
+                details: `Session expired or revoked for route ${req.originalUrl}`
             }).catch(() => {});
             return next(new AuthError("Session has expired or has been revoked"));
         }
+
         req.user = decoded;
+        res.setHeader('X-Authenticated-User', decoded.id || decoded.email || 'authenticated');
         next();
     } catch (error) {
-        await SecurityAudit.create({
+        await SecurityAudit.logSecurityEvent({
             action: 'AUTH_FAILED',
             email: 'invalid-token',
-            ip: req.ip,
+            ip: req.ip || req.socket?.remoteAddress || '127.0.0.1',
             status: 'FAILURE',
-            details: 'Invalid token signature'
+            severity: 'CRITICAL',
+            userAgent: req.headers['user-agent'] || '',
+            details: `Invalid token signature on ${req.originalUrl}: ${error.message}`
         }).catch(() => {});
-        return next(new AuthError("Invalid token"));
+        return next(new AuthError("Invalid authentication token"));
     }
 }

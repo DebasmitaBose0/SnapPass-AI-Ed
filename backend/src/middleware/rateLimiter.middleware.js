@@ -1,31 +1,48 @@
 /**
  * Express Rate Limiting Middleware
- * In-memory sliding window rate limiter for API protection.
+ * Advanced sliding window rate limiter with client fingerprinting and progressive IP throttling.
  */
 
 const requestCounts = new Map();
+const blockedIPs = new Map();
 
 export const createRateLimiter = (options = {}) => {
   const windowMs = options.windowMs || 15 * 60 * 1000; // 15 minutes
   const maxRequests = options.maxRequests || 100;
+  const blockDurationMs = options.blockDurationMs || 30 * 60 * 1000; // 30 mins
   const message = options.message || { error: 'Too many requests, please try again later.' };
 
   return (req, res, next) => {
-    const ip = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
+    const rawIp = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
+    const clientKey = `${rawIp}:${req.headers['user-agent'] || 'unknown'}`;
     const now = Date.now();
 
-    if (!requestCounts.has(ip)) {
-      requestCounts.set(ip, []);
+    // Check if IP is currently in temporary lock
+    if (blockedIPs.has(rawIp)) {
+      const blockExpiry = blockedIPs.get(rawIp);
+      if (now < blockExpiry) {
+        res.setHeader('Retry-After', Math.ceil((blockExpiry - now) / 1000));
+        return res.status(429).json({ error: 'IP temporarily blocked due to repeated rate limit violations.' });
+      }
+      blockedIPs.delete(rawIp);
     }
 
-    const timestamps = requestCounts.get(ip).filter((ts) => now - ts < windowMs);
+    if (!requestCounts.has(clientKey)) {
+      requestCounts.set(clientKey, []);
+    }
+
+    const timestamps = requestCounts.get(clientKey).filter((ts) => now - ts < windowMs);
     timestamps.push(now);
-    requestCounts.set(ip, timestamps);
+    requestCounts.set(clientKey, timestamps);
 
     res.setHeader('X-RateLimit-Limit', maxRequests);
     res.setHeader('X-RateLimit-Remaining', Math.max(0, maxRequests - timestamps.length));
+    res.setHeader('X-RateLimit-Reset', Math.ceil((now + windowMs) / 1000));
 
     if (timestamps.length > maxRequests) {
+      if (timestamps.length > maxRequests * 2) {
+        blockedIPs.set(rawIp, now + blockDurationMs);
+      }
       return res.status(429).json(message);
     }
 
@@ -41,6 +58,7 @@ export const apiRateLimiter = createRateLimiter({
 export const authRateLimiter = createRateLimiter({
   windowMs: 15 * 60 * 1000,
   maxRequests: 10,
+  blockDurationMs: 15 * 60 * 1000,
   message: { error: 'Too many authentication attempts. Please wait 15 minutes.' }
 });
 

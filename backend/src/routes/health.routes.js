@@ -76,6 +76,13 @@ router.get('/diagnostics', async (req, res) => {
     diagnostics.services.pythonService = 'offline/error: ' + err.message;
   }
 
+  try {
+    const { aiCircuitBreaker } = await import('../utils/aiClient.js');
+    diagnostics.services.circuitBreaker = aiCircuitBreaker.getStatus();
+  } catch (e) {
+    diagnostics.services.circuitBreaker = 'unavailable';
+  }
+
   const isAllHealthy =
     diagnostics.services.mongodb === 'connected' &&
     diagnostics.services.pythonService === 'healthy';
