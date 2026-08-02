@@ -40,6 +40,7 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
     margins: savedSession?.margins || 20,
     orientation: savedSession?.orientation || 'portrait'
   });
+  const [selectedDpi, setSelectedDpi] = useState(300);
   const [isGenerating, setIsGenerating] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
@@ -226,9 +227,11 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
 
             <hr className="divider" />
 
-             <PrintLayoutSelector
+            <PrintLayoutSelector
               selectedLayout={layout}
               onChange={setLayout}
+              selectedDpi={selectedDpi}
+              onChangeDpi={setSelectedDpi}
               darkMode={darkMode}
             />
 
