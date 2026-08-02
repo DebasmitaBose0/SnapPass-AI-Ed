@@ -1,11 +1,15 @@
 import jwt from "jsonwebtoken";
 import Session from "../models/session.model.js";
 import { config } from "../config/config.js";
+import { SessionAdapterFactory } from "./adapters/sessionAdapterFactory.js";
+
+const sessionAdapter = SessionAdapterFactory.getAdapter('memory');
 
 /**
  * Creates a new session, signs JWT, and saves to database.
  */
 export async function createSession(res, user, ipAddress, userAgent) {
+
   const expiresInDays = 7;
   const maxAgeMs = expiresInDays * 24 * 60 * 60 * 1000;
   const expiresAt = new Date(Date.now() + maxAgeMs);
