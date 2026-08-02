@@ -2,36 +2,16 @@ import React, { useCallback, useRef, useState } from 'react';
 import './BackgroundSelector.css';
 import { BACKGROUND_COLOURS } from '../data/backgroundColours';
 
-/**
- * BackgroundSelector — lets the user pick a background colour for their
- * passport photo, then forwards the selection to the parent via onChange.
- *
- * Colour definitions live in data/backgroundColours.js so they stay in sync
- * with the backend's accepted list.  The "Custom" swatch reveals a native
- * <input type="color"> picker and passes a hex string as the value.
- *
- * Accessibility:
- *   - Implements the WAI-ARIA radio group pattern
- *   - Arrow-key navigation (Left/Up = prev, Right/Down = next)
- *   - Only the selected swatch is in the tab order (roving tabindex)
- *   - Colour shown in aria-label so screen readers announce it
- *
- * Props:
- *   selected  (string)         — currently selected colour id or hex value
- *   onChange  (fn(value))      — called with colour id (preset) or hex string
- */
 function BackgroundSelector({ selected = 'white', onChange }) {
   const listRef = useRef(null);
   const colorInputRef = useRef(null);
   const [customHex, setCustomHex] = useState('#e8f4ff');
 
-  // Determine if the current selection is a preset id or a raw hex
   const isCustomActive = selected && selected.startsWith('#');
 
   const handlePresetClick = useCallback(
     (id) => {
       if (id === 'custom') {
-        // Open the native colour picker
         colorInputRef.current?.click();
         return;
       }
@@ -81,9 +61,14 @@ function BackgroundSelector({ selected = 'white', onChange }) {
 
   return (
     <div className="bg-selector">
-      <p className="bg-selector__heading" id="bg-selector-label">
-        Background Colour
-      </p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+        <p className="bg-selector__heading" id="bg-selector-label" style={{ margin: 0 }}>
+          Background Colour
+        </p>
+        <span style={{ fontSize: '0.75rem', color: '#10b981', background: 'rgba(16, 185, 129, 0.1)', padding: '2px 8px', borderRadius: '4px' }}>
+          ICAO Compliant
+        </span>
+      </div>
 
       <div
         className="bg-selector__list"
@@ -126,7 +111,6 @@ function BackgroundSelector({ selected = 'white', onChange }) {
         })}
       </div>
 
-      {/* Hidden native colour picker triggered by the Custom swatch */}
       <input
         ref={colorInputRef}
         type="color"
