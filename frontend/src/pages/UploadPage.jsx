@@ -5,6 +5,7 @@ import UploadBox from '../components/UploadBox';
 import PhotoPreview from '../components/PhotoPreview';
 import UploadProgress from '../components/UploadProgress';
 import usePhotoUpload from '../hooks/usePhotoUpload';
+import { useBatchUpload } from '../hooks/useBatchUpload';
 import { compressImage } from '../utils/imageCompression';
 import { useLanguage } from '../context/LanguageContext';
 import { translations } from '../translations/translations';
@@ -24,6 +25,9 @@ function UploadPage({ darkMode, toggleTheme }) {
     uploadProgress,
     reset,
   } = usePhotoUpload();
+  const batchUpload = useBatchUpload({ concurrency: 3 });
+  const [isBatchMode, setIsBatchMode] = useState(false);
+
   const [localPreview, setLocalPreview] = useState(null);
   const [diagResults, setDiagResults] = useState(null);
 
@@ -44,6 +48,10 @@ function UploadPage({ darkMode, toggleTheme }) {
   };
 
   const handleFileSelect = async (file) => {
+    if (isBatchMode) {
+      batchUpload.addFiles([file]);
+      return;
+    }
     reset();
     setDiagResults(null);
     const diags = await runImageDiagnostics(file);
@@ -82,6 +90,7 @@ function UploadPage({ darkMode, toggleTheme }) {
     setLocalPreview(null);
     setDiagResults(null);
     reset();
+    batchUpload.reset();
   };
 
   const displayUrl = uploadedFile?.localUrl || localPreview;
@@ -106,6 +115,17 @@ function UploadPage({ darkMode, toggleTheme }) {
           >
             {t.uploadSubtitle}
           </p>
+          <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'center', gap: '8px', alignItems: 'center' }}>
+            <label style={{ fontSize: '0.9rem', color: darkMode ? '#cbd5e1' : '#475569', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={isBatchMode}
+                onChange={(e) => setIsBatchMode(e.target.checked)}
+                style={{ marginRight: '6px' }}
+              />
+              Enable Batch Processing Mode
+            </label>
+          </div>
         </motion.div>
 
         <motion.div
@@ -114,7 +134,7 @@ function UploadPage({ darkMode, toggleTheme }) {
           animate="visible"
           custom={0.2}
         >
-          {displayUrl ? (
+          {displayUrl && !isBatchMode ? (
             <>
               <PhotoPreview
                 imageUrl={displayUrl}
@@ -140,8 +160,33 @@ function UploadPage({ darkMode, toggleTheme }) {
             </>
           ) : (
             <>
-              <UploadBox onFileSelect={handleFileSelect} />
-              <UploadProgress progress={uploadProgress} darkMode={darkMode} />
+              <UploadBox onFileSelect={handleFileSelect} multiple={isBatchMode} />
+              <UploadProgress
+                progress={isBatchMode ? batchUpload.progress : uploadProgress}
+                items={isBatchMode ? batchUpload.results : []}
+                onCancel={isBatchMode ? batchUpload.abort : null}
+                onRetry={isBatchMode ? batchUpload.retryFailed : null}
+                darkMode={darkMode}
+              />
+              {isBatchMode && batchUpload.hasPending && (
+                <button
+                  type="button"
+                  onClick={() => batchUpload.startUpload()}
+                  disabled={batchUpload.uploading}
+                  style={{
+                    marginTop: '12px',
+                    padding: '8px 20px',
+                    borderRadius: '8px',
+                    background: '#3b82f6',
+                    color: '#fff',
+                    border: 'none',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {batchUpload.uploading ? 'Processing Batch...' : 'Start Batch Processing'}
+                </button>
+              )}
             </>
           )}
         </motion.div>
