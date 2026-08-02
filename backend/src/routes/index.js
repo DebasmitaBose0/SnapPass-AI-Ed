@@ -20,6 +20,7 @@ import adminRoutes from './admin.routes.js';
 import cleanupRoutes from './cleanup.routes.js';
 import janitorRoutes from './janitor.routes.js';
 import batchExportRoutes from './batchExport.routes.js';
+import shareRoutes from './share.routes.js';
 
 const router = Router();
 
@@ -43,6 +44,7 @@ router.use('/batch-export', batchExportRoutes);
 router.use('/admin', adminRoutes);
 router.use('/cleanup', cleanupRoutes);
 router.use('/admin', janitorRoutes);
+router.use('/share', shareRoutes);
 
 export { healthRoutes };
 export default router;

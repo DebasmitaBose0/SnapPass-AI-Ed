@@ -28,4 +28,21 @@ export class StorageJanitorService {
 
     return { purged, freedBytes };
   }
+
+  static async purgeExpiredShareLinks() {
+    try {
+      const ShareLink = (await import('../models/shareLink.model.js')).default;
+      const now = new Date();
+      const result = await ShareLink.deleteMany({
+        $or: [
+          { expiresAt: { $lt: now } },
+          { isRevoked: true },
+          { $and: [{ isOneTime: true }, { viewCount: { $gte: 1 } }] },
+        ],
+      });
+      return { purged: result.deletedCount || 0 };
+    } catch (err) {
+      return { purged: 0, error: err.message };
+    }
+  }
 }
