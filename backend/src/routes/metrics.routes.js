@@ -4,6 +4,7 @@ import { getServerMetrics, resetServerMetrics } from '../controllers/metrics.con
 const router = Router();
 
 router.get('/', getServerMetrics);
+router.get('/extended', getServerMetrics);
 router.delete('/', resetServerMetrics);
 
 export default router;
