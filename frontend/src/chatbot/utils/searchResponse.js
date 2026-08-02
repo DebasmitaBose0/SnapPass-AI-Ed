@@ -14,11 +14,11 @@ const fuse = new Fuse(knowledgeBase, {
 });
 
 export const searchResponse = (query) => {
-  if (!query.trim()) {
+  if (!query || !query.trim()) {
     return 'Please ask a question related to SnapPass AI.';
   }
 
-  const lowerQuery = query.toLowerCase();
+  const lowerQuery = query.toLowerCase().trim();
 
   // STEP 1 → Exact keyword matching (highest confidence)
   for (const item of knowledgeBase) {
@@ -42,18 +42,18 @@ export const searchResponse = (query) => {
     const suggestions = results
       .slice(0, 3)
       .map((r) => r.item.question)
-      .join(', ');
+      .join('; ');
     return `I'm not entirely sure about that. Did you mean: ${suggestions}?`;
   }
 
   // STEP 4 → Reject unrelated questions with helpful fallback
-  return 'I can only answer questions related to SnapPass AI features and tools.';
+  return 'I can only answer questions related to SnapPass AI features, passport photo guidelines, and editing tools.';
 };
 
 export const searchMultiResponse = (query, topN = 3) => {
-  if (!query.trim()) return [];
+  if (!query || !query.trim()) return [];
 
-  const lowerQuery = query.toLowerCase();
+  const lowerQuery = query.toLowerCase().trim();
   const exactMatches = knowledgeBase.filter((item) =>
     item.keywords.some((kw) => lowerQuery.includes(kw.toLowerCase()))
   );
