@@ -1,4 +1,5 @@
 import AuditLog from '../models/auditLog.model.js';
+import SecurityAudit from '../models/securityAudit.model.js';
 
 export const getAuditLogs = async (req, res, next) => {
   try {
