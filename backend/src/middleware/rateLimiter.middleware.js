@@ -1,7 +1,4 @@
-/**
- * Express Rate Limiting Middleware
- * In-memory sliding window rate limiter for API protection.
- */
+import { calculateSlidingWeight } from '../utils/slidingWindow.utils.js';
 
 const requestCounts = new Map();
 
@@ -13,6 +10,7 @@ export const createRateLimiter = (options = {}) => {
   return (req, res, next) => {
     const ip = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
     const now = Date.now();
+
 
     if (!requestCounts.has(ip)) {
       requestCounts.set(ip, []);
