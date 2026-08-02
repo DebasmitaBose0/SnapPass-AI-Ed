@@ -36,3 +36,12 @@ export function clearJob(jobId) {
   jobs.delete(jobId);
 }
 
+export function getAllJobs() {
+  return Array.from(jobs.values()).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+}
+
+export function deleteJob(jobId) {
+  return jobs.delete(jobId);
+}
+
+
