@@ -1,49 +1,36 @@
-# 🏗️ SnapPass-AI Architecture & System Design
+# SnapPass AI — Monorepo Architecture & Flow Overview
 
-## 📌 Overview
-SnapPass-AI is a microservice-oriented web application designed to process user portraits into ICAO-compliant passport photos and downloadable print-ready grid sheets.
+SnapPass AI is an enterprise-grade AI-powered passport photo generation platform designed for ICAO 9303 compliance, virtual fitting, print layout export, and offline resilience.
 
----
-
-## 🏛️ System Topology
+## System Topology
 
 ```
-+-------------------+      HTTP / REST      +--------------------+
-|  React Frontend   | --------------------> |  Node.js Backend   |
-| (Vite + React 18) |                       | (Express + MongoDB)|
-+-------------------+                       +--------------------+
-                                                      |
-                                               HTTP / internal REST
-                                                      v
-                                            +--------------------+
-                                            | Python AI Service  |
-                                            | (FastAPI + OpenCV) |
-                                            +--------------------+
++-------------------------------------------------------------------+
+|                        Client Browser                             |
+|  React 18 + Vite | Context API | IndexedDB | Service Worker | i18n|
++-------------------------------------------------------------------+
+                                  |
+                                  | HTTP / JSON API
+                                  v
++-------------------------------------------------------------------+
+|                     Express.js API Gateway                        |
+|  Helmet | Rate Limiters | JWT Auth | Security Audit Log | Express  |
++-------------------------------------------------------------------+
+                                  |
+                                  | REST Service Calls
+                                  v
++-------------------------------------------------------------------+
+|                   Python AI Analytics Service                     |
+|  FastAPI | OpenCV | MediaPipe Face Mesh | Quality Inspector Gate  |
++-------------------------------------------------------------------+
 ```
 
----
+## Key Subsystems
 
-## 🚀 Key Microservices & Responsibilities
+1. **Frontend Studio App**: Built with React 18, Tailwind CSS, Framer Motion, and IndexedDB for offline storage. Handles live cropping, background color selection, attire virtual try-on, and high-DPI sheet export.
+2. **Backend API Gateway**: Built with Node.js & Express.js. Manages JWT sessions, rate limiting, request validation, EXIF metadata scrubbing, and audit telemetry.
+3. **Python AI Analytics Microservice**: FastAPI service executing face mesh detection, eye positioning, background uniformity scoring, and facial lighting symmetry analysis.
 
-### 1. Frontend Web App (`/frontend`)
-- **Tech Stack**: React 18, Vite, Framer Motion, Vitest, Lucide Icons.
-- **Responsibilities**:
-  - Interactive photo cropping, background color selection, and attire swap fitting.
-  - Client-side Canvas filters (brightness, contrast, saturation, sharpness).
-  - Offline-first caching using IndexedDB.
-  - Multilingual internationalization (EN, HI, ES).
-
-### 2. Node.js Backend Gateway (`/backend`)
-- **Tech Stack**: Node.js, Express, Mongoose, JWT Cookie Auth, Helmet, Rate Limiter.
-- **Responsibilities**:
-  - Security audit logging and rate limiting.
-  - File upload validations & magic bytes inspection.
-  - Session history persistence in MongoDB.
-
-### 3. Python AI Service (`/python-ai-service`)
-- **Tech Stack**: Python 3.10+, FastAPI, OpenCV, Pillow, Rembg, PyTest.
-- **Responsibilities**:
-  - AI background removal using U-2-Net (`rembg`).
-  - Automated face centering and crop box calculation.
-  - ICAO passport compliance inspector and quality scoring.
-  - High-DPI print grid sheet generator (A4, 4x6, 5x7).
+## Data Persistence & Offline Cache
+- **IndexedDB Storage**: Stores compressed offline photo sessions for instant access during connectivity drops.
+- **Token Revocation Store**: In-memory token blacklisting for revoked sessions with automated TTL cleanup.
