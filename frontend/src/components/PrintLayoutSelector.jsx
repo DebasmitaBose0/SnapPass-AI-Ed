@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './PrintLayoutSelector.css';
+import PrintGridCustomizer from './PrintGridCustomizer';
 
 function PrintLayoutSelector({ selectedLayout, onChange, darkMode, selectedDpi = 300, onChangeDpi }) {
+  const [paperFormat, setPaperFormat] = useState('A4');
+  const [spacing, setSpacing] = useState(5);
+
   const layouts = [
     { id: 'a4', name: 'A4 Page (210 x 297 mm)', desc: 'Standard international document layout' },
     { id: 'letter', name: 'US Letter (8.5" x 11")', desc: 'Standard North American document layout' },
@@ -11,7 +15,7 @@ function PrintLayoutSelector({ selectedLayout, onChange, darkMode, selectedDpi =
   const dpiOptions = [150, 300, 600];
 
   return (
-    <div className={`layout-selector-wrap ${darkMode ? 'layout-selector-wrap--dark' : ''}`}>
+    <div className={`layout-selector-wrap ${darkMode ? 'layout-selector-wrap--dark' : ''} flex flex-col gap-4`}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
         <label className="layout-selector-label" style={{ margin: 0 }}>Print Sheet Dimensions</label>
         {onChangeDpi && (
@@ -55,6 +59,15 @@ function PrintLayoutSelector({ selectedLayout, onChange, darkMode, selectedDpi =
           </button>
         ))}
       </div>
+
+      <PrintGridCustomizer
+        paperSize={paperFormat}
+        spacingMm={spacing}
+        onChange={({ paperSize, spacingMm }) => {
+          setPaperFormat(paperSize);
+          setSpacing(spacingMm);
+        }}
+      />
     </div>
   );
 }
