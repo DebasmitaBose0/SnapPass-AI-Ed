@@ -9,6 +9,7 @@ describe('successResponse', () => {
       success: true,
       message: 'Success',
       data: { id: 1 },
+      correlationId: null,
     });
   });
 
@@ -20,6 +21,7 @@ describe('successResponse', () => {
       success: true,
       message: 'Created',
       data: { id: 1 },
+      correlationId: null,
     });
   });
 });
@@ -32,6 +34,7 @@ describe('errorResponse', () => {
     expect(res.json).toHaveBeenCalledWith({
       success: false,
       message: 'Internal Server Error',
+      correlationId: null,
     });
   });
 
@@ -43,6 +46,7 @@ describe('errorResponse', () => {
       success: false,
       message: 'Validation failed',
       errors: ['Name is required', 'Email is required'],
+      correlationId: null,
     });
   });
 });
@@ -57,6 +61,7 @@ describe('paginatedResponse', () => {
       success: true,
       message: 'Success',
       data: items,
+      correlationId: null,
       pagination: {
         total: 20,
         page: 1,
