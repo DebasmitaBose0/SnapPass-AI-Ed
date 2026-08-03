@@ -1,15 +1,12 @@
-import { tokenStore } from '../utils/tokenStore.js';
+import { tokenRevocationStore } from '../utils/tokenRevocationStore.js';
 
 export const checkTokenBlacklist = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.substring(7);
-    if (tokenStore.has(token)) {
-      return res.status(401).json({
-        success: false,
-        message: 'Unauthorized: Session has been logged out.'
-      });
-    }
+  const token = req.cookies?.token || (req.headers.authorization?.startsWith('Bearer ') ? req.headers.authorization.substring(7) : null);
+  if (token && tokenRevocationStore.isRevoked(token)) {
+    return res.status(401).json({
+      success: false,
+      message: 'Unauthorized: Session token has been revoked.'
+    });
   }
   next();
 };
