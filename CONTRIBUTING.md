@@ -24,6 +24,7 @@ As the Project Admin, my goal is to ensure you have the best possible open-sourc
 - **Mentorship & Growth:** Get your code reviewed with constructive, helpful feedback from maintainers.
 - **Developer Onboarding:** Read our complete [Developer Guide](docs/DEVELOPER_GUIDE.md) and [System Architecture](docs/ARCHITECTURE.md).
 - **GSSoC Points & Recognition:** Issues are strictly labeled by difficulty to help you climb the GSSoC leaderboard! You will also be featured in our Contributors section.
+- **GSSoC 2026 PR Standards:** All PRs must include `[GSSoC_2026]` in issue titles, modify at least 5 related files, include unit tests, and follow clean branch naming (`feat/`, `fix/`, `docs/`, `security/`, `perf/`).
 
 ---
 
