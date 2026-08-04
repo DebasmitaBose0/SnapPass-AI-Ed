@@ -20,6 +20,7 @@ import { cachePhotoOffline } from '../services/indexedDb';
 import api from '../services/api';
 import { autoEnhanceImage } from '../utils/imageEnhancer';
 import { AttireManualAdjuster } from '../components/AttireManualAdjuster';
+import PassportAssistantChatbot from '../chatbot/PassportAssistantChatbot';
 import { uploadPhoto } from '../services/photoService';
 import './EditorPage.css';
 
@@ -587,6 +588,7 @@ function EditorPage({ darkMode, toggleTheme }) {
           </motion.div>
         </div>
       </div>
+      <PassportAssistantChatbot />
     </div>
   );
 }
