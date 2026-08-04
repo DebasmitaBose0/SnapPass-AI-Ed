@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import PassportRequirementComparator from '../components/PassportRequirementComparator';
-import SEOMetadata from '../components/SEOMetadata';
+import SEOMetadata from '../components/layout/SEOMetadata';
 import './PassportComparatorPage.css';
 
 /**
@@ -9,8 +9,19 @@ import './PassportComparatorPage.css';
  * Dedicated page for comparing passport and visa photo requirements across supported global standards.
  */
 function PassportComparatorPage({ darkMode }) {
+  useEffect(() => {
+    const mainHeading = document.getElementById('comparator-heading');
+    if (mainHeading) {
+      mainHeading.focus();
+    }
+  }, []);
+
   return (
-    <main className={`passport-comparator-page ${darkMode ? 'dark-mode' : ''}`}>
+    <main
+      id="main-comparator-content"
+      tabIndex={-1}
+      className={`passport-comparator-page ${darkMode ? 'dark-mode' : ''}`}
+    >
       <SEOMetadata
         title="Global Passport Photo Requirement Comparator — SnapPass-AI"
         description="Compare official passport and visa photo requirements across countries, including dimensions, background colors, DPI, and head height ratios."
@@ -19,7 +30,7 @@ function PassportComparatorPage({ darkMode }) {
         <nav aria-label="Breadcrumb" style={{ marginBottom: '1rem', fontSize: '0.875rem', color: '#64748b' }}>
           <Link to="/" style={{ color: '#3b82f6', textDecoration: 'none' }}>Home</Link>
           <span style={{ margin: '0 8px' }}>/</span>
-          <span>Passport Comparator</span>
+          <span aria-current="page">Passport Comparator</span>
         </nav>
         <PassportRequirementComparator />
       </div>
