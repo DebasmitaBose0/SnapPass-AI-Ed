@@ -32,3 +32,43 @@ def test_calculate_composite_score_defaults():
     result = calculate_composite_score({})
     assert "overall_score" in result
     assert "status" in result
+    assert "breakdown" in result
+
+@pytest.mark.parametrize(
+    "metrics,expected_status,min_score,max_score",
+    [
+        (
+            {"blur_score": 100.0, "face_width": 300, "face_height": 375, "background_uniformity": 90.0, "head_ratio": 0.72},
+            "EXCELLENT",
+            90.0,
+            100.0,
+        ),
+        (
+            {"blur_score": 90.0, "face_width": 270, "face_height": 330, "background_uniformity": 80.0, "head_ratio": 0.75},
+            "PASS",
+            80.0,
+            89.9,
+        ),
+        (
+            {"blur_score": 75.0, "face_width": 220, "face_height": 280, "background_uniformity": 65.0, "head_ratio": 0.60},
+            "ACCEPTABLE",
+            65.0,
+            79.9,
+        ),
+    ],
+)
+def test_calculate_composite_score_parameterized_tiers(metrics, expected_status, min_score, max_score):
+    result = calculate_composite_score(metrics)
+    assert min_score <= result["overall_score"] <= max_score
+    assert result["status"] == expected_status
+    assert "breakdown" in result
+    for key in ["blur_rating", "resolution_rating", "background_rating", "head_ratio_rating"]:
+        assert key in result["breakdown"]
+
+def test_calculate_composite_score_partial_attributes():
+    # Verify resilience when only specific metrics are provided
+    partial_metrics = {"blur_score": 110.0}
+    result = calculate_composite_score(partial_metrics)
+    assert "overall_score" in result
+    assert "status" in result
+    assert isinstance(result["overall_score"], float)
