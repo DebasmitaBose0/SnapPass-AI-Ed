@@ -7,6 +7,8 @@ import { saveSession, getSession } from '../utils/sessionManager';
 import SizeSelector from '../components/SizeSelector';
 import BackgroundSelector from '../components/BackgroundSelector';
 import AttireSelector from '../components/AttireSelector';
+import BackgroundColorPalettePicker from '../components/BackgroundColorPalettePicker';
+import AttireStudioSelector from '../components/AttireStudioSelector';
 import CompliancePanel from '../components/CompliancePanel';
 import useImageProcessor from '../hooks/useImageProcessor';
 import { iconMap, backgroundHexMap } from '../data/EditorPageData';
@@ -482,6 +484,10 @@ function EditorPage({ darkMode, toggleTheme }) {
                 selected={background}
                 onChange={setBackground}
               />
+              <BackgroundColorPalettePicker
+                selectedColor={background}
+                onChangeColor={setBackground}
+              />
             </div>
           </motion.div>
 
@@ -501,6 +507,7 @@ function EditorPage({ darkMode, toggleTheme }) {
             <hr className="divider" />
 
             <AttireSelector selected={attire} onChange={setAttire} />
+            <AttireStudioSelector selectedAttire={attire} onSelectAttire={setAttire} />
             {attire !== 'none' && (
               <AttireManualAdjuster
                 scale={attireScale}
