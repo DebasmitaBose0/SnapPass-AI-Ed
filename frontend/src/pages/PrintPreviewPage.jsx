@@ -3,6 +3,8 @@ import { useLocation, Link } from 'react-router-dom';
 import QuantityInput from '../components/QuantityInput';
 import PrintButton from '../components/PrintButton';
 import PrintLayoutSelector from '../components/PrintLayoutSelector';
+import PrintSheetLayoutCustomizer from '../components/PrintSheetLayoutCustomizer';
+import generatePassportPDFSheet from '../utils/pdfExportGenerator';
 import DownloadPackagePanel from '../components/DownloadPackagePanel';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import useBatchExport from '../hooks/useBatchExport';
@@ -41,8 +43,27 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
     orientation: savedSession?.orientation || 'portrait'
   });
   const [selectedDpi, setSelectedDpi] = useState(300);
-  const [isGenerating, setIsGenerating] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [customPreset, setCustomPreset] = useState('4x6_standard');
+  const [showGuides, setShowGuides] = useState(true);
+  const [isExportingPDF, setIsExportingPDF] = useState(false);
+
+  const handleExportPDF = async () => {
+    setIsExportingPDF(true);
+    try {
+      const photoSrc = processedPhotos[0]?.processedUrl || state?.processedUrl;
+      const doc = await generatePassportPDFSheet({
+        imageSrc: photoSrc,
+        paperPresetId: customPreset,
+        showCropGuides: showGuides,
+      });
+      doc.save(`passport-photos-${customPreset}.pdf`);
+    } catch (err) {
+      console.error('Failed to export PDF:', err);
+    } finally {
+      setIsExportingPDF(false);
+    }
+  };
 
   const processedPhotos = state?.processedPhotos || savedSession?.processedPhotos || [];
   if (processedPhotos.length === 0) {
@@ -238,6 +259,17 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
             <PrintLayoutOptions
               options={layoutOptions}
               onChange={setLayoutOptions}
+            />
+
+            <hr className="divider" />
+
+            <PrintSheetLayoutCustomizer
+              selectedPreset={customPreset}
+              onSelectPreset={setCustomPreset}
+              showCropGuides={showGuides}
+              onToggleCropGuides={setShowGuides}
+              onDownloadPDF={handleExportPDF}
+              isExporting={isExportingPDF}
             />
 
             <hr className="divider" />
