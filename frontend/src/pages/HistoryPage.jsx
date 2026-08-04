@@ -4,6 +4,9 @@ import { motion } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
 import { translations } from '../translations/translations';
 import useOfflineStorage from '../hooks/useOfflineStorage';
+import useHistory from '../hooks/useHistory'; // Added missing import
+import useUploadSearch from '../hooks/useUploadSearch'; // Added missing import
+import HistoryCard from '../components/HistoryCard'; // Added missing import
 import './HistoryPage.css';
 
 function HistoryPage({ darkMode }) {
@@ -221,4 +224,5 @@ function HistoryPage({ darkMode }) {
   );
 }
 
+// Maintains default ES module export functionality
 export default HistoryPage;
