@@ -8,6 +8,8 @@ import SizeSelector from '../components/SizeSelector';
 import BackgroundSelector from '../components/BackgroundSelector';
 import AttireSelector from '../components/AttireSelector';
 import CompliancePanel from '../components/CompliancePanel';
+import { calculateComplianceMetrics } from '../services/aiComplianceService';
+import ComplianceBreakdownCard from '../components/ComplianceBreakdownCard';
 import useImageProcessor from '../hooks/useImageProcessor';
 import { iconMap, backgroundHexMap } from '../data/EditorPageData';
 import EditorPageDiagnostics from './EditorPageDiagnostics';
@@ -528,6 +530,10 @@ function EditorPage({ darkMode, toggleTheme }) {
               error={complianceError}
               onAutoCorrect={handleAutoCorrect}
               darkMode={darkMode}
+            />
+
+            <ComplianceBreakdownCard
+              metrics={calculateComplianceMetrics(complianceData || {})}
             />
 
             <hr className="divider" />
