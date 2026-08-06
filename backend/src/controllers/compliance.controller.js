@@ -5,29 +5,9 @@
  */
 
 import axios from 'axios';
-import path from 'path';
 import fs from 'fs';
 import { config } from '../config/config.js';
-
-/**
- * Resolve uploads/<filename> to an absolute path while preventing traversal.
- */
-function resolveUploadPath(filename) {
-  const uploadsDir = path.resolve(
-    path.dirname(new URL(import.meta.url).pathname),
-    '..',
-    '..',
-    'uploads'
-  );
-  const filePath = path.resolve(uploadsDir, filename);
-
-  const relative = path.relative(uploadsDir, filePath);
-  if (relative.startsWith('..') || path.isAbsolute(relative)) {
-    return null;
-  }
-
-  return filePath;
-}
+import { resolveUploadPath } from '../utils/uploadPaths.utils.js';
 
 export const complianceCheck = async (req, res, next) => {
   try {
