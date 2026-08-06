@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import './AttireSelector.css';
 import { useLanguage } from '../context/LanguageContext';
 import { translations } from '../translations/translations';
+import AttireAlignmentOverlay from './AttireAlignmentOverlay';
 
 const ATTIRES = [
   { 
@@ -48,8 +49,9 @@ const ATTIRES = [
 
 function AttireSelector({ selected = 'none', onChange }) {
   const { language } = useLanguage();
-  const t = translations[language];
+  const t = translations[language] || {};
   const [activeTab, setActiveTab] = useState('all');
+  const [showGuide, setShowGuide] = useState(false);
 
   const filteredAttires = useMemo(() => {
     if (activeTab === 'all') return ATTIRES;
@@ -57,11 +59,24 @@ function AttireSelector({ selected = 'none', onChange }) {
   }, [activeTab]);
 
   return (
-    <div className="attire-selector">
-      <div className="attire-selector__header">
-        <h3 className="attire-selector__title">{t.formalAttire}</h3>
-        <p className="attire-selector__subtitle">{t.formalAttireSubtitle}</p>
+    <div className="attire-selector relative">
+      <div className="attire-selector__header flex justify-between items-center mb-2">
+        <div>
+          <h3 className="attire-selector__title">{t.formalAttire || 'Formal Attire'}</h3>
+          <p className="attire-selector__subtitle">{t.formalAttireSubtitle || 'Virtual fitting presets'}</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setShowGuide(!showGuide)}
+          className={`text-xs px-2.5 py-1 rounded border transition-colors ${
+            showGuide ? 'bg-blue-600 text-white border-blue-600' : 'bg-gray-100 text-gray-700 border-gray-300 dark:bg-gray-800 dark:text-gray-300'
+          }`}
+        >
+          {showGuide ? 'Hide Guide' : 'Alignment Guide'}
+        </button>
       </div>
+
+      <AttireAlignmentOverlay visible={showGuide} />
 
       <div className="attire-selector__tabs" style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
         {['all', 'male', 'female', 'formal'].map((category) => (
@@ -85,7 +100,7 @@ function AttireSelector({ selected = 'none', onChange }) {
         ))}
       </div>
 
-      <div className="attire-selector__grid" role="radiogroup" aria-label={t.formalAttire}>
+      <div className="attire-selector__grid" role="radiogroup" aria-label={t.formalAttire || 'Formal Attire'}>
         {filteredAttires.map(({ id, labelKey, emoji, descEn, descHi }) => {
           const isActive = selected === id;
           const desc = language === 'hi' ? descHi : descEn;
@@ -97,11 +112,11 @@ function AttireSelector({ selected = 'none', onChange }) {
               role="radio"
               aria-checked={isActive}
               tabIndex={isActive ? 0 : -1}
-              title={t[labelKey]}
+              title={t[labelKey] || descEn}
             >
               <div className="attire-card__icon">{emoji}</div>
               <div className="attire-card__content">
-                <span className="attire-card__label">{t[labelKey]}</span>
+                <span className="attire-card__label">{t[labelKey] || id}</span>
                 <span className="attire-card__desc">{desc}</span>
               </div>
               {isActive && (

@@ -2,6 +2,8 @@
 preset_compliance_engine.py — Rule-based ICAO/ISO passport photo compliance score evaluator.
 """
 
+__all__ = ["PRESET_RULES", "PresetComplianceEngine"]
+
 PRESET_RULES = {
     "35x45": {"min_ratio": 0.70, "max_ratio": 0.80, "bg": "light"},
     "51x51": {"min_ratio": 0.50, "max_ratio": 0.69, "bg": "white"},

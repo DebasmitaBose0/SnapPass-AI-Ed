@@ -1,8 +1,14 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { useJobQueue } from '../context/JobQueueContext';
 
 const POLL_INTERVAL = 1000;
 
 export default function useProcessImage() {
+  let queueCtx = null;
+  try {
+    queueCtx = useJobQueue();
+  } catch (_) {}
+
   const [jobId, setJobId] = useState(null);
   const [status, setStatus] = useState('idle');
   const [progress, setProgress] = useState(0);
@@ -30,15 +36,29 @@ export default function useProcessImage() {
       }
       const body = await res.json();
       if (!body.success) throw new Error(body.message || 'Failed to start job');
-      setJobId(body.data.jobId);
+      
+      const newJobId = body.data.jobId;
+      setJobId(newJobId);
       setStatus('processing');
-      return body.data.jobId;
+
+      if (queueCtx?.addJob) {
+        queueCtx.addJob({
+          jobId: newJobId,
+          filename: payload?.filename || 'Photo',
+          payload,
+          status: 'processing',
+          progress: 10,
+          stage: 'Initializing',
+        });
+      }
+
+      return newJobId;
     } catch (err) {
       setStatus('failed');
       setError(err.message);
       throw err;
     }
-  }, []);
+  }, [queueCtx]);
 
   const pollJob = useCallback(async (id) => {
     try {

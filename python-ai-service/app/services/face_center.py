@@ -1,10 +1,9 @@
-
-
 import cv2
 import numpy as np
 from PIL import Image
 import io
 
+__all__ = ["FACE_HEIGHT_RATIO", "HEAD_TOP_PADDING_RATIO", "center_face"]
 
 # ICAO 9303 guideline: face should occupy 75 % of the image height.
 # Integrated with backend image controller processing and rembg background removal.
