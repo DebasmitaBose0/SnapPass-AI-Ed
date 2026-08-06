@@ -254,6 +254,24 @@ function Footer({ darkMode }) {
               >
                 {t.termsConditions}
               </Link>
+
+              <Link
+                to="/cookies"
+                className={`footer__item ${
+                  darkMode ? 'footer__item-dark' : ''
+                }`}
+              >
+                Cookies Policy
+              </Link>
+
+              <button
+                type="button"
+                className={`footer__item ${darkMode ? 'footer__item-dark' : ''}`}
+                style={{ background: 'none', border: 'none', padding: 0, font: 'inherit', cursor: 'pointer', textAlign: 'left' }}
+                onClick={() => window.dispatchEvent(new CustomEvent('open-cookie-settings'))}
+              >
+                Cookie Settings 🍪
+              </button>
             </div>
 
             {/* CONTACT */}
