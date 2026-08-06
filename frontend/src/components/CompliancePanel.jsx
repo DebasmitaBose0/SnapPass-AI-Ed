@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import ComplianceScoreCard from './ComplianceScoreCard';
 import './CompliancePanel.css';
 
 const statusToBadge = (status) => {
@@ -36,9 +37,19 @@ function CompliancePanel({
   onAutoCorrect,
   darkMode,
 }) {
-  const [expanded, setExpanded] = useState(true); // expanded by default to draw immediate attention
+  const [expanded, setExpanded] = useState(true);
   const items = compliance?.items || DEFAULT_CHECKS;
   const hardFail = Boolean(compliance?.hard_fail);
+
+  const scoreMetrics = useMemo(() => {
+    return {
+      faceDetected: !hardFail,
+      lightingScore: compliance?.lighting_score || 85,
+      backgroundUniformity: compliance?.background_score || 90,
+      headPoseCentered: !compliance?.head_tilt,
+      dimensionsValid: true,
+    };
+  }, [compliance, hardFail]);
 
   const headerText = useMemo(() => {
     if (loading) return 'Checking compliance...';
@@ -96,6 +107,10 @@ function CompliancePanel({
 
       {expanded && (
         <>
+          <div className="my-3">
+            <ComplianceScoreCard metrics={scoreMetrics} />
+          </div>
+
           {loading && (
             <div
               className="compliance-panel__loading"

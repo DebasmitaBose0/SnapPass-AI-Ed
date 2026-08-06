@@ -2,13 +2,14 @@ import express from 'express';
 import {
   getAuditLogs,
   getAuditSummary,
-  getSecurityAuditLogs
+  exportAuditLogs,
 } from '../controllers/audit.controller.js';
 
 const router = express.Router();
 
 router.get('/', getAuditLogs);
 router.get('/summary', getAuditSummary);
-router.get('/security', getSecurityAuditLogs);
+router.get('/export', exportAuditLogs);
 
 export default router;
+

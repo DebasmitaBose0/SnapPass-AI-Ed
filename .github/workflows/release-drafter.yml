@@ -1,9 +1,10 @@
-name: Release Drafter
+name: Release Drafter Pipeline
 
 on:
   push:
     branches:
       - master
+      - main
   pull_request:
     types:
       - opened

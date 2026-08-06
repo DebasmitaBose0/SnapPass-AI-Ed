@@ -19,6 +19,10 @@ export const ThemeCustomizerProvider = ({ children }) => {
     return localStorage.getItem('theme-high-contrast') === 'true';
   });
 
+  const [fontSizeScale, setFontSizeScale] = useState(() => {
+    return Number(localStorage.getItem('theme-font-scale')) || 1.0;
+  });
+
   const accentColors = {
     'classic-blue': '#2563eb',
     'amber-gold': '#f59e0b',
@@ -43,9 +47,15 @@ export const ThemeCustomizerProvider = ({ children }) => {
     }
   }, [highContrast]);
 
+  useEffect(() => {
+    localStorage.setItem('theme-font-scale', fontSizeScale.toString());
+    document.documentElement.style.setProperty('--font-scale', fontSizeScale.toString());
+  }, [fontSizeScale]);
+
   const resetTheme = () => {
     setAccentColor('classic-blue');
     setHighContrast(false);
+    setFontSizeScale(1.0);
   };
 
   return (
@@ -56,6 +66,8 @@ export const ThemeCustomizerProvider = ({ children }) => {
         accentColors,
         highContrast,
         setHighContrast,
+        fontSizeScale,
+        setFontSizeScale,
         resetTheme,
       }}
     >

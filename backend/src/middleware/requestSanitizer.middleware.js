@@ -1,4 +1,4 @@
-import { sanitizeObject } from '../utils/sanitizerRules.js';
+import { sanitizePayloadDeep } from '../utils/payloadSanitizer.utils.js';
 
 const sanitizeValue = (val) => {
   if (typeof val === 'string') {
@@ -25,19 +25,9 @@ const sanitizeValue = (val) => {
 };
 
 export const deepRequestSanitizer = (req, res, next) => {
-  if (req.body && typeof req.body === 'object') {
-    req.body = sanitizeValue(req.body);
-    sanitizeObject(req.body);
-  }
-  if (req.query && typeof req.query === 'object') {
-    req.query = sanitizeValue(req.query);
-    sanitizeObject(req.query);
-  }
-  if (req.params && typeof req.params === 'object') {
-    req.params = sanitizeValue(req.params);
-    sanitizeObject(req.params);
-  }
+  if (req.body) req.body = sanitizePayloadDeep(req.body);
+  if (req.query) req.query = sanitizePayloadDeep(req.query);
+  if (req.params) req.params = sanitizePayloadDeep(req.params);
   next();
 };
 
-export default deepRequestSanitizer;

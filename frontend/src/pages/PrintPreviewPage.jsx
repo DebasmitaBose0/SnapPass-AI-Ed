@@ -3,12 +3,15 @@ import { useLocation, Link } from 'react-router-dom';
 import QuantityInput from '../components/QuantityInput';
 import PrintButton from '../components/PrintButton';
 import PrintLayoutSelector from '../components/PrintLayoutSelector';
+import PrintSheetLayoutCustomizer from '../components/PrintSheetLayoutCustomizer';
+import generatePassportPDFSheet from '../utils/pdfExportGenerator';
 import DownloadPackagePanel from '../components/DownloadPackagePanel';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import useBatchExport from '../hooks/useBatchExport';
 import './PrintPreviewPage.css';
 import EmptyState from '../components/EmptyState';
 import ConfirmModal from '../components/ConfirmModal';
+import ShareModal from '../components/share/ShareModal';
 import { motion } from 'framer-motion';
 import { generateSheet } from '../services/photoService';
 import { PrintLayoutOptions } from '../components/editor/PrintLayoutOptions';
@@ -41,8 +44,8 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
     orientation: savedSession?.orientation || 'portrait'
   });
   const [selectedDpi, setSelectedDpi] = useState(300);
-  const [isGenerating, setIsGenerating] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   const processedPhotos = state?.processedPhotos || savedSession?.processedPhotos || [];
   if (processedPhotos.length === 0) {
@@ -242,6 +245,17 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
 
             <hr className="divider" />
 
+            <PrintSheetLayoutCustomizer
+              selectedPreset={customPreset}
+              onSelectPreset={setCustomPreset}
+              showCropGuides={showGuides}
+              onToggleCropGuides={setShowGuides}
+              onDownloadPDF={handleExportPDF}
+              isExporting={isExportingPDF}
+            />
+
+            <hr className="divider" />
+
             <div className="password-section">
               <label className="print-info-label">{t.securePassword}</label>
               <input
@@ -331,6 +345,28 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
             </button>
 
             <button
+              onClick={() => setShowShareModal(true)}
+              className={`btn ${darkMode ? 'btn-secondary-dark' : 'btn-secondary'}`}
+              style={{
+                marginTop: '10px',
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                padding: '12px',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontWeight: '600',
+                background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+                color: '#ffffff',
+                border: 'none',
+              }}
+            >
+              🔒 Share Expiring Link
+            </button>
+
+            <button
               onClick={handlePrintDirect}
               className={`btn btn-secondary ${darkMode ? 'btn-secondary-dark' : ''}`}
               style={{
@@ -394,6 +430,13 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
           loading={isGenerating}
         />
       )}
+
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        filename={state?.filename || savedSession?.filename || 'sample.jpg'}
+        originalName={state?.filename || savedSession?.filename}
+      />
     </div>
   );
 }

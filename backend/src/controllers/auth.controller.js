@@ -6,6 +6,8 @@ import SecurityAudit from '../models/securityAudit.model.js';
 import { logSecurityEvent } from '../services/auditLogger.service.js';
 import { config } from '../config/config.js';
 import { NotificationService } from '../services/notification.service.js';
+import { RevocationStoreService } from '../services/revocationStore.service.js';
+
 
 const sendResponse = (res, statusCode, success, message, data) => {
   res.status(statusCode).json({
