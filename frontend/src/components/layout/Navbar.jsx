@@ -1,14 +1,14 @@
 import React, { useState, useRef } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
-import NavbarAlignmentDetector from './NavbarAlignmentDetector';
-
+import { useJobQueue } from '../../context/JobQueueContext';
 
 const navItems = [
   { to: '/', label: 'Home', end: true },
   { to: '/upload', label: 'Upload' },
   { to: '/editor', label: 'Editor' },
   { to: '/print-preview', label: 'Print' },
+  { to: '/queue', label: 'Queue' },
   { to: '/compare-requirements', label: 'Requirements' },
 ];
 
@@ -19,11 +19,21 @@ const languages = [
 
 export const Navbar = ({ darkMode = false, toggleTheme }) => {
   const { language, setLanguage } = useLanguage();
+  let activeCount = 0;
+  try {
+    const queueCtx = useJobQueue();
+    activeCount = queueCtx?.activeCount || 0;
+  } catch (_) {}
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showThemePicker, setShowThemePicker] = useState(false);
   const themeClass = darkMode ? 'dark' : 'light';
   const navbarRef = useRef(null);
 
-  const closeMenu = () => setIsMenuOpen(false);
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+    setShowThemePicker(false);
+  };
 
   const getNavLinkClass = ({ isActive }) =>
     [
@@ -74,11 +84,54 @@ export const Navbar = ({ darkMode = false, toggleTheme }) => {
               className={getNavLinkClass}
             >
               {item.label}
+              {item.to === '/queue' && activeCount > 0 && (
+                <span
+                  style={{
+                    marginLeft: '6px',
+                    padding: '2px 7px',
+                    borderRadius: '9999px',
+                    fontSize: '0.75rem',
+                    fontWeight: '700',
+                    background: '#6366f1',
+                    color: 'white',
+                  }}
+                >
+                  {activeCount}
+                </span>
+              )}
             </NavLink>
           ))}
         </div>
 
-        <div className="navbar__actions">
+        <div className="navbar__actions" style={{ position: 'relative' }}>
+          <button
+            type="button"
+            className={`navbar__language-selector navbar__language-selector-${themeClass}`}
+            onClick={() => setShowThemePicker((prev) => !prev)}
+            aria-label="Theme accent customizer"
+            title="Theme Palette"
+          >
+            🎨 Theme
+          </button>
+
+          {showThemePicker && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '110%',
+                right: '0',
+                background: darkMode ? '#0f172a' : '#ffffff',
+                boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+                borderRadius: '12px',
+                padding: '12px',
+                zIndex: 1000,
+                minWidth: '220px',
+              }}
+            >
+              <ThemeColorSelector compact />
+            </div>
+          )}
+
           <select
             className={`navbar__language-selector navbar__language-selector-${themeClass} navbar__desktop-language`}
             value={language}
@@ -144,15 +197,17 @@ export const Navbar = ({ darkMode = false, toggleTheme }) => {
           </NavLink>
         ))}
 
+        <ThemeColorSelector />
+
         <select
           className={`navbar__language-selector navbar__language-selector-${themeClass}`}
           value={language}
           onChange={(event) => setLanguage(event.target.value)}
           aria-label="Select language"
         >
-          {languages.map((language) => (
-            <option key={language.value} value={language.value}>
-              {language.label}
+          {languages.map((lang) => (
+            <option key={lang.value} value={lang.value}>
+              {lang.label}
             </option>
           ))}
         </select>

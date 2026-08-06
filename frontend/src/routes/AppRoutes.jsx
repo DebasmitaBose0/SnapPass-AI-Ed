@@ -3,6 +3,7 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorBoundary from '../components/ErrorBoundary';
 import ScrollToTop from './ScrollToTop';
+import NavigationProgressBar from '../components/NavigationProgressBar';
 import RouteGuard from './RouteGuard';
 
 const HomePage = lazy(() => import('../pages/HomePage'));
@@ -28,6 +29,7 @@ function AppRoutes({ darkMode, toggleTheme }) {
 
   return (
     <ErrorBoundary key={location.pathname}>
+      <NavigationProgressBar />
       <ScrollToTop />
       <Suspense fallback={<LoadingSpinner fullPage delayMs={250} />}>
         <Routes>
@@ -45,8 +47,10 @@ function AppRoutes({ darkMode, toggleTheme }) {
           <Route path="/settings" element={<SettingsPage darkMode={darkMode} toggleTheme={toggleTheme} />} />
           <Route path="/diagnostics" element={<DiagnosticsPage darkMode={darkMode} />} />
           <Route path="/history" element={<HistoryPage darkMode={darkMode} toggleTheme={toggleTheme} />} />
+          <Route path="/queue" element={<QueuePage darkMode={darkMode} />} />
           <Route path="/compare-requirements" element={<PassportComparatorPage darkMode={darkMode} toggleTheme={toggleTheme} />} />
           <Route path="/api-docs" element={<ApiDocsPage />} />
+          <Route path="/share/:shareId" element={<SharedPhotoPage darkMode={darkMode} />} />
           <Route path="*" element={<NotFoundPage darkMode={darkMode} />} />
         </Routes>
       </Suspense>

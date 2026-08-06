@@ -17,6 +17,7 @@ import {
 
 const router = express.Router();
 
+router.get('/jobs', getAllProcessJobs);
 router.post('/job', createProcessJob);
 router.get('/job/:jobId', getProcessJobStatus);
 router.get('/jobs', getAllProcessJobs);

@@ -3,7 +3,6 @@ export const cleanInputString = (str) => {
   if (typeof str !== 'string') return str;
   return str
     .replace(/\$/g, '\uFF04') // replaces mongo $ query operators
-    .replace(/\./g, '\uFF0E') // replaces mongo dot notation characters
     .replace(/<script[^>]*>([\s\S]*?)<\/script>/gi, '') // strips script tags
     .trim();
 };
