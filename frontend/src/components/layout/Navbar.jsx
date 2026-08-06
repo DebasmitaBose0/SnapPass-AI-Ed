@@ -1,14 +1,14 @@
 import React, { useState, useRef } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
-import ThemeColorSelector from '../ThemeColorSelector';
-import NavbarAlignmentDetector from './NavbarAlignmentDetector';
+import { useJobQueue } from '../../context/JobQueueContext';
 
 const navItems = [
   { to: '/', label: 'Home', end: true },
   { to: '/upload', label: 'Upload' },
   { to: '/editor', label: 'Editor' },
   { to: '/print-preview', label: 'Print' },
+  { to: '/queue', label: 'Queue' },
   { to: '/compare-requirements', label: 'Requirements' },
 ];
 
@@ -19,6 +19,12 @@ const languages = [
 
 export const Navbar = ({ darkMode = false, toggleTheme }) => {
   const { language, setLanguage } = useLanguage();
+  let activeCount = 0;
+  try {
+    const queueCtx = useJobQueue();
+    activeCount = queueCtx?.activeCount || 0;
+  } catch (_) {}
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showThemePicker, setShowThemePicker] = useState(false);
   const themeClass = darkMode ? 'dark' : 'light';
@@ -78,6 +84,21 @@ export const Navbar = ({ darkMode = false, toggleTheme }) => {
               className={getNavLinkClass}
             >
               {item.label}
+              {item.to === '/queue' && activeCount > 0 && (
+                <span
+                  style={{
+                    marginLeft: '6px',
+                    padding: '2px 7px',
+                    borderRadius: '9999px',
+                    fontSize: '0.75rem',
+                    fontWeight: '700',
+                    background: '#6366f1',
+                    color: 'white',
+                  }}
+                >
+                  {activeCount}
+                </span>
+              )}
             </NavLink>
           ))}
         </div>

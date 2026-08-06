@@ -23,6 +23,7 @@ const SignUp = lazy(() => import('../pages/SignUp'));
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage'));
 const ApiDocsPage = lazy(() => import('../pages/ApiDocsPage'));
 const SharedPhotoPage = lazy(() => import('../pages/SharedPhotoPage'));
+const QueuePage = lazy(() => import('../pages/QueuePage'));
 
 function AppRoutes({ darkMode, toggleTheme }) {
   const location = useLocation();
@@ -46,6 +47,7 @@ function AppRoutes({ darkMode, toggleTheme }) {
           <Route path="/settings" element={<SettingsPage darkMode={darkMode} toggleTheme={toggleTheme} />} />
           <Route path="/diagnostics" element={<DiagnosticsPage darkMode={darkMode} />} />
           <Route path="/history" element={<HistoryPage darkMode={darkMode} toggleTheme={toggleTheme} />} />
+          <Route path="/queue" element={<QueuePage darkMode={darkMode} />} />
           <Route path="/compare-requirements" element={<PassportComparatorPage darkMode={darkMode} toggleTheme={toggleTheme} />} />
           <Route path="/api-docs" element={<ApiDocsPage />} />
           <Route path="/share/:shareId" element={<SharedPhotoPage darkMode={darkMode} />} />

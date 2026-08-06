@@ -45,6 +45,7 @@ function AppContent() {
   );
 }
 
+import { JobQueueProvider } from './context/JobQueueContext';
 import ErrorBoundary from './components/ErrorBoundary';
 
 function App() {
@@ -54,7 +55,9 @@ function App() {
       <ToastProvider>
         <ThemeProvider>
           <ThemeCustomizerProvider>
-            <AppContent />
+            <JobQueueProvider>
+              <AppContent />
+            </JobQueueProvider>
           </ThemeCustomizerProvider>
         </ThemeProvider>
       </ToastProvider>
