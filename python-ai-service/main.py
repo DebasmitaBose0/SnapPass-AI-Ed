@@ -16,58 +16,13 @@ from flask_limiter.util import get_remote_address
 import config
 from app.routes.process_routes import process_bp
 from app.routes.compliance_routes import compliance_bp
-from app.services.errors import ai_error_handler
+from app.services.path_guard import safe_photo_path, validate_magic_bytes
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)s %(name)s: %(message)s",
 )
 logger = logging.getLogger(__name__)
-
-
-def validate_file_magic(file_path: str) -> bool:
-    # Basic check for JPEG, PNG, WEBP magic bytes
-    try:
-        with open(file_path, "rb") as f:
-            header = f.read(4)
-            if header.startswith(b"\xff\xd8\xff"):  # JPEG
-                return True
-            if header.startswith(b"\x89PNG"):  # PNG
-                return True
-            if header.startswith(b"RIFF") and b"WEBP" in header:  # WEBP
-                return True
-    except Exception:
-        pass
-    return False
-
-
-def _safe_photo_path(raw: str) -> str:
-    """
-    Resolve raw to an absolute path and confirm it sits inside UPLOAD_DIR.
-
-    Uses pathlib.Path.relative_to() for a boundary check that is immune to
-    prefix-match false positives (e.g. /uploads_evil/ matching /uploads).
-    Strips directory traversal from the input by taking only the filename
-    component before resolving.
-
-    Args:
-        raw: The photo_path value received from the request body.
-
-    Returns:
-        The resolved absolute path string if it is within UPLOAD_DIR.
-
-    Raises:
-        ValueError: If the resolved path is outside UPLOAD_DIR.
-    """
-    allowed_dir = pathlib.Path(config.UPLOAD_DIR).resolve()
-    # Use only the final filename component — strip any directory traversal.
-    resolved = (allowed_dir / pathlib.Path(raw).name).resolve()
-    try:
-        resolved.relative_to(allowed_dir)
-    except ValueError:
-        raise ValueError(
-            "Invalid photo_path: file is outside the allowed upload directory.")
-    return str(resolved)
 
 
 app = Flask(__name__)
@@ -116,11 +71,17 @@ def health():
 def face_quality_check():
     from app.services.face_quality_gate import assess_face_quality
 
-    data = request.get_json()
-    file_path = data.get("file_path")
+    data = request.get_json(silent=True) or {}
+    raw_path = data.get("file_path")
 
-    if not file_path:
+    if not raw_path:
         return jsonify({"error": "file_path is required"}), 400
+
+    try:
+        file_path = safe_photo_path(raw_path)
+        validate_magic_bytes(file_path)
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), 400
 
     try:
         report = assess_face_quality(file_path)
