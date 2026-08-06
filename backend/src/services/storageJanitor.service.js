@@ -1,24 +1,28 @@
 import fs from 'fs';
 import path from 'path';
+import { isFileExpired } from '../config/janitorPolicy.config.js';
 
 export class StorageJanitorService {
-  static purgeStaleFiles(directoryPath, maxAgeMinutes = 60) {
-    if (!fs.existsSync(directoryPath)) return { purged: 0, freedBytes: 0 };
+  static purgeStaleFiles(directoryPath, maxAgeMinutes = 60, dryRun = false) {
+    if (!fs.existsSync(directoryPath)) return { purged: 0, freedBytes: 0, scanned: 0 };
 
     const files = fs.readdirSync(directoryPath);
-    const now = Date.now();
     const maxAgeMs = maxAgeMinutes * 60 * 1000;
 
     let purged = 0;
     let freedBytes = 0;
+    let scanned = files.length;
 
     for (const file of files) {
       const fullPath = path.join(directoryPath, file);
       try {
         const stats = fs.statSync(fullPath);
-        if (stats.isFile() && now - stats.mtimeMs > maxAgeMs) {
+        const isStale = isFileExpired(stats.mtimeMs) || (Date.now() - stats.mtimeMs > maxAgeMs);
+        if (stats.isFile() && isStale) {
           freedBytes += stats.size;
-          fs.unlinkSync(fullPath);
+          if (!dryRun) {
+            fs.unlinkSync(fullPath);
+          }
           purged++;
         }
       } catch {
@@ -26,7 +30,7 @@ export class StorageJanitorService {
       }
     }
 
-    return { purged, freedBytes };
+    return { purged, freedBytes, scanned, dryRun };
   }
 
   static async purgeExpiredShareLinks() {
@@ -46,3 +50,4 @@ export class StorageJanitorService {
     }
   }
 }
+

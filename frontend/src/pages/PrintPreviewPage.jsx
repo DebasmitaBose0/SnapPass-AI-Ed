@@ -3,6 +3,8 @@ import { useLocation, Link } from 'react-router-dom';
 import QuantityInput from '../components/QuantityInput';
 import PrintButton from '../components/PrintButton';
 import PrintLayoutSelector from '../components/PrintLayoutSelector';
+import PrintSheetLayoutCustomizer from '../components/PrintSheetLayoutCustomizer';
+import generatePassportPDFSheet from '../utils/pdfExportGenerator';
 import DownloadPackagePanel from '../components/DownloadPackagePanel';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import useBatchExport from '../hooks/useBatchExport';
@@ -41,7 +43,7 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
     margins: savedSession?.margins || 20,
     orientation: savedSession?.orientation || 'portrait'
   });
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [selectedDpi, setSelectedDpi] = useState(300);
   const [showConfirm, setShowConfirm] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
 
@@ -228,15 +230,28 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
 
             <hr className="divider" />
 
-             <PrintLayoutSelector
+            <PrintLayoutSelector
               selectedLayout={layout}
               onChange={setLayout}
+              selectedDpi={selectedDpi}
+              onChangeDpi={setSelectedDpi}
               darkMode={darkMode}
             />
 
             <PrintLayoutOptions
               options={layoutOptions}
               onChange={setLayoutOptions}
+            />
+
+            <hr className="divider" />
+
+            <PrintSheetLayoutCustomizer
+              selectedPreset={customPreset}
+              onSelectPreset={setCustomPreset}
+              showCropGuides={showGuides}
+              onToggleCropGuides={setShowGuides}
+              onDownloadPDF={handleExportPDF}
+              isExporting={isExportingPDF}
             />
 
             <hr className="divider" />

@@ -53,6 +53,8 @@ export async function validateSession(token) {
     const decoded = jwt.verify(token, config.JWT_SECRET);
     const session = await Session.findOne({ token, isValid: true });
     if (!session) return null;
+    session.updatedAt = new Date();
+    await session.save().catch(() => {});
     return decoded;
   } catch (error) {
     return null;

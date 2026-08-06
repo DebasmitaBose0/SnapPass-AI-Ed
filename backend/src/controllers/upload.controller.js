@@ -28,6 +28,7 @@ export const uploadPhoto = async (req, res, next) => {
       mimeType: mimetype,
       width: meta.width ?? null,
       height: meta.height ?? null,
+      exifCleaned: true,
       processUrl: `/api/process`,
     }, 'Photo uploaded and validated successfully.');
   } catch (err) {

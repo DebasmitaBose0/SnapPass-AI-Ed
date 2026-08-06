@@ -7,7 +7,11 @@ import { saveSession, getSession } from '../utils/sessionManager';
 import SizeSelector from '../components/SizeSelector';
 import BackgroundSelector from '../components/BackgroundSelector';
 import AttireSelector from '../components/AttireSelector';
+import BackgroundColorPalettePicker from '../components/BackgroundColorPalettePicker';
+import AttireStudioSelector from '../components/AttireStudioSelector';
 import CompliancePanel from '../components/CompliancePanel';
+import { calculateComplianceMetrics } from '../services/aiComplianceService';
+import ComplianceBreakdownCard from '../components/ComplianceBreakdownCard';
 import useImageProcessor from '../hooks/useImageProcessor';
 import { iconMap, backgroundHexMap } from '../data/EditorPageData';
 import EditorPageDiagnostics from './EditorPageDiagnostics';
@@ -16,6 +20,7 @@ import { cachePhotoOffline } from '../services/indexedDb';
 import api from '../services/api';
 import { autoEnhanceImage } from '../utils/imageEnhancer';
 import { AttireManualAdjuster } from '../components/AttireManualAdjuster';
+import PassportAssistantChatbot from '../chatbot/PassportAssistantChatbot';
 import { uploadPhoto } from '../services/photoService';
 import './EditorPage.css';
 
@@ -482,6 +487,10 @@ function EditorPage({ darkMode, toggleTheme }) {
                 selected={background}
                 onChange={setBackground}
               />
+              <BackgroundColorPalettePicker
+                selectedColor={background}
+                onChangeColor={setBackground}
+              />
             </div>
           </motion.div>
 
@@ -501,6 +510,7 @@ function EditorPage({ darkMode, toggleTheme }) {
             <hr className="divider" />
 
             <AttireSelector selected={attire} onChange={setAttire} />
+            <AttireStudioSelector selectedAttire={attire} onSelectAttire={setAttire} />
             {attire !== 'none' && (
               <AttireManualAdjuster
                 scale={attireScale}
@@ -528,6 +538,10 @@ function EditorPage({ darkMode, toggleTheme }) {
               error={complianceError}
               onAutoCorrect={handleAutoCorrect}
               darkMode={darkMode}
+            />
+
+            <ComplianceBreakdownCard
+              metrics={calculateComplianceMetrics(complianceData || {})}
             />
 
             <hr className="divider" />
@@ -574,6 +588,7 @@ function EditorPage({ darkMode, toggleTheme }) {
           </motion.div>
         </div>
       </div>
+      <PassportAssistantChatbot />
     </div>
   );
 }
