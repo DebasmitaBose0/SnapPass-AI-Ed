@@ -9,8 +9,11 @@ import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { ThemeCustomizerProvider } from './context/ThemeCustomizerContext';
 import './App.css';
 import ScrollToTopButton from './components/ScrollToTopButton';
+import CookieConsentBanner from './components/cookie/CookieConsentBanner';
 import { scanBackendPorts } from './services/portSync';
 
+
+import ToastContainer from './components/ToastContainer';
 
 function AppContent() {
   // Retrieve global visual and functional preferences from mounted contexts
@@ -30,6 +33,7 @@ function AppContent() {
   return (
     <div className="app-shell">
       <SkipToContent />
+      <ToastContainer />
       {/* Primary content area rendering child routes */}
       <Navbar darkMode={darkMode} toggleTheme={toggleTheme} />
       <main className="app-main" id="main-content" tabIndex={-1}>
@@ -38,10 +42,12 @@ function AppContent() {
       <Footer darkMode={darkMode} />
       <SnapPassAssistant />
       <ScrollToTopButton />
+      <CookieConsentBanner darkMode={darkMode} />
     </div>
   );
 }
 
+import { JobQueueProvider } from './context/JobQueueContext';
 import ErrorBoundary from './components/ErrorBoundary';
 
 function App() {
@@ -51,7 +57,9 @@ function App() {
       <ToastProvider>
         <ThemeProvider>
           <ThemeCustomizerProvider>
-            <AppContent />
+            <JobQueueProvider>
+              <AppContent />
+            </JobQueueProvider>
           </ThemeCustomizerProvider>
         </ThemeProvider>
       </ToastProvider>

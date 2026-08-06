@@ -50,3 +50,24 @@ def test_apply_attire_swap_no_face_fails(mock_detect):
         apply_attire_swap(user_foreground, "male_suit")
         
     assert "Could not detect face" in str(excinfo.value)
+
+@pytest.mark.parametrize("invalid_preset", ["casual_tshirt", "hoodie_99", "unknown_attire"])
+def test_apply_attire_swap_unsupported_preset_fails(invalid_preset):
+    user_foreground = Image.new("RGBA", (300, 400), (255, 0, 0, 255))
+    
+    with pytest.raises(ValueError) as excinfo:
+        apply_attire_swap(user_foreground, invalid_preset)
+        
+    assert "Unsupported attire" in str(excinfo.value) or "preset" in str(excinfo.value).lower()
+
+@patch("cv2.CascadeClassifier.detectMultiScale")
+def test_apply_attire_swap_multiple_faces_fails(mock_detect):
+    # Mock face detection: returns multiple faces
+    mock_detect.return_value = np.array([[50, 50, 50, 50], [150, 150, 50, 50]])
+    
+    user_foreground = Image.new("RGBA", (300, 400), (255, 0, 0, 255))
+    
+    with pytest.raises(ValueError) as excinfo:
+        apply_attire_swap(user_foreground, "male_suit")
+        
+    assert "Multiple faces" in str(excinfo.value) or "face" in str(excinfo.value).lower()

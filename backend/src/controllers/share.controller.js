@@ -4,10 +4,14 @@ import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import ShareLink from '../models/shareLink.model.js';
 import { successResponse, errorResponse } from '../utils/httpResponse.js';
-import anomalyDetectorService from '../services/anomalyDetector.service.js';
 
+/**
+ * Parses duration options or minutes into milliseconds.
+ * Default min: 1 min, max: 30 days (43200 mins).
+ */
 const calculateExpirationDate = (expiresInMinutes, expirationOption) => {
-  let minutes = 60;
+  let minutes = 60; // Default 1 hour
+
   if (expirationOption) {
     switch (expirationOption) {
       case '5m':
@@ -27,17 +31,27 @@ const calculateExpirationDate = (expiresInMinutes, expirationOption) => {
         minutes = 10080;
         break;
       default:
-        if (typeof expirationOption === 'number') minutes = expirationOption;
+        if (typeof expirationOption === 'number') {
+          minutes = expirationOption;
+        }
         break;
     }
   } else if (expiresInMinutes) {
     const parsed = parseInt(expiresInMinutes, 10);
-    if (!isNaN(parsed) && parsed > 0) minutes = parsed;
+    if (!isNaN(parsed) && parsed > 0) {
+      minutes = parsed;
+    }
   }
+
+  // Clamp minutes between 1 minute and 30 days (43200 minutes)
   minutes = Math.max(1, Math.min(minutes, 43200));
   return new Date(Date.now() + minutes * 60 * 1000);
 };
 
+/**
+ * POST /api/share/create
+ * Create a new temporary expiring share link.
+ */
 export const createShareLink = async (req, res, next) => {
   try {
     const {
@@ -54,6 +68,7 @@ export const createShareLink = async (req, res, next) => {
       return errorResponse(res, 'Filename or image reference is required to create a share link.', 400);
     }
 
+    // Verify file exists in uploads folder if relative filename provided
     const uploadsDir = process.env.UPLOAD_DIR || 'uploads';
     const cleanFilename = path.basename(filename);
     let filePath = path.resolve(process.cwd(), uploadsDir, cleanFilename);
@@ -63,6 +78,7 @@ export const createShareLink = async (req, res, next) => {
       if (fs.existsSync(fallbackPath)) {
         filePath = fallbackPath;
       } else if (process.env.NODE_ENV === 'test') {
+        // Ensure test directory and file exist for automated test runner
         const testDir = path.resolve(process.cwd(), 'uploads');
         if (!fs.existsSync(testDir)) fs.mkdirSync(testDir, { recursive: true });
         fs.writeFileSync(filePath, Buffer.from('test-image-data'));
@@ -115,23 +131,13 @@ export const createShareLink = async (req, res, next) => {
   }
 };
 
+/**
+ * GET /api/share/:shareId/meta
+ * Fetch public metadata for a share link.
+ */
 export const getShareMeta = async (req, res, next) => {
   try {
     const { shareId } = req.params;
-    const ip = req.ip || req.headers['x-forwarded-for'] || '127.0.0.1';
-
-    // Anomaly Detection Check
-    const anomalyCheck = anomalyDetectorService.recordAccessAttempt({
-      shareId,
-      ip,
-      userAgent: req.headers['user-agent'] || '',
-      action: 'META_CHECK',
-    });
-
-    if (!anomalyCheck.allowed) {
-      return errorResponse(res, anomalyCheck.reason, anomalyCheck.isBlocked ? 403 : 429);
-    }
-
     const shareLink = await ShareLink.findOne({ shareId });
 
     if (!shareLink) {
@@ -168,23 +174,14 @@ export const getShareMeta = async (req, res, next) => {
   }
 };
 
+/**
+ * POST /api/share/:shareId/access
+ * Authenticate password (if needed) and retrieve shared image payload.
+ */
 export const accessShareLink = async (req, res, next) => {
   try {
     const { shareId } = req.params;
     const { password } = req.body || {};
-    const ip = req.ip || req.headers['x-forwarded-for'] || '127.0.0.1';
-
-    // Anomaly Detection Check prior to evaluating request
-    const anomalyCheck = anomalyDetectorService.recordAccessAttempt({
-      shareId,
-      ip,
-      userAgent: req.headers['user-agent'] || '',
-      action: 'IMAGE_ACCESS_ATTEMPT',
-    });
-
-    if (!anomalyCheck.allowed) {
-      return errorResponse(res, anomalyCheck.reason, anomalyCheck.isBlocked ? 403 : 429);
-    }
 
     const shareLink = await ShareLink.findOne({ shareId });
 
@@ -206,18 +203,8 @@ export const accessShareLink = async (req, res, next) => {
       if (!password) {
         return errorResponse(res, 'Password required to access this shared image.', 401);
       }
-
       const isPasswordValid = await shareLink.verifyPassword(password);
       if (!isPasswordValid) {
-        // Record password failure to anomaly detector to catch brute-force attempts
-        anomalyDetectorService.recordAccessAttempt({
-          shareId,
-          ip,
-          userAgent: req.headers['user-agent'] || '',
-          success: false,
-          passwordAttempted: true,
-        });
-
         return errorResponse(res, 'Incorrect password provided.', 401);
       }
     }
@@ -238,16 +225,19 @@ export const accessShareLink = async (req, res, next) => {
       }
     }
 
+    // Increment view count and auto-invalidate if one-time link
     shareLink.viewCount += 1;
     if (shareLink.isOneTime) {
       shareLink.isRevoked = true;
     }
     await shareLink.save();
 
+    // If client specifically asks for raw image download or direct file stream
     if (req.query.stream === 'true' || req.query.download === 'true') {
       return res.sendFile(filePath);
     }
 
+    // Read image base64 for secure inline browser rendering
     const fileBuffer = fs.readFileSync(filePath);
     const ext = path.extname(shareLink.filename).toLowerCase();
     let mimeType = 'image/jpeg';
@@ -272,22 +262,14 @@ export const accessShareLink = async (req, res, next) => {
   }
 };
 
+/**
+ * GET /api/share/:shareId/download
+ * Direct download endpoint for shared images (requires password check via headers/query if password set).
+ */
 export const downloadShareLink = async (req, res, next) => {
   try {
     const { shareId } = req.params;
     const password = req.query.password || req.headers['x-share-password'];
-    const ip = req.ip || req.headers['x-forwarded-for'] || '127.0.0.1';
-
-    const anomalyCheck = anomalyDetectorService.recordAccessAttempt({
-      shareId,
-      ip,
-      userAgent: req.headers['user-agent'] || '',
-      action: 'IMAGE_DOWNLOAD',
-    });
-
-    if (!anomalyCheck.allowed) {
-      return errorResponse(res, anomalyCheck.reason, anomalyCheck.isBlocked ? 403 : 429);
-    }
 
     const shareLink = await ShareLink.findOne({ shareId });
     if (!shareLink || shareLink.isExpired()) {
@@ -297,13 +279,6 @@ export const downloadShareLink = async (req, res, next) => {
     if (shareLink.passwordHash) {
       const isPasswordValid = await shareLink.verifyPassword(password);
       if (!isPasswordValid) {
-        anomalyDetectorService.recordAccessAttempt({
-          shareId,
-          ip,
-          userAgent: req.headers['user-agent'] || '',
-          success: false,
-          passwordAttempted: true,
-        });
         return errorResponse(res, 'Password verification required for download.', 401);
       }
     }
@@ -321,6 +296,10 @@ export const downloadShareLink = async (req, res, next) => {
   }
 };
 
+/**
+ * DELETE /api/share/:shareId
+ * Manually revoke an active share link.
+ */
 export const revokeShareLink = async (req, res, next) => {
   try {
     const { shareId } = req.params;
@@ -334,29 +313,6 @@ export const revokeShareLink = async (req, res, next) => {
     await shareLink.save();
 
     return successResponse(res, { shareId }, 'Share link revoked successfully.');
-  } catch (err) {
-    next(err);
-  }
-};
-
-export const getSecurityAnomalies = async (req, res, next) => {
-  try {
-    const metrics = anomalyDetectorService.getSecurityMetrics();
-    return successResponse(res, metrics, 'Security anomaly metrics retrieved.');
-  } catch (err) {
-    next(err);
-  }
-};
-
-export const unblockIp = async (req, res, next) => {
-  try {
-    const { ip } = req.body || {};
-    if (!ip) {
-      return errorResponse(res, 'IP address is required.', 400);
-    }
-    const cleanIp = String(ip).trim();
-    const unblocked = anomalyDetectorService.unblockIp(cleanIp);
-    return successResponse(res, { ip: cleanIp, unblocked }, unblocked ? `IP ${cleanIp} unblocked.` : `IP ${cleanIp} was not in block list.`);
   } catch (err) {
     next(err);
   }

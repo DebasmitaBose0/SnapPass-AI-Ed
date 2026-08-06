@@ -1,11 +1,15 @@
 import jwt from "jsonwebtoken";
 import Session from "../models/session.model.js";
 import { config } from "../config/config.js";
+import { SessionAdapterFactory } from "./adapters/sessionAdapterFactory.js";
+
+const sessionAdapter = SessionAdapterFactory.getAdapter('memory');
 
 /**
  * Creates a new session, signs JWT, and saves to database.
  */
 export async function createSession(res, user, ipAddress, userAgent) {
+
   const expiresInDays = 7;
   const maxAgeMs = expiresInDays * 24 * 60 * 60 * 1000;
   const expiresAt = new Date(Date.now() + maxAgeMs);
@@ -53,6 +57,8 @@ export async function validateSession(token) {
     const decoded = jwt.verify(token, config.JWT_SECRET);
     const session = await Session.findOne({ token, isValid: true });
     if (!session) return null;
+    session.updatedAt = new Date();
+    await session.save().catch(() => {});
     return decoded;
   } catch (error) {
     return null;

@@ -74,6 +74,7 @@ shareLinkSchema.methods.verifyPassword = async function (password) {
   return await bcrypt.compare(password, this.passwordHash);
 };
 
+shareLinkSchema.index({ expiresAt: 1 });
 shareLinkSchema.index({ isRevoked: 1 });
 
 const ShareLink = mongoose.model('ShareLink', shareLinkSchema);

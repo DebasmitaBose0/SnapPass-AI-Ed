@@ -14,8 +14,10 @@
  */
 
 import rateLimit from 'express-rate-limit';
+import { calculateSlidingWeight } from '../utils/slidingWindow.utils.js';
 
 const isTest = process.env.NODE_ENV === 'test';
+
 
 /**
  * Build a standard rate-limit error handler that returns JSON matching the
