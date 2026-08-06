@@ -1,6 +1,6 @@
 /**
  * Preset Calculator
- * Helper to calculate pixel dimensions from physical millimeter specifications.
+ * Helper to calculate pixel dimensions from physical millimeter specifications and print grid layouts.
  */
 
 export function calculatePixels(widthMm, heightMm, dpi = 300) {
@@ -41,12 +41,13 @@ export function getComplianceGuidelines(country) {
 
 export function calculatePrintCapacity(paperSize = '4x6', photoWidthMm = 35, photoHeightMm = 45, spacingMm = 2, marginsMm = 5) {
   const paperDimensions = {
-    '4x6': { widthMm: 101.6, heightMm: 152.4 },
-    '5x7': { widthMm: 127.0, heightMm: 177.8 },
-    'A4': { widthMm: 210.0, heightMm: 297.0 },
+    '4x6': { widthMm: 101.6, heightMm: 152.4, inches: [4, 6] },
+    '5x7': { widthMm: 127.0, heightMm: 177.8, inches: [5, 7] },
+    'A4': { widthMm: 210.0, heightMm: 297.0, inches: [8.27, 11.69] },
+    'letter': { widthMm: 215.9, heightMm: 279.4, inches: [8.5, 11] },
   };
 
-  const paper = paperDimensions[paperSize] || paperDimensions['4x6'];
+  const paper = paperDimensions[paperSize.toLowerCase()] || paperDimensions['4x6'];
   const availW = paper.widthMm - marginsMm * 2;
   const availH = paper.heightMm - marginsMm * 2;
 
@@ -59,6 +60,6 @@ export function calculatePrintCapacity(paperSize = '4x6', photoWidthMm = 35, pho
     totalCapacity: cols * rows,
     paperWidthMm: paper.widthMm,
     paperHeightMm: paper.heightMm,
+    inches: paper.inches,
   };
 }
-

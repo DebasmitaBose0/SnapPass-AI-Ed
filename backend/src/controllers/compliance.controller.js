@@ -103,7 +103,14 @@ export const complianceCheck = async (req, res, next) => {
       { headers: { 'Content-Type': 'application/json' } }
     );
 
-    return res.json({ success: true, data: response.data });
+    const { computePassportComplianceScore } = await import('../utils/complianceRulesEngine.js');
+    const complianceReport = computePassportComplianceScore(response.data?.checklist || response.data);
+
+    return res.json({
+      success: true,
+      data: response.data,
+      complianceScore: complianceReport
+    });
   } catch (error) {
     if (error.code === 'ECONNREFUSED') {
       return res.status(503).json({

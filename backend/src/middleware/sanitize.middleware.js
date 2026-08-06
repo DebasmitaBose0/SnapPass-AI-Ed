@@ -1,13 +1,10 @@
+import { sanitizePayloadDeep } from '../utils/payloadSanitizer.utils.js';
+
 const SENSITIVE_KEYS = new Set(['password', 'token', 'secret', 'apiKey']);
 
 const sanitizeValue = (value) => {
   if (typeof value === 'string') {
-    let cleaned = value.trim();
-    cleaned = cleaned.replace(/<[^>]*>?/gm, '');
-    cleaned = cleaned.replace(/[<>"'&]/g, '');
-    cleaned = cleaned.replace(/javascript:/gi, '');
-    cleaned = cleaned.replace(/on\w+=/gi, '');
-    return cleaned;
+    return sanitizePayloadDeep(value);
   }
   if (Array.isArray(value)) {
     return value.map(sanitizeValue);
@@ -17,6 +14,7 @@ const sanitizeValue = (value) => {
   }
   return value;
 };
+
 
 const sanitizeObject = (obj) => {
   const sanitized = {};

@@ -26,10 +26,14 @@ export const Navbar = ({ darkMode = false, toggleTheme }) => {
   } catch (_) {}
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showThemePicker, setShowThemePicker] = useState(false);
   const themeClass = darkMode ? 'dark' : 'light';
   const navbarRef = useRef(null);
 
-  const closeMenu = () => setIsMenuOpen(false);
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+    setShowThemePicker(false);
+  };
 
   const getNavLinkClass = ({ isActive }) =>
     [
@@ -99,7 +103,35 @@ export const Navbar = ({ darkMode = false, toggleTheme }) => {
           ))}
         </div>
 
-        <div className="navbar__actions">
+        <div className="navbar__actions" style={{ position: 'relative' }}>
+          <button
+            type="button"
+            className={`navbar__language-selector navbar__language-selector-${themeClass}`}
+            onClick={() => setShowThemePicker((prev) => !prev)}
+            aria-label="Theme accent customizer"
+            title="Theme Palette"
+          >
+            🎨 Theme
+          </button>
+
+          {showThemePicker && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '110%',
+                right: '0',
+                background: darkMode ? '#0f172a' : '#ffffff',
+                boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+                borderRadius: '12px',
+                padding: '12px',
+                zIndex: 1000,
+                minWidth: '220px',
+              }}
+            >
+              <ThemeColorSelector compact />
+            </div>
+          )}
+
           <select
             className={`navbar__language-selector navbar__language-selector-${themeClass} navbar__desktop-language`}
             value={language}
@@ -165,15 +197,17 @@ export const Navbar = ({ darkMode = false, toggleTheme }) => {
           </NavLink>
         ))}
 
+        <ThemeColorSelector />
+
         <select
           className={`navbar__language-selector navbar__language-selector-${themeClass}`}
           value={language}
           onChange={(event) => setLanguage(event.target.value)}
           aria-label="Select language"
         >
-          {languages.map((language) => (
-            <option key={language.value} value={language.value}>
-              {language.label}
+          {languages.map((lang) => (
+            <option key={lang.value} value={lang.value}>
+              {lang.label}
             </option>
           ))}
         </select>

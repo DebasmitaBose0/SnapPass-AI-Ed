@@ -12,6 +12,8 @@ import ScrollToTopButton from './components/ScrollToTopButton';
 import { scanBackendPorts } from './services/portSync';
 
 
+import ToastContainer from './components/ToastContainer';
+
 function AppContent() {
   // Retrieve global visual and functional preferences from mounted contexts
   const { darkMode, toggleTheme } = useTheme();
@@ -30,6 +32,7 @@ function AppContent() {
   return (
     <div className="app-shell">
       <SkipToContent />
+      <ToastContainer />
       {/* Primary content area rendering child routes */}
       <Navbar darkMode={darkMode} toggleTheme={toggleTheme} />
       <main className="app-main" id="main-content" tabIndex={-1}>
