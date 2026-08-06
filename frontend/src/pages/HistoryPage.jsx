@@ -4,18 +4,30 @@ import { motion } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
 import { translations } from '../translations/translations';
 import useOfflineStorage from '../hooks/useOfflineStorage';
-import useHistory from '../hooks/useHistory'; // Added missing import
-import useUploadSearch from '../hooks/useUploadSearch'; // Added missing import
-import HistoryCard from '../components/HistoryCard'; // Added missing import
+import { useBatchExportQueue } from '../hooks/useBatchExportQueue';
+import BatchProcessingQueueModal from '../components/BatchProcessingQueueModal';
+import HistoryCard from '../components/HistoryCard';
+import useUploadSearch from '../hooks/useUploadSearch';
+import useHistory from '../hooks/useHistory';
 import './HistoryPage.css';
 
 function HistoryPage({ darkMode }) {
   const { language } = useLanguage();
-  const t = translations[language];
+  const t = translations[language] || {};
   const navigate = useNavigate();
-  const { history, deleteSession, clearHistory } = useHistory();
+  const { history = [], deleteSession, clearHistory } = useHistory();
   const { cachedPhotos } = useOfflineStorage();
   const [showConfirm, setShowConfirm] = useState(false);
+  const [isQueueModalOpen, setIsQueueModalOpen] = useState(false);
+
+  const {
+    queue,
+    addToQueue,
+    clearCompleted,
+    updateItemStatus,
+    retryFailed,
+    removeFromQueue,
+  } = useBatchExportQueue();
 
   const combinedHistory = useMemo(() => {
     const offlineItems = (cachedPhotos || []).map((photo) => ({
@@ -34,11 +46,7 @@ function HistoryPage({ darkMode }) {
   const {
     searchTerm: search,
     setSearchTerm: setSearch,
-    selectedPreset,
-    setSelectedPreset,
-    dateOrder,
-    setDateOrder,
-    filteredItems: filtered
+    filteredItems: filtered,
   } = useUploadSearch(combinedHistory);
 
   const handleCardClick = (session) => {
@@ -49,6 +57,18 @@ function HistoryPage({ darkMode }) {
           filename: session.filename,
         },
       });
+    }
+  };
+
+  const handleBatchExport = () => {
+    if (filtered.length > 0) {
+      const itemsToExport = filtered.map((s) => ({
+        id: s.id,
+        title: s.filename || 'Passport Photo Session',
+        processedUrl: s.processedUrl,
+      }));
+      addToQueue(itemsToExport);
+      setIsQueueModalOpen(true);
     }
   };
 
@@ -77,7 +97,16 @@ function HistoryPage({ darkMode }) {
             {t.historySubtitle || 'Review your past passport photo sessions'}
           </p>
         </div>
-        <div className="history-page__header-actions">
+        <div className="history-page__header-actions flex gap-2">
+          {filtered.length > 0 && (
+            <button
+              className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors"
+              onClick={handleBatchExport}
+              aria-label="Batch Export Queue"
+            >
+              Export Queue ({queue.length})
+            </button>
+          )}
           {history.length > 0 && (
             <button
               className="history-page__clear-btn"
@@ -220,6 +249,15 @@ function HistoryPage({ darkMode }) {
           </div>
         </div>
       )}
+
+      <BatchProcessingQueueModal
+        isOpen={isQueueModalOpen}
+        onClose={() => setIsQueueModalOpen(false)}
+        queue={queue}
+        onClearCompleted={clearCompleted}
+        onRetry={retryFailed}
+        onRemove={removeFromQueue}
+      />
     </div>
   );
 }
