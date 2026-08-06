@@ -1,21 +1,21 @@
 import { BatchZipService } from '../services/batchZip.service.js';
 import logger from '../utils/logger.js';
+import { validateBatchExportRequest } from '../validation/batchExport.validation.js';
 
 /**
  * Controller handling batch photo download requests.
  * POST /api/batch-export
- * Body: { filenames: string[] }
+ * Body: { filenames: string[], compressionLevel?: number }
  */
 export const handleBatchExport = async (req, res, next) => {
   try {
-    const { filenames } = req.body;
+    const { filenames, compressionLevel = 6 } = req.body;
 
-    if (!Array.isArray(filenames) || filenames.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'Request body must contain a non-empty filenames array.',
-      });
+    const validation = validateBatchExportRequest({ files: filenames, compressionLevel });
+    if (!validation.isValid) {
+      return res.status(400).json({ success: false, errors: validation.errors });
     }
+
 
     if (filenames.length > 50) {
       return res.status(400).json({

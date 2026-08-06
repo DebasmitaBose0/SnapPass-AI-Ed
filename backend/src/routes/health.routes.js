@@ -3,23 +3,26 @@ import mongoose from 'mongoose';
 import axios from 'axios';
 import { config } from '../config/config.js';
 import { isRedisAvailable } from '../config/redis.js';
+import { HealthCheckService } from '../services/healthCheck.service.js';
+import { formatHealthResponse } from '../utils/healthResponse.formatter.js';
+import { validateHealthQuery } from '../validation/healthQuery.validation.js';
 
 const router = express.Router();
 
 router.get('/', (req, res) => {
-  res.json({
-    status: 'ok',
-    service: 'SnapPass AI Backend API',
-  });
+  res.json(formatHealthResponse('UP'));
 });
 
 router.get('/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-    service: 'SnapPass AI Backend',
-  });
+  const metrics = HealthCheckService.getSystemMetrics();
+  res.json(formatHealthResponse('UP', metrics));
 });
+
+router.get('/health/readiness', async (req, res) => {
+  const readiness = await HealthCheckService.performReadinessCheck();
+  res.json(readiness);
+});
+
 
 router.get('/diagnostics', async (req, res) => {
   // Compute event loop lag
@@ -74,6 +77,13 @@ router.get('/diagnostics', async (req, res) => {
     }
   } catch (err) {
     diagnostics.services.pythonService = 'offline/error: ' + err.message;
+  }
+
+  try {
+    const { aiCircuitBreaker } = await import('../utils/aiClient.js');
+    diagnostics.services.circuitBreaker = aiCircuitBreaker.getStatus();
+  } catch (e) {
+    diagnostics.services.circuitBreaker = 'unavailable';
   }
 
   const isAllHealthy =
