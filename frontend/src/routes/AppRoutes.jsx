@@ -3,6 +3,7 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorBoundary from '../components/ErrorBoundary';
 import ScrollToTop from './ScrollToTop';
+import NavigationProgressBar from '../components/NavigationProgressBar';
 import RouteGuard from './RouteGuard';
 
 const HomePage = lazy(() => import('../pages/HomePage'));
@@ -27,6 +28,7 @@ function AppRoutes({ darkMode, toggleTheme }) {
 
   return (
     <ErrorBoundary key={location.pathname}>
+      <NavigationProgressBar />
       <ScrollToTop />
       <Suspense fallback={<LoadingSpinner fullPage delayMs={250} />}>
         <Routes>

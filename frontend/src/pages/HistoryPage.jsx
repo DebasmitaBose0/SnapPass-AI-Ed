@@ -262,4 +262,5 @@ function HistoryPage({ darkMode }) {
   );
 }
 
+// Maintains default ES module export functionality
 export default HistoryPage;
