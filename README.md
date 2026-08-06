@@ -309,7 +309,8 @@ Home
 | `GET`  | `/api/process/preview/:filename` | Get processed preview |
 | `POST` | `/api/print/generate-sheet` | Generate A4 print sheet |
 | `GET`  | `/api/print/presets` | List size presets |
-| `GET`  | `/health` | Backend health check |
+| `GET`  | `/health` | Backend health check (always 200) |
+| `GET`  | `/health/readiness` | Readiness probe (200 = healthy, 503 = degraded) |
 
 ---
 
