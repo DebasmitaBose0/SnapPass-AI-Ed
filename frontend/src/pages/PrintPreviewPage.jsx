@@ -323,7 +323,7 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
             />
 
             <button
-              onClick={() => batchExport.exportFiles(['sample_processed.png'])}
+              onClick={() => batchExport.exportFiles(processedPhotos.map(p => p.filename))}
               disabled={batchExport.exporting}
               className={`btn ${darkMode ? 'btn-secondary-dark' : 'btn-secondary'}`}
               style={{
@@ -432,7 +432,7 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
       <ShareModal
         isOpen={showShareModal}
         onClose={() => setShowShareModal(false)}
-        filename={state?.filename || savedSession?.filename || 'sample.jpg'}
+        filename={state?.filename || savedSession?.filename || processedPhotos[0]?.filename || 'photo.jpg'}
         originalName={state?.filename || savedSession?.filename}
       />
     </div>
