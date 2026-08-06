@@ -22,25 +22,17 @@ def apply_attire_swap(
     gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
     gray = cv2.equalizeHist(gray)
     
-    # 2. Detect face using Haar Cascade
-    cascade = cv2.CascadeClassifier(
-        cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
-    )
-    faces = cascade.detectMultiScale(
-        gray,
-        scaleFactor=1.1,
-        minNeighbors=5,
-        minSize=(100, 100)
-    )
-    
-    if len(faces) == 0:
+    # 2. Detect face using shared Haar cascade helper
+    from app.services.face_detection import detect_largest_face
+    face_rect = detect_largest_face(gray)
+    if face_rect is None:
         raise ValueError(
             "Could not detect face for attire alignment. "
             "Please ensure your face is clearly visible, well-lit, and facing the camera directly."
         )
-        
+
     # Get the largest face
-    fx, fy, fw, fh = max(faces, key=lambda r: r[2] * r[3])
+    fx, fy, fw, fh = face_rect
     
     # 3. Load the attire template
     assets_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "attire")
