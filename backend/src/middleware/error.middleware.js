@@ -128,6 +128,13 @@ const errorMiddleware = (err, req, res, next) => {
     return res.status(401).json(payload);
   }
 
+  // ── Circuit Breaker Error ─────────────────────────────────────────────
+  if (err.message && err.message.startsWith('CircuitBreakerOpen')) {
+    logger.warn({ event: 'circuit_breaker_open', correlationId, path: req.path });
+    const { payload } = buildPayload(503, 'AI Processing Service is currently unavailable. Please try again shortly.', correlationId);
+    return res.status(503).json(payload);
+  }
+
   // ── Application errors (AppError / custom statusCode) ────────────────────
   const statusCode = err.statusCode || 500;
   const isServerError = statusCode >= 500;

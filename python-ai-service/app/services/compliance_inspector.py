@@ -68,13 +68,11 @@ def _compute_laplace_blur_score(gray: np.ndarray) -> float:
 
 
 def _estimate_roll_degrees(gray: np.ndarray, face_rect: Tuple[int, int, int, int]) -> float:
-    # Heuristic roll estimation using gradients and orientation of face region.
     x, y, w, h = face_rect
     roi = gray[max(0, y):y + h, max(0, x):x + w]
     if roi.size == 0:
         return 0.0
 
-    # Use PCA on edge coordinates to estimate dominant axis.
     edges = cv2.Canny(roi, 50, 150)
     ys, xs = np.where(edges > 0)
     if len(xs) < 50:
@@ -93,7 +91,6 @@ def _estimate_roll_degrees(gray: np.ndarray, face_rect: Tuple[int, int, int, int
 
 def _detect_eyes_and_get_tilt(gray: np.ndarray, face_rect: Tuple[int, int, int, int]) -> Tuple[float, Optional[list]]:
     x, y, w, h = face_rect
-    # Look in the top 60% of the face box
     roi_gray = gray[y:y+int(h*0.6), x:x+w]
     
     eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_eye.xml")
@@ -131,14 +128,12 @@ def _detect_eyes_and_get_tilt(gray: np.ndarray, face_rect: Tuple[int, int, int, 
                 {"x": e2_x_full, "y": e2_y_full}
             ]
             
-    # Fallback
     roll = _estimate_roll_degrees(gray, face_rect)
     return roll, None
 
 
 def _check_background(image: np.ndarray, face_rect: Tuple[int, int, int, int]) -> Dict[str, Any]:
     h, w = image.shape[:2]
-    # Sample top-left and top-right patches to avoid hair/body
     patch_h = max(5, int(h * 0.12))
     patch_w = max(5, int(w * 0.15))
     
@@ -176,7 +171,6 @@ def _check_background(image: np.ndarray, face_rect: Tuple[int, int, int, int]) -
 
 def _lighting_balance(gray: np.ndarray, face_rect: Tuple[int, int, int, int]) -> Dict[str, float]:
     x, y, w, h = face_rect
-    # Split face region into left/right halves
     roi = gray[max(0, y):y + h, max(0, x):x + w]
     if roi.size == 0:
         return {"left_mean": 0.0, "right_mean": 0.0, "mean_diff": 9999.0}
@@ -202,11 +196,9 @@ def _accessories_soft_warning(image: np.ndarray) -> Optional[ComplianceItem]:
     if upper.size == 0:
         return None
 
-    # Count dark pixels in upper band
     thresh = np.percentile(upper, 20)
     dark_ratio = float(np.mean(upper < thresh))
 
-    # If dark ratio is high, warn.
     if dark_ratio > 0.18:
         return ComplianceItem(
             id="accessories",
@@ -223,7 +215,6 @@ def _accessories_soft_warning(image: np.ndarray) -> Optional[ComplianceItem]:
 def inspect_compliance(image_path: str, size_preset: Optional[str] = None) -> Dict[str, Any]:
     image = cv2.imread(image_path)
     if image is None:
-        # Return a structured failure checklist
         return {
             "passed": False,
             "hard_fail": True,
@@ -238,6 +229,7 @@ def inspect_compliance(image_path: str, size_preset: Optional[str] = None) -> Di
                     "auto_fixable": False
                 }
             ],
+            "composite_score": {"overall_score": 0.0, "status": "FAIL", "grade": "F"}
         }
 
     h, w = image.shape[:2]
@@ -245,7 +237,6 @@ def inspect_compliance(image_path: str, size_preset: Optional[str] = None) -> Di
 
     items = []
 
-    # 1) Face detection
     face_rect = _detect_face(gray)
     if not face_rect:
         items.append({
@@ -261,6 +252,7 @@ def inspect_compliance(image_path: str, size_preset: Optional[str] = None) -> Di
             "passed": False,
             "hard_fail": True,
             "items": items,
+            "composite_score": {"overall_score": 0.0, "status": "FAIL", "grade": "F"}
         }
 
     fx, fy, fw, fh = face_rect
@@ -269,7 +261,7 @@ def inspect_compliance(image_path: str, size_preset: Optional[str] = None) -> Di
     img_cx = w // 2
     img_cy = h // 2
 
-    # 2) DPI & quality readiness (heuristic)
+    # DPI & quality readiness
     dpi_status = "pass"
     dpi_detail = "Image resolution appears sufficient for 300 DPI printing."
     dpi_suggestion = None
@@ -288,7 +280,7 @@ def inspect_compliance(image_path: str, size_preset: Optional[str] = None) -> Di
         "auto_fixable": False
     })
 
-    # 3) Blur
+    # Blur
     blur_score = _compute_laplace_blur_score(gray)
     blur_status = "pass" if blur_score >= BLUR_THRESHOLD else "fail"
     blur_detail = f"Image sharpness score: {blur_score:.1f} (min {BLUR_THRESHOLD})."
@@ -308,7 +300,7 @@ def inspect_compliance(image_path: str, size_preset: Optional[str] = None) -> Di
         "meta": {"blur_score": blur_score},
     })
 
-    # 4) Tilt / roll
+    # Tilt / roll
     roll_deg, detected_eyes = _detect_eyes_and_get_tilt(gray, face_rect)
     tilt_status = "pass" if abs(roll_deg) <= TILT_HARD_FAIL_DEG else "fail"
     tilt_detail = f"Estimated head tilt (roll): {roll_deg:.1f}° (limit ±{TILT_HARD_FAIL_DEG}°)."
@@ -328,7 +320,7 @@ def inspect_compliance(image_path: str, size_preset: Optional[str] = None) -> Di
         "meta": {"roll_deg": roll_deg, "eyes": detected_eyes},
     })
 
-    # 5) Face Centering check
+    # Face Centering
     horiz_offset = abs(face_cx - img_cx) / w
     face_top_ratio = fy / h
     face_bottom_ratio = (fy + fh) / h
@@ -365,7 +357,7 @@ def inspect_compliance(image_path: str, size_preset: Optional[str] = None) -> Di
         "auto_fixable": True
     })
 
-    # 6) Background
+    # Background
     bg_info = _check_background(image, face_rect)
     bg_status = "pass"
     bg_detail = "Background is flat and uniform."
@@ -394,7 +386,7 @@ def inspect_compliance(image_path: str, size_preset: Optional[str] = None) -> Di
         "meta": bg_info
     })
 
-    # 7) Dimensions & Spacing preset check
+    # Dimensions & Spacing preset check
     preset = size_preset or "35x45"
     face_ratio = fh / h
     target_min, target_max = PRESET_FACE_RATIOS.get(preset, (0.50, 0.80))
@@ -432,7 +424,7 @@ def inspect_compliance(image_path: str, size_preset: Optional[str] = None) -> Di
         "auto_fixable": spacing_status != "pass"
     })
 
-    # 8) Lighting balance / shadows
+    # Lighting balance / shadows
     lighting = _lighting_balance(gray, face_rect)
     mean_diff = lighting["mean_diff"]
     lighting_status = "pass" if mean_diff <= LIGHTING_MAX_MEAN_DIFF else "warn"
@@ -454,7 +446,7 @@ def inspect_compliance(image_path: str, size_preset: Optional[str] = None) -> Di
         "meta": lighting,
     })
 
-    # 9) Accessories/glasses (soft warning)
+    # Accessories/glasses
     acc_item = _accessories_soft_warning(image)
     if acc_item:
         acc_dict = acc_item.__dict__
@@ -465,10 +457,21 @@ def inspect_compliance(image_path: str, size_preset: Optional[str] = None) -> Di
     hard_fail = any(i.get("status") == "fail" and i.get("id") in {"face", "dpi_quality", "blur", "tilt", "centering", "dimensions"} for i in items)
     passed = not hard_fail
 
+    # Calculate composite score
+    bg_uniformity_score = max(0.0, 100.0 - bg_info["std_dev"] * 3)
+    composite_score = calculate_composite_score({
+        "blur_score": blur_score,
+        "face_width": fw,
+        "face_height": fh,
+        "background_uniformity": bg_uniformity_score,
+        "head_ratio": face_ratio
+    })
+
     return {
         "passed": passed,
         "hard_fail": hard_fail,
         "items": items,
+        "composite_score": composite_score,
         "meta": {
             "face_rect": {"x": fx, "y": fy, "w": fw, "h": fh},
             "roll_deg": roll_deg,
