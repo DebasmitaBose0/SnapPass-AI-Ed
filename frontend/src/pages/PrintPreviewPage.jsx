@@ -11,6 +11,7 @@ import useBatchExport from '../hooks/useBatchExport';
 import './PrintPreviewPage.css';
 import EmptyState from '../components/EmptyState';
 import ConfirmModal from '../components/ConfirmModal';
+import ShareModal from '../components/share/ShareModal';
 import { motion } from 'framer-motion';
 import { generateSheet } from '../services/photoService';
 import { PrintLayoutOptions } from '../components/editor/PrintLayoutOptions';
@@ -44,26 +45,7 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
   });
   const [selectedDpi, setSelectedDpi] = useState(300);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [customPreset, setCustomPreset] = useState('4x6_standard');
-  const [showGuides, setShowGuides] = useState(true);
-  const [isExportingPDF, setIsExportingPDF] = useState(false);
-
-  const handleExportPDF = async () => {
-    setIsExportingPDF(true);
-    try {
-      const photoSrc = processedPhotos[0]?.processedUrl || state?.processedUrl;
-      const doc = await generatePassportPDFSheet({
-        imageSrc: photoSrc,
-        paperPresetId: customPreset,
-        showCropGuides: showGuides,
-      });
-      doc.save(`passport-photos-${customPreset}.pdf`);
-    } catch (err) {
-      console.error('Failed to export PDF:', err);
-    } finally {
-      setIsExportingPDF(false);
-    }
-  };
+  const [showShareModal, setShowShareModal] = useState(false);
 
   const processedPhotos = state?.processedPhotos || savedSession?.processedPhotos || [];
   if (processedPhotos.length === 0) {
@@ -363,6 +345,28 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
             </button>
 
             <button
+              onClick={() => setShowShareModal(true)}
+              className={`btn ${darkMode ? 'btn-secondary-dark' : 'btn-secondary'}`}
+              style={{
+                marginTop: '10px',
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                padding: '12px',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontWeight: '600',
+                background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+                color: '#ffffff',
+                border: 'none',
+              }}
+            >
+              🔒 Share Expiring Link
+            </button>
+
+            <button
               onClick={handlePrintDirect}
               className={`btn btn-secondary ${darkMode ? 'btn-secondary-dark' : ''}`}
               style={{
@@ -426,6 +430,13 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
           loading={isGenerating}
         />
       )}
+
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        filename={state?.filename || savedSession?.filename || 'sample.jpg'}
+        originalName={state?.filename || savedSession?.filename}
+      />
     </div>
   );
 }
