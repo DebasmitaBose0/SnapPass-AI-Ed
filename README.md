@@ -266,6 +266,8 @@ python main.py
 
 AI service runs at [http://localhost:8000](http://localhost:8000).
 
+> **Setup guide:** See [docs/PYTHON_AI_SETUP.md](docs/PYTHON_AI_SETUP.md) for endpoint details, security notes, and how to add new presets.
+
 ---
 
 ## 🐳 Docker (Compose)
