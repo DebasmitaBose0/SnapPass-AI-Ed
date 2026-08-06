@@ -1,7 +1,4 @@
-/**
- * Express Rate Limiting Middleware
- * Advanced sliding window rate limiter with client fingerprinting and progressive IP throttling.
- */
+import { calculateSlidingWeight } from '../utils/slidingWindow.utils.js';
 
 const requestCounts = new Map();
 const blockedIPs = new Map();
@@ -17,14 +14,9 @@ export const createRateLimiter = (options = {}) => {
     const clientKey = `${rawIp}:${req.headers['user-agent'] || 'unknown'}`;
     const now = Date.now();
 
-    // Check if IP is currently in temporary lock
-    if (blockedIPs.has(rawIp)) {
-      const blockExpiry = blockedIPs.get(rawIp);
-      if (now < blockExpiry) {
-        res.setHeader('Retry-After', Math.ceil((blockExpiry - now) / 1000));
-        return res.status(429).json({ error: 'IP temporarily blocked due to repeated rate limit violations.' });
-      }
-      blockedIPs.delete(rawIp);
+
+    if (!requestCounts.has(ip)) {
+      requestCounts.set(ip, []);
     }
 
     if (!requestCounts.has(clientKey)) {
