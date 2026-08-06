@@ -22,8 +22,7 @@ const SignIn = lazy(() => import('../pages/SignIn'));
 const SignUp = lazy(() => import('../pages/SignUp'));
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage'));
 const ApiDocsPage = lazy(() => import('../pages/ApiDocsPage'));
-const SharedPhotoPage = lazy(() => import('../pages/SharedPhotoPage'));
-const QueuePage = lazy(() => import('../pages/QueuePage'));
+const CookiesPage = lazy(() => import('../pages/CookiesPage'));
 
 function AppRoutes({ darkMode, toggleTheme }) {
   const location = useLocation();
@@ -43,6 +42,7 @@ function AppRoutes({ darkMode, toggleTheme }) {
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/cookies" element={<CookiesPage darkMode={darkMode} />} />
           <Route path="/studio" element={<PhotoStudio />} />
           <Route path="/settings" element={<SettingsPage darkMode={darkMode} toggleTheme={toggleTheme} />} />
           <Route path="/diagnostics" element={<DiagnosticsPage darkMode={darkMode} />} />
