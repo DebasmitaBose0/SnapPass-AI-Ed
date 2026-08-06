@@ -154,6 +154,14 @@ export const validateImageChain = async (req, res, next) => {
       height: dimResult.height,
       mime: mbResult.mime,
     };
+
+    try {
+      const { stripImageExifData } = await import('../utils/exifScrubber.js');
+      await stripImageExifData(filePath);
+    } catch (exifErr) {
+      console.warn('[UploadMiddleware] EXIF stripping warning:', exifErr.message);
+    }
+
     next();
   } catch (err) {
     next(err);

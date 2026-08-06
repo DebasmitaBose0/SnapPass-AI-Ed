@@ -18,6 +18,26 @@ def compliance_check():
         return jsonify({"error": str(e)}), 500
 
 
+@compliance_bp.post("/check-batch")
+def compliance_check_batch():
+    data = request.get_json(silent=True) or {}
+    file_paths = data.get("file_paths", [])
+    size_preset = data.get("size_preset", "35x45")
+
+    if not isinstance(file_paths, list) or len(file_paths) == 0:
+        return jsonify({"error": "file_paths must be a non-empty array"}), 400
+
+    results = []
+    for path in file_paths:
+        try:
+            report = inspect_compliance(path, size_preset)
+            results.append({"file_path": path, "report": report})
+        except Exception as err:
+            results.append({"file_path": path, "error": str(err)})
+
+    return jsonify({"total": len(results), "results": results})
+
+
 @compliance_bp.post("/auto-correct")
 def compliance_auto_correct():
     data = request.get_json(silent=True) or {}
@@ -52,7 +72,6 @@ def compliance_auto_correct():
             fx, fy, fw, fh = face_rect
             center = (fx + fw // 2, fy + fh // 2)
             
-            # Rotate by -roll_deg to straighten
             matrix = cv2.getRotationMatrix2D(center, -roll_deg, 1.0)
             rotated = cv2.warpAffine(image, matrix, (w, h), borderMode=cv2.BORDER_CONSTANT, borderValue=(255, 255, 255))
             
@@ -90,5 +109,3 @@ def compliance_auto_correct():
             
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-

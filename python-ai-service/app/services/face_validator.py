@@ -1,6 +1,13 @@
 import cv2
 from pathlib import Path
 
+__all__ = [
+    "ALLOWED_EXTENSIONS",
+    "ALLOWED_MAGIC_BYTES",
+    "detect_image_type",
+    "validate_image_bytes"
+]
+
 ALLOWED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.webp'}
 ALLOWED_MAGIC_BYTES = {
     b'\xff\xd8\xff': 'jpeg',   # JPEG

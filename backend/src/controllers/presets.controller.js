@@ -73,7 +73,12 @@ export const getPresetById = async (req, res, next) => {
 
 export const createPreset = async (req, res, next) => {
   try {
-    const preset = await Preset.create(req.body);
+    const { validateAndSanitizePreset } = await import('../utils/presetManager.js');
+    const validation = validateAndSanitizePreset(req.body);
+    if (!validation.valid) {
+      return errorResponse(res, 'Invalid preset specifications', 400, validation.errors);
+    }
+    const preset = await Preset.create(validation.data);
     await deleteCache('presets:all');
     successResponse(res, preset, 'Preset created successfully', 201);
   } catch (err) {
