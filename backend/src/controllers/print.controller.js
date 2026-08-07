@@ -10,9 +10,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { config } from "../config/config.js";
 import { PHOTO_SIZE_DETAILS } from "./presets.controller.js";
-
-const localFilename = fileURLToPath(import.meta.url);
-const localDirname = path.dirname(localFilename);
+import { resolveUploadPath } from "../utils/uploadPaths.utils.js";
 
 /**
  * POST /api/print/generate-sheet
@@ -30,7 +28,6 @@ export const generateSheet = async (req, res, next) => {
     }
 
     const filePaths = [];
-    const uploadsDir = path.resolve(localDirname, "..", "..", "uploads");
 
     for (const f of inputFilenames) {
       // 1. Filename validation (alphanumeric, dots, hyphens, and underscores only)
@@ -51,12 +48,11 @@ export const generateSheet = async (req, res, next) => {
         return res.status(400).json({ success: false, message: `Access denied: Unsupported file extension: ${f}` });
       }
 
-      // 4. Strict directory containment (prevent path traversal completely)
-      const filePath = path.resolve(uploadsDir, f);
-      const relative = path.relative(uploadsDir, filePath);
-      if (relative.startsWith("..") || path.isAbsolute(relative)) {
-        return res.status(403).json({ success: false, message: `Access denied: Path traversal detected: ${f}` });
-      }
+       // 4. Strict directory containment (prevent path traversal completely)
+       const filePath = resolveUploadPath(f);
+       if (!filePath) {
+         return res.status(403).json({ success: false, message: `Access denied: Path traversal detected: ${f}` });
+       }
 
       // 5. Async existence, symlink protection & regular file enforcement (non-blocking TOCTOU prevention)
       try {
