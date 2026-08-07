@@ -7,7 +7,17 @@
 | Latest release | ✅ Active development |
 | Previous releases | ❌ Please upgrade |
 
-## Responsible Disclosure
+## Python AI Service Security
+
+The Python AI service (`python-ai-service/`) processes uploaded images.
+Key security measures:
+
+- **Path validation:** All `file_path` inputs are validated against the upload directory boundary via `app/services/path_guard.py`.
+- **Magic-byte checks:** Only JPEG, PNG, and WEBP files are accepted before processing.
+- **Input sanitization:** `preset_id`, `quantity`, `bg_color`, and `draw_guides` are validated before use.
+- **Temp-file cleanup:** Processed files are deleted after being sent to the client.
+
+See [docs/PYTHON_AI_SETUP.md](docs/PYTHON_AI_SETUP.md) for full details.
 
 We take security seriously. If you discover a security vulnerability in **SnapPass AI**, please let us know as soon as possible. Follow these steps to report the issue responsibly:
 

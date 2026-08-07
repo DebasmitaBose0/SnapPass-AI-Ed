@@ -24,7 +24,36 @@ As the Project Admin, my goal is to ensure you have the best possible open-sourc
 - **Mentorship & Growth:** Get your code reviewed with constructive, helpful feedback from maintainers.
 - **Developer Onboarding:** Read our complete [Developer Guide](docs/DEVELOPER_GUIDE.md) and [System Architecture](docs/ARCHITECTURE.md).
 - **GSSoC Points & Recognition:** Issues are strictly labeled by difficulty to help you climb the GSSoC leaderboard! You will also be featured in our Contributors section.
-- **GSSoC 2026 PR Standards:** All PRs must include `[GSSoC_2026]` in issue titles, modify at least 5 related files, include unit tests, and follow clean branch naming (`feat/`, `fix/`, `docs/`, `security/`, `perf/`).
+- **GSSoC 2026 PR Standards:** All PRs must include `[GSSoC_2026]` in issue titles, modify at least 5 related files, include unit tests, and follow clean branch naming (`feat/`, `fix/`, `docs/`, `security/`, `perf/`, `refactor/`).
+
+### Branch Naming Convention
+
+Use the prefix that matches the type of change:
+
+| Prefix | When to use | Example |
+|--------|-------------|---------|
+| `feat/` | New feature | `feat/add-brazil-size` |
+| `fix/` | Bug fix | `fix/navbar-overflow` |
+| `docs/` | Documentation | `docs/improve-setup` |
+| `style/` | CSS/UI only | `style/dark-mode-toggle` |
+| `refactor/` | Code quality, no behaviour change | `refactor/extract-hook` |
+| `security/` | Security fix | `security/path-traversal` |
+| `perf/` | Performance improvement | `perf/indexeddb-cache` |
+| `a11y/` | Accessibility | `a11y/aria-labels` |
+
+---
+
+## 🐍 Python AI Service Contribution Guide
+
+The Python AI service (`python-ai-service/`) handles image processing via Flask. When contributing to the Python layer:
+
+1. **Path Safety:** Always validate `file_path` inputs through `app/services/path_guard.py` before touching the filesystem.
+2. **Magic Bytes:** Verify uploaded files are valid images before processing.
+3. **Error Handling:** Return structured JSON errors with appropriate HTTP status codes (400 for bad input, 422 for validation failures, 500 for server errors).
+4. **Graceful Degradation:** If optional dependencies (e.g. `rembg`) are missing, raise a clear `RuntimeError` instead of crashing at import time.
+5. **Tests:** Add pytest tests for new validation logic in `app/services/test_*.py`.
+
+---
 
 ---
 
