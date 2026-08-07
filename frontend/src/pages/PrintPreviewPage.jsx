@@ -1,10 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import QuantityInput from '../components/QuantityInput';
-import PrintButton from '../components/PrintButton';
 import PrintLayoutSelector from '../components/PrintLayoutSelector';
 import PrintSheetLayoutCustomizer from '../components/PrintSheetLayoutCustomizer';
-import generatePassportPDFSheet from '../utils/pdfExportGenerator';
 import DownloadPackagePanel from '../components/DownloadPackagePanel';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import useBatchExport from '../hooks/useBatchExport';
@@ -22,7 +20,6 @@ import {
   getSession,
   saveSessionToHistory,
 } from '../utils/sessionManager';
-import './PrintPreviewPage.css';
 
 function PrintPreviewPage({ darkMode, toggleTheme }) {
   const { language } = useLanguage();
@@ -46,18 +43,19 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
   const [selectedDpi, setSelectedDpi] = useState(300);
   const [showConfirm, setShowConfirm] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isExportingPDF, setIsExportingPDF] = useState(false);
+  const [customPreset, setCustomPreset] = useState('35x45');
+  const [showGuides, setShowGuides] = useState(true);
+  const [password, setPassword] = useState('');
+  const [strength, setStrength] = useState(0);
+  const [strengthLabel, setStrengthLabel] = useState('');
 
-  const processedPhotos = state?.processedPhotos || savedSession?.processedPhotos || [];
-  if (processedPhotos.length === 0) {
-    if (state?.processedUrl || savedSession?.processedUrl) {
-      processedPhotos.push({
-        processedUrl: state?.processedUrl || savedSession?.processedUrl,
-        filename: state?.filename || savedSession?.filename,
-        background: state?.background || savedSession?.background,
-        sizePreset: state?.sizePreset || savedSession?.sizePreset
-      });
-    }
-  }
+  const processedPhotos = state?.processedPhotos
+    ? [...state.processedPhotos]
+    : savedSession?.processedPhotos
+      ? [...savedSession.processedPhotos]
+      : [];
 
   useEffect(() => {
     const sessionData = {
@@ -73,7 +71,7 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
     if (sessionData.processedUrl || sessionData.processedPhotos.length > 0) {
       saveSession(sessionData);
     }
-  }, [state, quantity, processedPhotos]);
+  }, [state, quantity, processedPhotos, customPreset, showGuides, layout]);
 
   const handleGenerateSheet = useCallback(async () => {
     setIsGenerating(true);
@@ -108,7 +106,7 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
       setIsGenerating(false);
       setShowConfirm(false);
     }
-  }, [state, savedSession, quantity, layout]);
+  }, [state, savedSession, quantity, layout, processedPhotos]);
 
   const handlePrintDirect = () => {
     window.print();
@@ -250,8 +248,8 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
               onSelectPreset={setCustomPreset}
               showCropGuides={showGuides}
               onToggleCropGuides={setShowGuides}
-              onDownloadPDF={handleExportPDF}
-              isExporting={isExportingPDF}
+              onDownloadPDF={handleGenerateSheet}
+              isExporting={isGenerating}
             />
 
             <hr className="divider" />
@@ -325,7 +323,7 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
             />
 
             <button
-              onClick={() => batchExport.exportFiles(['sample_processed.png'])}
+              onClick={() => batchExport.exportFiles(processedPhotos.map(p => p.filename))}
               disabled={batchExport.exporting}
               className={`btn ${darkMode ? 'btn-secondary-dark' : 'btn-secondary'}`}
               style={{
@@ -434,7 +432,7 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
       <ShareModal
         isOpen={showShareModal}
         onClose={() => setShowShareModal(false)}
-        filename={state?.filename || savedSession?.filename || 'sample.jpg'}
+        filename={state?.filename || savedSession?.filename || processedPhotos[0]?.filename || 'photo.jpg'}
         originalName={state?.filename || savedSession?.filename}
       />
     </div>
