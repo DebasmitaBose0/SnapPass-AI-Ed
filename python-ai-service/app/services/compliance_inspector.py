@@ -51,20 +51,17 @@ class ComplianceItem:
     auto_fixable: bool = False
 
 
-def _detect_face(gray: np.ndarray) -> Optional[Tuple[int, int, int, int]]:
-    cascade = cv2.CascadeClassifier(
-        cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
-    )
-    faces = cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(60, 60))
-    if len(faces) == 0:
-        return None
-    largest = max(faces, key=lambda r: r[2] * r[3])
-    x, y, w, h = largest
-    return int(x), int(y), int(w), int(h)
-
-
 def _compute_laplace_blur_score(gray: np.ndarray) -> float:
     return float(cv2.Laplacian(gray, cv2.CV_64F).var())
+
+
+def _detect_face(gray: np.ndarray) -> Optional[Tuple[int, int, int, int]]:
+    from app.services.face_detection import detect_largest_face
+    rect = detect_largest_face(gray)
+    if rect is None:
+        return None
+    x, y, w, h = rect
+    return int(x), int(y), int(w), int(h)
 
 
 def _estimate_roll_degrees(gray: np.ndarray, face_rect: Tuple[int, int, int, int]) -> float:

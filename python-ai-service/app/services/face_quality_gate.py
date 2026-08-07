@@ -107,19 +107,15 @@ def assess_face_quality(image_path: str) -> FaceQualityReport:
             rejection_reason=f"Image is too blurry (score: {blur_score:.1f}, minimum: {BLUR_THRESHOLD}).",
             user_hint="Take the photo in good lighting and hold the camera steady.")
 
-    # 2. Face count detection
-    cascade = cv2.CascadeClassifier(
-        cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
-    )
-    faces = cascade.detectMultiScale(
-        gray,
-        scaleFactor=1.1,
-        minNeighbors=5,
-        minSize=(
-            100,
-            100))
+    from app.services.face_detection import detect_largest_face
 
-    if len(faces) == 0:
+    # 2. Face count detection
+    faces_detected = []
+    face_rect = detect_largest_face(gray)
+    if face_rect is not None:
+        faces_detected.append(face_rect)
+
+    if len(faces_detected) == 0:
         return FaceQualityReport(
             passed=False,
             face_count=0,
