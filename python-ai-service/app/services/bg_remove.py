@@ -13,7 +13,11 @@ frontend.
 Keep this list in sync with frontend/src/data/backgroundColours.js.
 """
 
-from rembg import remove
+try:
+    from rembg import remove
+except ImportError:
+    remove = None
+
 from PIL import Image
 import io
 from app.services.attire_swap import apply_attire_swap
@@ -52,6 +56,11 @@ def remove_background(
     Raises:
         ValueError: If background_colour is not a recognised name or valid hex.
     """
+    if remove is None:
+        raise RuntimeError(
+            "Background removal is unavailable: the 'rembg' package "
+            "is not installed. Install it with: pip install rembg."
+        )
     removed_bytes = remove(image_bytes)
     foreground = Image.open(io.BytesIO(removed_bytes)).convert("RGBA")
 

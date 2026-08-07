@@ -33,20 +33,14 @@ def remove_bg():
     preset = request.form.get("preset") or request.form.get(
         "photo_size_preset") or "35x45"
 
+    tmp_path = None
     try:
         image_bytes = file.read()
-        validate_magic_bytes.__wrapped__ if hasattr(validate_magic_bytes, '__wrapped__') else None
-        _tmp_path = os.path.join(config.UPLOAD_DIR, f"_validate_{uuid.uuid4().hex}.tmp")
+        tmp_path = os.path.join(config.UPLOAD_DIR, f"_validate_{uuid.uuid4().hex}.tmp")
         os.makedirs(config.UPLOAD_DIR, exist_ok=True)
-        with open(_tmp_path, "wb") as _f:
+        with open(tmp_path, "wb") as _f:
             _f.write(image_bytes)
-        try:
-            validate_magic_bytes(_tmp_path)
-        finally:
-            try:
-                os.unlink(_tmp_path)
-            except OSError:
-                pass
+        validate_magic_bytes(tmp_path)
 
         result_bytes = remove_background(image_bytes, bg_colour, attire)
         centered = center_face(result_bytes)
@@ -77,3 +71,9 @@ def remove_bg():
     except Exception as e:
         return jsonify(
             {"success": False, "message": "Background removal failed.", "detail": str(e)}), 500
+    finally:
+        if tmp_path and os.path.exists(tmp_path):
+            try:
+                os.unlink(tmp_path)
+            except OSError:
+                pass

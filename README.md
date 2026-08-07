@@ -98,6 +98,8 @@ No expensive studio. No complicated software. Just upload, click, and print.
 | Python AI Service | 🟡 Structure ready — needs OpenCV / rembg logic |
 | Database (MongoDB) | 🔲 Structure planned — not yet implemented |
 
+> **Security note:** The Python AI service now validates all client-supplied `file_path` values against the upload directory boundary and checks magic bytes before processing. Missing dependencies (e.g. `rembg`) are handled with graceful error messages instead of crashing the service.
+
 ---
 
 ## 🖥️ Tech Stack
