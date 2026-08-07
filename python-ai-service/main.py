@@ -6,7 +6,6 @@ Runs on http://localhost:8000
 
 import logging
 import os
-import pathlib
 import re
 import uuid
 from flask import Flask, request, jsonify, send_file
@@ -103,8 +102,9 @@ def face_quality_check():
 @ai_error_handler
 def generate_sheet():
     from app.services.sheet_generator import generate_sheet
+    from app.services.path_guard import safe_photo_path
 
-    data = request.get_json()
+    data = request.get_json(silent=True) or {}
     raw_photo_path = data.get("photo_path")
     raw_photo_paths = data.get("photo_paths")
     preset_id = re.sub(
@@ -113,11 +113,33 @@ def generate_sheet():
         data.get(
             "preset_id",
             "35x45")) or "35x45"
-    quantity = int(data.get("quantity", 8))
-    page_size = data.get("page_size", "a4")
-    bg_color = tuple(data.get("bg_color", [255, 255, 255]))
-    draw_guides = bool(data.get("draw_guides", True))
 
+    try:
+        quantity = int(data.get("quantity", 8))
+    except (TypeError, ValueError):
+        return jsonify({"error": "quantity must be an integer."}), 400
+
+    if quantity < 1:
+        return jsonify({"error": "quantity must be at least 1."}), 400
+
+    if quantity > 50:
+        return jsonify({"error": "quantity must not exceed 50."}), 400
+
+    raw_bg = data.get("bg_color", [255, 255, 255])
+    if not isinstance(raw_bg, list) or len(raw_bg) != 3:
+        return jsonify({"error": "bg_color must be an array of 3 integers."}), 400
+    try:
+        bg_color = tuple(int(c) for c in raw_bg)
+    except (TypeError, ValueError):
+        return jsonify({"error": "bg_color values must be integers."}), 400
+
+    draw_guides_raw = data.get("draw_guides", True)
+    draw_guides = str(draw_guides_raw).lower() != "false"
+
+    draw_guides_raw = data.get("draw_guides", True)
+    draw_guides = str(draw_guides_raw).lower() != "false"
+
+    page_size = data.get("page_size", "a4")
     allowed_sizes = ["a4", "letter", "4x6"]
     if page_size not in allowed_sizes:
         return jsonify({"error": f"Invalid page_size. Choose from: {allowed_sizes}"}), 400
@@ -127,8 +149,11 @@ def generate_sheet():
     if not input_paths:
         return jsonify({"error": "photo_path or photo_paths is required"}), 400
 
+    if isinstance(input_paths, str):
+        input_paths = [input_paths]
+
     try:
-        photo_paths = [_safe_photo_path(p) for p in input_paths]
+        photo_paths = [safe_photo_path(p) for p in input_paths]
     except ValueError:
         return jsonify({"error": "Invalid photo_path."}), 400
 
