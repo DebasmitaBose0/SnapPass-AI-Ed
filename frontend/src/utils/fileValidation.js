@@ -1,12 +1,18 @@
 import { readFileBytes, detectImageFormat } from './magicBytes';
 
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-const MAX_FILE_SIZE_MB = 10;
-const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
-const MIN_WIDTH = 200;
-const MIN_HEIGHT = 200;
-const MAX_WIDTH = 5000;
-const MAX_HEIGHT = 5000;
+export const ACCEPTED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+export const ACCEPTED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp'];
+export const MAX_FILE_SIZE_MB = 10;
+export const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+export const MIN_WIDTH = 200;
+export const MIN_HEIGHT = 200;
+export const MAX_WIDTH = 5000;
+export const MAX_HEIGHT = 5000;
+export const MIN_PRINT_WIDTH = 400;
+export const MIN_PRINT_HEIGHT = 400;
+export const MAX_PIXEL_DIMENSION = 8000;
+
+const ALLOWED_TYPES = ACCEPTED_MIME_TYPES;
 
 export function validateFileType(file) {
   if (!file) return 'No file provided';
