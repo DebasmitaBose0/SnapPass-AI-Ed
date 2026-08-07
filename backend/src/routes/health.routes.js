@@ -20,7 +20,8 @@ router.get('/health', (req, res) => {
 
 router.get('/health/readiness', async (req, res) => {
   const readiness = await HealthCheckService.performReadinessCheck();
-  res.json(readiness);
+  const statusCode = readiness.status === 'UP' ? 200 : 503;
+  res.status(statusCode).json(readiness);
 });
 
 
