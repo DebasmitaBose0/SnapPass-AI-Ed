@@ -8,6 +8,8 @@ export const useBatchUpload = (options = {}) => {
     concurrency = UPLOAD_CONCURRENCY,
     compress = true,
     compressOptions = {},
+    onItemSuccess,
+    onItemError,
   } = options;
 
   const [queue, setQueue] = useState([]);
@@ -21,11 +23,16 @@ export const useBatchUpload = (options = {}) => {
   const abortRef = useRef(false);
 
   const addFiles = useCallback((files) => {
-    const entries = Array.from(files).map((file) => ({
+    const fileList = Array.from(files);
+    const entries = fileList.map((file) => ({
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       file,
+      name: file.name,
+      size: file.size,
       status: 'queued',
       error: null,
+      response: null,
+      progress: 0,
     }));
     setQueue((prev) => [...prev, ...entries]);
     setResults((prev) => [...prev, ...entries]);
@@ -36,7 +43,7 @@ export const useBatchUpload = (options = {}) => {
     if (abortRef.current) return { ...entry, status: 'aborted' };
 
     setQueue((prev) =>
-      prev.map((e) => (e.id === entry.id ? { ...e, status: 'processing' } : e))
+      prev.map((e) => (e.id === entry.id ? { ...e, status: 'processing', progress: 30 } : e))
     );
 
     try {
@@ -52,14 +59,36 @@ export const useBatchUpload = (options = {}) => {
       if (!res.ok) throw new Error(`Upload failed: ${res.statusText}`);
 
       const json = await res.json();
+      const updatedEntry = { ...entry, status: 'done', response: json, progress: 100 };
 
       setProgress((prev) => ({ ...prev, completed: prev.completed + 1 }));
-      return { ...entry, status: 'done', response: json };
+      if (onItemSuccess) onItemSuccess(updatedEntry);
+
+      return updatedEntry;
     } catch (err) {
+      const failedEntry = { ...entry, status: 'failed', error: err.message, progress: 0 };
       setProgress((prev) => ({ ...prev, failed: prev.failed + 1 }));
-      return { ...entry, status: 'failed', error: err.message };
+      if (onItemError) onItemError(failedEntry);
+
+      return failedEntry;
     }
   };
+
+  const retryFailed = useCallback(async (endpoint = '/api/upload') => {
+    const failedEntries = results.filter((r) => r.status === 'failed');
+    if (failedEntries.length === 0) return;
+
+    abortRef.current = false;
+    setUploading(true);
+
+    for (const entry of failedEntries) {
+      if (abortRef.current) break;
+      const result = await uploadSingle(entry, endpoint);
+      setResults((prev) => prev.map((r) => (r.id === result.id ? result : r)));
+    }
+
+    setUploading(false);
+  }, [results]);
 
   const startUpload = useCallback(
     async (endpoint = '/api/upload') => {
@@ -67,12 +96,14 @@ export const useBatchUpload = (options = {}) => {
       setUploading(true);
       abortRef.current = false;
 
+      const currentQueue = [...queue];
       const pool = [];
+
       for (let i = 0; i < concurrency; i++) {
         pool.push(
           (async () => {
-            while (queue.length > 0 && !abortRef.current) {
-              const entry = queue.shift();
+            while (currentQueue.length > 0 && !abortRef.current) {
+              const entry = currentQueue.shift();
               if (!entry) break;
               const result = await uploadSingle(entry, endpoint);
               setResults((prev) =>
@@ -105,6 +136,7 @@ export const useBatchUpload = (options = {}) => {
   return {
     addFiles,
     startUpload,
+    retryFailed,
     abort,
     reset,
     results,
