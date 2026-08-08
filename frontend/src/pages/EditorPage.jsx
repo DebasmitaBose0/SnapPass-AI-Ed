@@ -6,6 +6,8 @@ import { translations } from '../translations/translations';
 import { saveSession, getSession } from '../utils/sessionManager';
 import SizeSelector from '../components/SizeSelector';
 import BackgroundSelector from '../components/BackgroundSelector';
+import HistogramAnalyzer from '../components/HistogramAnalyzer';
+import WatermarkOverlayManager from '../components/WatermarkOverlayManager';
 import AttireSelector from '../components/AttireSelector';
 import BackgroundColorPalettePicker from '../components/BackgroundColorPalettePicker';
 import AttireStudioSelector from '../components/AttireStudioSelector';
@@ -543,6 +545,16 @@ function EditorPage({ darkMode, toggleTheme }) {
 
             <ComplianceBreakdownCard
               metrics={calculateComplianceMetrics(complianceData || {})}
+            />
+
+            <hr className="divider" />
+
+            <WatermarkOverlayManager
+              watermarkText={filters.watermarkText || 'DRAFT PROOF - SAMPLE ONLY'}
+              onWatermarkChange={(val) => setFilters((prev) => ({ ...prev, watermarkText: val }))}
+              isEnabled={filters.watermarkEnabled || false}
+              onToggleEnable={(enabled) => setFilters((prev) => ({ ...prev, watermarkEnabled: enabled }))}
+              darkMode={darkMode}
             />
 
             <hr className="divider" />
