@@ -324,9 +324,10 @@ function EditorPage({ darkMode, toggleTheme }) {
                         maxWidth: '100%',
                         maxHeight: '450px',
                         objectFit: 'contain',
-                        transition: 'opacity 0.3s ease',
+                        transition: 'opacity 0.3s ease, transform 0.3s ease',
                         opacity: isProcessing || complianceLoading ? 0.5 : 1,
                         filter: `brightness(${filters.brightness}%) contrast(${filters.contrast}%) saturate(${filters.saturation}%)`,
+                        transform: `rotate(${filters.rotation || 0}deg) scaleX(${filters.flipX ? -1 : 1}) scaleY(${filters.flipY ? -1 : 1})`,
                       }}
                     />
                     {!isProcessing &&
