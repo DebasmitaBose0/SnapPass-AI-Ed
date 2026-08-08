@@ -252,9 +252,9 @@ npm install
 npm run dev
 ```
 
-Backend runs at [http://localhost:3000](http://localhost:3000).
+Backend runs at [http://localhost:5000](http://localhost:5000).
 
-Health check: `GET http://localhost:3000/health`
+Health check: `GET http://localhost:5000/health`
 
 ---
 
@@ -347,18 +347,18 @@ The `/api/print/generate-sheet` endpoint validates all inputs and returns `400` 
 ### Frontend (`frontend/.env`)
 
 ```env
-VITE_API_URL=http://localhost:3000/api
+VITE_API_URL=http://localhost:5000/api
 ```
 
 ### Backend (`backend/.env`)
 
 ```env
-PORT=3000
+PORT=5000
 NODE_ENV=development
 AI_SERVICE_URL=http://localhost:8000
 UPLOAD_DIR=uploads
 MAX_FILE_SIZE=10485760
-CORS_ORIGIN=http://localhost:3000
+CORS_ORIGIN=http://localhost:5173
 MONGO_URI=mongodb://localhost:27017/snappass
 ```
 
