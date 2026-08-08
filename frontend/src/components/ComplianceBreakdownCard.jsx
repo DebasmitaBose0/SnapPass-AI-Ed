@@ -8,11 +8,11 @@ import ComplianceScoreGauge from './ComplianceScoreGauge';
 export function ComplianceBreakdownCard({ metrics }) {
   if (!metrics) return null;
 
-  const { totalScore, status, checks } = metrics;
+  const { totalScore, grade, status, checks } = metrics;
 
   return (
     <div className="compliance-breakdown-wrapper" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      <ComplianceScoreGauge score={totalScore} status={status} />
+      <ComplianceScoreGauge score={totalScore} grade={grade} status={status} />
       <div className="compliance-checks-list" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         <h4 style={{ margin: 0, fontSize: '0.9rem', color: '#cbd5e1', fontWeight: 600 }}>
           Detailed AI Inspection Rules
