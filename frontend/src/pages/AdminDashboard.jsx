@@ -10,10 +10,22 @@ import { AnalyticsTrendChart, SystemHealthCard } from '../components/AnalyticsCh
  * Shows summary stats and a table of recent uploads.
  * Backend integration pending — contributors welcome!
  */
-function AdminDashboard() {
-  const { darkMode } = useTheme();
-  const { language } = useLanguage();
-  const t = translations[language];
+function AdminDashboard({ darkMode: darkModeProp }) {
+  let darkMode = darkModeProp;
+  try {
+    const themeCtx = useTheme();
+    if (typeof darkMode === 'undefined') {
+      darkMode = themeCtx?.darkMode || false;
+    }
+  } catch (_) {
+    darkMode = darkModeProp || false;
+  }
+  let language = 'en';
+  try {
+    const langCtx = useLanguage();
+    language = langCtx?.language || 'en';
+  } catch (_) {}
+  const t = translations?.[language] || translations?.en || {};
   const [activeTab, setActiveTab] = useState('overview');
   const [analytics, setAnalytics] = useState(null);
   const [trendData, setTrendData] = useState([]);
@@ -51,15 +63,15 @@ function AdminDashboard() {
   }, []);
 
   const stats = analytics ? [
-    { label: t.totalUploads, value: analytics.stats.totalUploads, icon: 'upload' },
-    { label: t.sheetsGenerated, value: analytics.stats.totalSheets, icon: 'print' },
-    { label: 'Processed Images', value: analytics.stats.totalProcessed, icon: 'palette' },
-    { label: t.activeToday, value: analytics.stats.todayUploads, icon: 'calendar' },
+    { label: t?.totalUploads || 'Total Uploads', value: analytics.stats?.totalUploads ?? 0, icon: 'upload' },
+    { label: t?.sheetsGenerated || 'Sheets Generated', value: analytics.stats?.totalSheets ?? 0, icon: 'print' },
+    { label: 'Processed Images', value: analytics.stats?.totalProcessed ?? 0, icon: 'palette' },
+    { label: t?.activeToday || 'Active Today', value: analytics.stats?.todayUploads ?? 0, icon: 'calendar' },
   ] : [
-    { label: t.totalUploads, value: loading ? '...' : '\u2014', icon: 'upload' },
-    { label: t.sheetsGenerated, value: loading ? '...' : '\u2014', icon: 'print' },
+    { label: t?.totalUploads || 'Total Uploads', value: loading ? '...' : '\u2014', icon: 'upload' },
+    { label: t?.sheetsGenerated || 'Sheets Generated', value: loading ? '...' : '\u2014', icon: 'print' },
     { label: 'Processed Images', value: loading ? '...' : '\u2014', icon: 'palette' },
-    { label: t.activeToday, value: loading ? '...' : '\u2014', icon: 'calendar' },
+    { label: t?.activeToday || 'Active Today', value: loading ? '...' : '\u2014', icon: 'calendar' },
   ];
 
   const iconMap = {
@@ -114,9 +126,9 @@ function AdminDashboard() {
   };
 
   const tabs = [
-    { key: 'overview', label: t.overview },
-    { key: 'uploads', label: t.uploadsTab },
-    { key: 'settings', label: t.settings },
+    { key: 'overview', label: t?.overview || 'Overview' },
+    { key: 'uploads', label: t?.uploadsTab || 'Uploads' },
+    { key: 'settings', label: t?.settings || 'Settings' },
   ];
 
   return (
@@ -129,9 +141,9 @@ function AdminDashboard() {
         >
           <div>
             <h1 className={`title ${darkMode ? 'title-dark' : ''}`}>
-              {t.adminDashboard}
+              {t?.adminDashboard || 'Admin Dashboard'}
             </h1>
-            <p className="section-subtitle">{t.adminSubtitle}</p>
+            <p className="section-subtitle">{t?.adminSubtitle || 'Manage app metrics and system telemetry'}</p>
           </div>
           {loading && <span className="badge badge-blue">Loading...</span>}
           {error && <span className="badge badge-red" title={error}>Error</span>}
@@ -190,7 +202,7 @@ function AdminDashboard() {
             >
               <thead>
                 <tr>
-                  <th>{t.fileName}</th>
+                  <th>{t?.fileName || 'File Name'}</th>
                   <th>Date</th>
                   <th>Status</th>
                 </tr>
@@ -206,7 +218,7 @@ function AdminDashboard() {
                   ))
                 ) : (
                   <tr className="admin-table__empty-row">
-                    <td colSpan={3}>{t.noUploads}</td>
+                    <td colSpan={3}>{t?.noUploads || 'No recent uploads recorded.'}</td>
                   </tr>
                 )}
               </tbody>
@@ -219,9 +231,9 @@ function AdminDashboard() {
             <p
               className={`admin-placeholder__title ${darkMode ? 'admin-placeholder__title-dark' : ''}`}
             >
-              {t.settingsPanel}
+              {t?.settingsPanel || 'Admin Settings & Configuration'}
             </p>
-            <p className="admin-placeholder__desc">{t.settingsDesc}</p>
+            <p className="admin-placeholder__desc">{t?.settingsDesc || 'Configure system endpoints and operational parameters.'}</p>
           </div>
         )}
       </div>
