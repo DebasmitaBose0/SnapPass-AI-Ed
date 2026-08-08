@@ -34,6 +34,12 @@ pip install -r requirements.txt
 python main.py
 ```
 
+## 🎨 Photo Editing Preset Filters
+The Editor includes `PresetFilterManager.jsx` enabling one-click ICAO and country-specific compliance adjustments (US Passport Clean, UK/EU Neutral, Schengen High Contrast, Studio Portrait). Custom preset definitions and brightness/contrast defaults are exposed via `COMPLIANCE_PRESETS`.
+
+## 📊 RGB Exposure & Luminance Histogram
+The `HistogramAnalyzer.jsx` component renders a live HTML5 Canvas RGB frequency curve with real-time average luminance calculations, shadow clipping flags (<20), and highlight clipping warnings (>240).
+
 ---
 
 ## 🧪 Testing Suites
