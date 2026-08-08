@@ -23,7 +23,7 @@ function AppContent() {
   useEffect(() => {
     if (import.meta.env.DEV) {
       scanBackendPorts().then((discoveredPort) => {
-        if (discoveredPort) {
+        if (discoveredPort && typeof showToast === 'function') {
           showToast(`[PortSync] Connected to backend on port ${discoveredPort}`, 'success');
         }
       });
