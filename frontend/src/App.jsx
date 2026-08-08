@@ -15,6 +15,8 @@ import { scanBackendPorts } from './services/portSync';
 
 import ToastContainer from './components/ToastContainer';
 
+import CustomCursor from './components/CustomCursor';
+
 function AppContent() {
   // Retrieve global visual and functional preferences from mounted contexts
   const { darkMode, toggleTheme } = useTheme();
@@ -23,7 +25,7 @@ function AppContent() {
   useEffect(() => {
     if (import.meta.env.DEV) {
       scanBackendPorts().then((discoveredPort) => {
-        if (discoveredPort) {
+        if (discoveredPort && typeof showToast === 'function') {
           showToast(`[PortSync] Connected to backend on port ${discoveredPort}`, 'success');
         }
       });
@@ -34,6 +36,7 @@ function AppContent() {
     <div className="app-shell">
       <SkipToContent />
       <ToastContainer />
+      <CustomCursor />
       {/* Primary content area rendering child routes */}
       <Navbar darkMode={darkMode} toggleTheme={toggleTheme} />
       <main className="app-main" id="main-content" tabIndex={-1}>

@@ -58,15 +58,31 @@ export function calculateComplianceMetrics(photoData = {}) {
   ];
 
   const totalScore = Math.round(
-    checks.reduce((acc, check) => acc + (check.score * check.weight) / 100, 0)
+    checks.reduce((acc, curr) => acc + (curr.score * curr.weight) / 100, 0)
   );
+
+  let status = 'NON_COMPLIANT';
+  let grade = 'F';
+  if (totalScore >= 90) {
+    status = 'EXCELLENT';
+    grade = 'A+';
+  } else if (totalScore >= 80) {
+    status = 'COMPLIANT';
+    grade = 'A';
+  } else if (totalScore >= 68) {
+    status = 'NEEDS_REVISION';
+    grade = 'B';
+  }
 
   return {
     totalScore,
-    status: totalScore >= 85 ? 'COMPLIANT' : totalScore >= 70 ? 'NEEDS_ADJUSTMENT' : 'NON_COMPLIANT',
+    grade,
+    status,
+    passed: totalScore >= 80 && faceCentered,
     checks,
   };
 }
+
 
 export default {
   calculateComplianceMetrics,

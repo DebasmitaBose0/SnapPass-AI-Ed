@@ -6,6 +6,9 @@ from PIL import Image
 import io
 from app.services.preset_compliance_engine import PresetComplianceEngine
 from app.services.compliance_score import calculate_composite_score
+from app.services.lighting_analyzer import analyze_facial_lighting
+from app.services.background_uniformity import analyze_background_uniformity
+
 
 # --- Rules (approximate heuristics) ---
 

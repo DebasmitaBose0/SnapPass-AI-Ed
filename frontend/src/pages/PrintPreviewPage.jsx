@@ -177,12 +177,19 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
             >
               {slots.map((_, i) => {
                 const photoToRender = processedPhotos[i % processedPhotos.length];
+                const rawUrl = photoToRender?.processedUrl || state?.processedUrl || savedSession?.processedUrl || '';
+                const displayUrl = rawUrl.startsWith('/') ? rawUrl : (rawUrl.startsWith('http') || rawUrl.startsWith('data:') || rawUrl.startsWith('blob:') ? rawUrl : `/${rawUrl}`);
                 return (
                   <div key={i} className="sheet-slot">
                     <img
-                      src={photoToRender?.processedUrl}
+                      src={displayUrl}
                       alt={`Sheet slot ${i + 1}`}
                       className="sheet-slot__img"
+                      onError={(e) => {
+                        if (savedSession?.processedUrl && e.target.src !== savedSession.processedUrl) {
+                          e.target.src = savedSession.processedUrl;
+                        }
+                      }}
                     />
                   </div>
                 );
