@@ -2,6 +2,8 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import QuantityInput from '../components/QuantityInput';
 import PrintLayoutSelector from '../components/PrintLayoutSelector';
+import CustomPaperSizeCalculator from '../components/CustomPaperSizeCalculator';
+import PrintCostEstimator from '../components/PrintCostEstimator';
 import PrintSheetLayoutCustomizer from '../components/PrintSheetLayoutCustomizer';
 import DownloadPackagePanel from '../components/DownloadPackagePanel';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
@@ -240,6 +242,18 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
               onChange={setLayout}
               selectedDpi={selectedDpi}
               onChangeDpi={setSelectedDpi}
+              darkMode={darkMode}
+            />
+
+            <CustomPaperSizeCalculator
+              onApplyCustomPaper={(customSpec) =>
+                setLayoutOptions((prev) => ({ ...prev, paperSize: customSpec.label, ...customSpec }))
+              }
+              darkMode={darkMode}
+            />
+
+            <PrintCostEstimator
+              photoCount={quantity}
               darkMode={darkMode}
             />
 
