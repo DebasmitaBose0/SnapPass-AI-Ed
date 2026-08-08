@@ -40,3 +40,9 @@ python main.py
 - **Frontend Unit Tests**: `cd frontend && npm test`
 - **Backend Tests**: `cd backend && npm test`
 - **Python AI Tests**: `cd python-ai-service && pytest`
+
+---
+
+## 🎨 Photo Editing Preset Filters
+The Editor includes `PresetFilterManager.jsx` enabling one-click ICAO and country-specific compliance adjustments (US Passport Clean, UK/EU Neutral, Schengen High Contrast, Studio Portrait). Custom preset definitions and brightness/contrast defaults are exposed via `COMPLIANCE_PRESETS`.
+

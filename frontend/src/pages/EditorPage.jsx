@@ -16,6 +16,7 @@ import useImageProcessor from '../hooks/useImageProcessor';
 import { iconMap, backgroundHexMap } from '../data/EditorPageData';
 import EditorPageDiagnostics from './EditorPageDiagnostics';
 import { ImageAdjustments } from '../components/ImageAdjustments';
+import PresetFilterManager from '../components/PresetFilterManager';
 import { cachePhotoOffline } from '../services/indexedDb';
 import api from '../services/api';
 import { autoEnhanceImage } from '../utils/imageEnhancer';
@@ -529,6 +530,28 @@ function EditorPage({ darkMode, toggleTheme }) {
               filters={filters}
               onChange={setFilters}
               onReset={() => setFilters({ brightness: 100, contrast: 100, saturation: 100 })}
+            />
+
+            <hr className="divider" />
+
+            <PresetFilterManager
+              activePresetId={filters.activePresetId}
+              onSelectPreset={(preset) =>
+                setFilters((prev) => ({
+                  ...prev,
+                  ...preset.settings,
+                  activePresetId: preset.id,
+                }))
+              }
+              onResetPreset={() =>
+                setFilters({
+                  brightness: 100,
+                  contrast: 100,
+                  saturation: 100,
+                  activePresetId: null,
+                })
+              }
+              darkMode={darkMode}
             />
 
             <hr className="divider" />
