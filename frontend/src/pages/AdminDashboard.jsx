@@ -3,6 +3,7 @@ import './AdminDashboard.css';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { translations } from '../translations/translations';
+import { AnalyticsTrendChart, SystemHealthCard } from '../components/AnalyticsChart';
 
 /**
  * AdminDashboard — placeholder admin panel.
@@ -15,6 +16,7 @@ function AdminDashboard() {
   const t = translations[language];
   const [activeTab, setActiveTab] = useState('overview');
   const [analytics, setAnalytics] = useState(null);
+  const [trendData, setTrendData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -24,11 +26,20 @@ function AdminDashboard() {
       setLoading(true);
       setError('');
       try {
-        // Future Scope: Integrate IndexedDB sync fallback if network is offline
-        const res = await fetch('/api/analytics/stats');
-        if (!res.ok) throw new Error('Failed to fetch');
-        const body = await res.json();
-        if (!cancelled && body.success) setAnalytics(body.data);
+        const [statsRes, trendRes] = await Promise.all([
+          fetch('/api/analytics/stats'),
+          fetch('/api/analytics/trend?days=7'),
+        ]);
+
+        if (statsRes.ok) {
+          const body = await statsRes.json();
+          if (!cancelled && body.success) setAnalytics(body.data);
+        }
+
+        if (trendRes.ok) {
+          const trendBody = await trendRes.json();
+          if (!cancelled && trendBody.success) setTrendData(trendBody.data || []);
+        }
       } catch (err) {
         if (!cancelled) setError('Could not load analytics. Ensure the server is running.');
       } finally {
@@ -167,15 +178,8 @@ function AdminDashboard() {
               </div>
             )}
 
-            {!analytics && !loading && !error && (
-              <div className="admin-placeholder card">
-                <p className="admin-placeholder__icon" aria-hidden="true">
-                  {iconMap.chart}
-                </p>
-                <p className={`admin-placeholder__title ${darkMode ? 'admin-placeholder__title-dark' : ''}`}>{t.analyticsSoon}</p>
-                <p className="admin-placeholder__desc">{t.analyticsDesc}</p>
-              </div>
-            )}
+            <AnalyticsTrendChart data={trendData} darkMode={darkMode} />
+            <SystemHealthCard darkMode={darkMode} />
           </div>
         )}
 
