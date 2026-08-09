@@ -26,6 +26,7 @@ import { autoEnhanceImage } from '../utils/imageEnhancer';
 import { AttireManualAdjuster } from '../components/AttireManualAdjuster';
 import PassportAssistantChatbot from '../chatbot/PassportAssistantChatbot';
 import { uploadPhoto } from '../services/photoService';
+import { BatchPresetConverterModal } from '../components/batch/BatchPresetConverterModal';
 import './EditorPage.css';
 
 const SIZE_PRESETS = [
@@ -66,6 +67,8 @@ function EditorPage({ darkMode, toggleTheme }) {
   const [isAutoEnhanced, setIsAutoEnhanced] = useState(false);
   const [enhancedDataUrl, setEnhancedDataUrl] = useState(null);
   const [isEnhancing, setIsEnhancing] = useState(false);
+  const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
+
 
   const getBackendRoot = () => {
     if (import.meta?.env?.VITE_API_URL) {
@@ -636,6 +639,11 @@ function EditorPage({ darkMode, toggleTheme }) {
         </div>
       </div>
       <PassportAssistantChatbot />
+      <BatchPresetConverterModal
+        isOpen={isBatchModalOpen}
+        onClose={() => setIsBatchModalOpen(false)}
+        sourceImageUrl={currentDisplayUrl || ''}
+      />
     </div>
   );
 }
