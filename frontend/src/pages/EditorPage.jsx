@@ -8,9 +8,8 @@ import PresetFilterManager from '../components/PresetFilterManager';
 import HistogramAnalyzer from '../components/HistogramAnalyzer';
 import SizeSelector from '../components/SizeSelector';
 import BackgroundSelector from '../components/BackgroundSelector';
-import HistogramAnalyzer from '../components/HistogramAnalyzer';
 import WatermarkOverlayManager from '../components/WatermarkOverlayManager';
-import AttireSelector from '../components/AttireSelector';
+import ColorTemperatureAdjuster from '../components/ColorTemperatureAdjuster';
 import BackgroundColorPalettePicker from '../components/BackgroundColorPalettePicker';
 import AttireStudioSelector from '../components/AttireStudioSelector';
 import CompliancePanel from '../components/CompliancePanel';
@@ -535,6 +534,15 @@ function EditorPage({ darkMode, toggleTheme }) {
               filters={filters}
               onChange={setFilters}
               onReset={() => setFilters({ brightness: 100, contrast: 100, saturation: 100 })}
+            />
+
+            <ColorTemperatureAdjuster
+              temperature={filters.temperature || 0}
+              tint={filters.tint || 0}
+              onChangeTemperature={(val) => setFilters((prev) => ({ ...prev, temperature: val }))}
+              onChangeTint={(val) => setFilters((prev) => ({ ...prev, tint: val }))}
+              onReset={() => setFilters((prev) => ({ ...prev, temperature: 0, tint: 0 }))}
+              darkMode={darkMode}
             />
 
             <hr className="divider" />
