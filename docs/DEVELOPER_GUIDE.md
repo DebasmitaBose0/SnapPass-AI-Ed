@@ -189,6 +189,9 @@ The `PrintBleedMarginAdjuster.jsx` component exposes real-time slider controls f
 ## 🌡️ White Balance & Color Temperature Adjuster
 The `ColorTemperatureAdjuster.jsx` component provides Kelvin temperature shift (-50K to +50K) and green/magenta tint balance sliders for correcting indoor ambient lighting color cast.
 
+## 📄 Custom Paper Size & Print Dimension Calculator
+The `CustomPaperSizeCalculator.jsx` component converts custom width/height (mm) and target resolution (150, 300, 600 DPI) into calculated pixel canvas bounds (`pxWidth` x `pxHeight`).
+
 ---
 
 ## 🧪 Testing Suites
