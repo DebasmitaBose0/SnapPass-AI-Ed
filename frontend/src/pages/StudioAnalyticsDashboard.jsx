@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './StudioAnalyticsDashboard.css';
+import { exportStudioFinancialPdf } from '../utils/exportStudioFinancialPdf';
 
 function StudioAnalyticsDashboard({ darkMode }) {
   const [customerPrice, setCustomerPrice] = useState(12);
@@ -62,7 +63,31 @@ function StudioAnalyticsDashboard({ darkMode }) {
       </div>
 
       <div className="controls-panel">
-        <h3>⚙️ Live Studio Expense & Pricing Configurator</h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <h3 style={{ margin: 0 }}>⚙️ Live Studio Expense & Pricing Configurator</h3>
+          <button
+            onClick={() => exportStudioFinancialPdf({
+              photosPrepared: metrics.photosPrepared,
+              sheetsPrinted: metrics.sheetsPrinted,
+              grossRevenue: metrics.grossRevenue,
+              totalExpense: (metrics.sheetsPrinted * (Number(paperCost) + Number(inkCost))).toFixed(2),
+              netProfit: metrics.netProfit,
+              profitMargin: metrics.profitMargin
+            })}
+            style={{
+              padding: '10px 18px',
+              borderRadius: '8px',
+              border: 'none',
+              background: '#10b981',
+              color: '#ffffff',
+              fontWeight: '600',
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)',
+            }}
+          >
+            📄 Download Daily Financial Report (PDF)
+          </button>
+        </div>
         <div className="inputs-grid">
           <div className="input-group">
             <label>Customer Price / Sheet ($)</label>
