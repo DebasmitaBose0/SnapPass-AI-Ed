@@ -42,3 +42,6 @@ export const useHistory = () => {
 
   return { history, deleteSession, clearHistory, reload: loadHistory };
 };
+
+export default useHistory;
+
