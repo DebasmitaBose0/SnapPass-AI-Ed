@@ -11,6 +11,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { translations } from '../translations/translations';
 import { iconMap } from '../data/UploadPageData';
 import { runImageDiagnostics } from '../utils/imageDiagnostics';
+import ExifMetadataInspector from '../components/ExifMetadataInspector';
 import './UploadPage.css';
 
 function UploadPage({ darkMode, toggleTheme }) {
@@ -168,6 +169,9 @@ function UploadPage({ darkMode, toggleTheme }) {
                 onRetry={isBatchMode ? batchUpload.retryFailed : null}
                 darkMode={darkMode}
               />
+              {uploadedFile?.file && (
+                <ExifMetadataInspector file={uploadedFile.file} darkMode={darkMode} />
+              )}
               {isBatchMode && batchUpload.hasPending && (
                 <button
                   type="button"
