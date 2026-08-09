@@ -7,3 +7,8 @@ This document tracks the tasks and specifications for passport photo compliance 
 - [ ] Add client-side visual crop guidelines and overlays on the Editor Page.
 - [ ] Enforce face proportion logic (e.g., face height must cover 70-80% of the image height).
 - [ ] Show warnings or instructions if the crop does not comply with the selected preset guidelines.
+
+## Print Sheet & Paper Dimension Calculator
+- Dynamic millimeter to pixel conversion across 150, 300, and 600 DPI output targets.
+- Presets quick-select for standard A4, US Letter, US Legal, and 4x6 / 5x7 photo cards.
+
