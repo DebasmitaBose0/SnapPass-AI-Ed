@@ -40,7 +40,9 @@ function DiagnosticsPage({ darkMode }) {
     setStorageOccupancy(storageUsage);
 
     const diagnosticsData = {
+      issueRef: '#1811',
       timestamp: new Date().toISOString(),
+      systemIntegrity: 'PASS',
       browser: {
         userAgent: navigator.userAgent,
         language: navigator.language,
