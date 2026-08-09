@@ -6,7 +6,7 @@ import SkipToContent from './components/SkipToContent';
 import SnapPassAssistant from './chatbot/SnapPassAssistant';
 import { ToastProvider, useToast } from './context/ToastContext';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
-import { ThemeCustomizerProvider } from './context/ThemeCustomizerContext';
+import { OfflineStatusIndicator } from './components/common/OfflineStatusIndicator';
 import './App.css';
 import ScrollToTopButton from './components/ScrollToTopButton';
 import CookieConsentBanner from './components/cookie/CookieConsentBanner';
@@ -37,6 +37,7 @@ function AppContent() {
       <SkipToContent />
       <ToastContainer />
       <CustomCursor />
+      <OfflineStatusIndicator />
       {/* Primary content area rendering child routes */}
       <Navbar darkMode={darkMode} toggleTheme={toggleTheme} />
       <main className="app-main" id="main-content" tabIndex={-1}>
