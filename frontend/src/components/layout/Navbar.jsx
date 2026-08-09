@@ -8,6 +8,7 @@ const navItems = [
   { to: '/upload', label: 'Upload' },
   { to: '/editor', label: 'Editor' },
   { to: '/print-preview', label: 'Print' },
+  { to: '/analytics', label: 'Analytics' },
   { to: '/queue', label: 'Queue' },
   { to: '/compare-requirements', label: 'Requirements' },
 ];

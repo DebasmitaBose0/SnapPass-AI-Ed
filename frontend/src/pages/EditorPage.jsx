@@ -4,9 +4,12 @@ import { motion } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
 import { translations } from '../translations/translations';
 import { saveSession, getSession } from '../utils/sessionManager';
+import PresetFilterManager from '../components/PresetFilterManager';
+import HistogramAnalyzer from '../components/HistogramAnalyzer';
 import SizeSelector from '../components/SizeSelector';
 import BackgroundSelector from '../components/BackgroundSelector';
-import AttireSelector from '../components/AttireSelector';
+import WatermarkOverlayManager from '../components/WatermarkOverlayManager';
+import ColorTemperatureAdjuster from '../components/ColorTemperatureAdjuster';
 import BackgroundColorPalettePicker from '../components/BackgroundColorPalettePicker';
 import AttireStudioSelector from '../components/AttireStudioSelector';
 import CompliancePanel from '../components/CompliancePanel';
@@ -16,6 +19,7 @@ import useImageProcessor from '../hooks/useImageProcessor';
 import { iconMap, backgroundHexMap } from '../data/EditorPageData';
 import EditorPageDiagnostics from './EditorPageDiagnostics';
 import { ImageAdjustments } from '../components/ImageAdjustments';
+import PresetFilterManager from '../components/PresetFilterManager';
 import { cachePhotoOffline } from '../services/indexedDb';
 import api from '../services/api';
 import { autoEnhanceImage } from '../utils/imageEnhancer';
@@ -495,6 +499,7 @@ function EditorPage({ darkMode, toggleTheme }) {
                 selectedColor={background}
                 onChangeColor={setBackground}
               />
+              <HistogramAnalyzer imageUrl={displayImageUrl} darkMode={darkMode} />
             </div>
           </motion.div>
 
@@ -534,6 +539,37 @@ function EditorPage({ darkMode, toggleTheme }) {
               onReset={() => setFilters({ brightness: 100, contrast: 100, saturation: 100 })}
             />
 
+            <ColorTemperatureAdjuster
+              temperature={filters.temperature || 0}
+              tint={filters.tint || 0}
+              onChangeTemperature={(val) => setFilters((prev) => ({ ...prev, temperature: val }))}
+              onChangeTint={(val) => setFilters((prev) => ({ ...prev, tint: val }))}
+              onReset={() => setFilters((prev) => ({ ...prev, temperature: 0, tint: 0 }))}
+              darkMode={darkMode}
+            />
+
+            <hr className="divider" />
+
+            <PresetFilterManager
+              activePresetId={filters.activePresetId}
+              onSelectPreset={(preset) =>
+                setFilters((prev) => ({
+                  ...prev,
+                  ...preset.settings,
+                  activePresetId: preset.id,
+                }))
+              }
+              onResetPreset={() =>
+                setFilters({
+                  brightness: 100,
+                  contrast: 100,
+                  saturation: 100,
+                  activePresetId: null,
+                })
+              }
+              darkMode={darkMode}
+            />
+
             <hr className="divider" />
 
             <CompliancePanel
@@ -546,6 +582,16 @@ function EditorPage({ darkMode, toggleTheme }) {
 
             <ComplianceBreakdownCard
               metrics={calculateComplianceMetrics(complianceData || {})}
+            />
+
+            <hr className="divider" />
+
+            <WatermarkOverlayManager
+              watermarkText={filters.watermarkText || 'DRAFT PROOF - SAMPLE ONLY'}
+              onWatermarkChange={(val) => setFilters((prev) => ({ ...prev, watermarkText: val }))}
+              isEnabled={filters.watermarkEnabled || false}
+              onToggleEnable={(enabled) => setFilters((prev) => ({ ...prev, watermarkEnabled: enabled }))}
+              darkMode={darkMode}
             />
 
             <hr className="divider" />
