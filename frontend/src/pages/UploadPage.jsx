@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import ExifMetadataInspector from '../components/ExifMetadataInspector';
+import PhotoQualityHealthMeter from '../components/PhotoQualityHealthMeter';
 import UploadBox from '../components/UploadBox';
 import PhotoPreview from '../components/PhotoPreview';
 import UploadProgress from '../components/UploadProgress';
@@ -11,6 +13,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { translations } from '../translations/translations';
 import { iconMap } from '../data/UploadPageData';
 import { runImageDiagnostics } from '../utils/imageDiagnostics';
+import ExifMetadataInspector from '../components/ExifMetadataInspector';
 import './UploadPage.css';
 
 function UploadPage({ darkMode, toggleTheme }) {
@@ -144,6 +147,12 @@ function UploadPage({ darkMode, toggleTheme }) {
                 isUploading={isUploading}
                 darkMode={darkMode}
               />
+              {uploadedFile?.file && (
+                <>
+                  <ExifMetadataInspector file={uploadedFile.file} darkMode={darkMode} />
+                  <PhotoQualityHealthMeter file={uploadedFile.file} complianceScore={88} darkMode={darkMode} />
+                </>
+              )}
               {diagResults && (
                 <div style={{ marginTop: '15px', padding: '12px', borderRadius: '8px', background: diagResults.success ? 'rgba(16,185,129,0.05)' : 'rgba(239,68,68,0.05)', border: diagResults.success ? '1px solid rgba(16,185,129,0.2)' : '1px solid rgba(239,68,68,0.2)', textAlign: 'left' }}>
                   <p style={{ margin: '0 0 5px 0', fontSize: '0.85rem', fontWeight: '600', color: diagResults.success ? '#10b981' : '#ef4444' }}>
@@ -168,6 +177,9 @@ function UploadPage({ darkMode, toggleTheme }) {
                 onRetry={isBatchMode ? batchUpload.retryFailed : null}
                 darkMode={darkMode}
               />
+              {uploadedFile?.file && (
+                <ExifMetadataInspector file={uploadedFile.file} darkMode={darkMode} />
+              )}
               {isBatchMode && batchUpload.hasPending && (
                 <button
                   type="button"
