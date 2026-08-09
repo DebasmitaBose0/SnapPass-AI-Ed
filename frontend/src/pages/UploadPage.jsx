@@ -125,7 +125,7 @@ function UploadPage({ darkMode, toggleTheme }) {
                 darkMode={darkMode}
               />
               {diagResults && (
-                <div style={{ marginTop: '15px', padding: '12px', borderRadius: '8px', background: diagResults.success ? 'rgba(16,185,129,0.05)' : 'rgba(239,68,68,0.05)', border: diagResults.success ? '1px solid rgba(16,185,129,0.2)' : '1px solid rgba(239,68,68,0.2)', textAlign: 'left' }}>
+                <div aria-live="polite" aria-label="Image Diagnostics Results" style={{ marginTop: '15px', padding: '12px', borderRadius: '8px', background: diagResults.success ? 'rgba(16,185,129,0.05)' : 'rgba(239,68,68,0.05)', border: diagResults.success ? '1px solid rgba(16,185,129,0.2)' : '1px solid rgba(239,68,68,0.2)', textAlign: 'left' }}>
                   <p style={{ margin: '0 0 5px 0', fontSize: '0.85rem', fontWeight: '600', color: diagResults.success ? '#10b981' : '#ef4444' }}>
                     {diagResults.success ? '✓ Image diagnostics passed' : '✗ Image diagnostics failed'}
                   </p>
@@ -141,7 +141,9 @@ function UploadPage({ darkMode, toggleTheme }) {
           ) : (
             <>
               <UploadBox onFileSelect={handleFileSelect} />
-              <UploadProgress progress={uploadProgress} darkMode={darkMode} />
+              <div aria-live="polite">
+                <UploadProgress progress={uploadProgress} darkMode={darkMode} />
+              </div>
             </>
           )}
         </motion.div>
