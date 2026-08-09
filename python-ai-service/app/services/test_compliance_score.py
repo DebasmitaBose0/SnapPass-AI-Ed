@@ -11,11 +11,17 @@ def test_calculate_composite_score_excellent():
         "face_width": 350,
         "face_height": 400,
         "background_uniformity": 95.0,
+        "head_ratio": 0.75,
+        "roll_deg": 0.5,
+        "lighting_diff": 5.0,
     }
     result = calculate_composite_score(metrics)
     assert result["overall_score"] >= 85.0
     assert result["status"] == "EXCELLENT"
     assert "breakdown" in result
+    assert "tilt_rating" in result["breakdown"]
+    assert "lighting_rating" in result["breakdown"]
+    assert "recommendations" in result
 
 def test_calculate_composite_score_fail():
     metrics = {
@@ -23,16 +29,22 @@ def test_calculate_composite_score_fail():
         "face_width": 150,
         "face_height": 180,
         "background_uniformity": 30.0,
+        "head_ratio": 0.40,
+        "roll_deg": 12.0,
+        "lighting_diff": 45.0,
     }
     result = calculate_composite_score(metrics)
     assert result["overall_score"] < 65.0
     assert result["status"] == "FAIL"
+    assert len(result["recommendations"]) > 0
 
 def test_calculate_composite_score_defaults():
     result = calculate_composite_score({})
     assert "overall_score" in result
     assert "status" in result
     assert "breakdown" in result
+    assert "recommendations" in result
+
 
 @pytest.mark.parametrize(
     "metrics,expected_status,min_score,max_score",

@@ -25,6 +25,7 @@ const ApiDocsPage = lazy(() => import('../pages/ApiDocsPage'));
 const CookiesPage = lazy(() => import('../pages/CookiesPage'));
 const QueuePage = lazy(() => import('../pages/QueuePage'));
 const SharedPhotoPage = lazy(() => import('../pages/SharedPhotoPage'));
+const StudioAnalyticsDashboard = lazy(() => import('../pages/StudioAnalyticsDashboard'));
 
 function AppRoutes({ darkMode, toggleTheme }) {
   const location = useLocation();
@@ -41,7 +42,7 @@ function AppRoutes({ darkMode, toggleTheme }) {
           <Route path="/upload" element={<UploadPage darkMode={darkMode} toggleTheme={toggleTheme} />} />
           <Route path="/editor" element={<EditorPage darkMode={darkMode} toggleTheme={toggleTheme} />} />
           <Route path="/print-preview" element={<PrintPreviewPage darkMode={darkMode} toggleTheme={toggleTheme} />} />
-          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin" element={<AdminDashboard darkMode={darkMode} toggleTheme={toggleTheme} />} />
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/cookies" element={<CookiesPage darkMode={darkMode} />} />
@@ -53,6 +54,7 @@ function AppRoutes({ darkMode, toggleTheme }) {
           <Route path="/compare-requirements" element={<PassportComparatorPage darkMode={darkMode} toggleTheme={toggleTheme} />} />
           <Route path="/api-docs" element={<ApiDocsPage />} />
           <Route path="/share/:shareId" element={<SharedPhotoPage darkMode={darkMode} />} />
+          <Route path="/studio/analytics" element={<StudioAnalyticsDashboard darkMode={darkMode} />} />
           <Route path="*" element={<NotFoundPage darkMode={darkMode} />} />
         </Routes>
       </Suspense>

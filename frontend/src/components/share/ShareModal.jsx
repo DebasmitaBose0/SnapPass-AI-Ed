@@ -16,7 +16,8 @@ import { useToast } from '../../context/ToastContext';
 import './ShareModal.css';
 
 const ShareModal = ({ isOpen, onClose, filename, originalName }) => {
-  const { showToast } = useToast();
+  const toastCtx = useToast();
+  const showToast = toastCtx?.showToast || (() => {});
 
   const [expirationOption, setExpirationOption] = useState('1h');
   const [customMinutes, setCustomMinutes] = useState('30');

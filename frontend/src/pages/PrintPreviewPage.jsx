@@ -2,7 +2,10 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import QuantityInput from '../components/QuantityInput';
 import PrintLayoutSelector from '../components/PrintLayoutSelector';
+import CustomPaperSizeCalculator from '../components/CustomPaperSizeCalculator';
+import PrintCostEstimator from '../components/PrintCostEstimator';
 import PrintSheetLayoutCustomizer from '../components/PrintSheetLayoutCustomizer';
+import PrintBleedMarginAdjuster from '../components/PrintBleedMarginAdjuster';
 import DownloadPackagePanel from '../components/DownloadPackagePanel';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import useBatchExport from '../hooks/useBatchExport';
@@ -177,12 +180,19 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
             >
               {slots.map((_, i) => {
                 const photoToRender = processedPhotos[i % processedPhotos.length];
+                const rawUrl = photoToRender?.processedUrl || state?.processedUrl || savedSession?.processedUrl || '';
+                const displayUrl = rawUrl.startsWith('/') ? rawUrl : (rawUrl.startsWith('http') || rawUrl.startsWith('data:') || rawUrl.startsWith('blob:') ? rawUrl : `/${rawUrl}`);
                 return (
                   <div key={i} className="sheet-slot">
                     <img
-                      src={photoToRender?.processedUrl}
+                      src={displayUrl}
                       alt={`Sheet slot ${i + 1}`}
                       className="sheet-slot__img"
+                      onError={(e) => {
+                        if (savedSession?.processedUrl && e.target.src !== savedSession.processedUrl) {
+                          e.target.src = savedSession.processedUrl;
+                        }
+                      }}
                     />
                   </div>
                 );
@@ -236,6 +246,18 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
               darkMode={darkMode}
             />
 
+            <CustomPaperSizeCalculator
+              onApplyCustomPaper={(customSpec) =>
+                setLayoutOptions((prev) => ({ ...prev, paperSize: customSpec.label, ...customSpec }))
+              }
+              darkMode={darkMode}
+            />
+
+            <PrintCostEstimator
+              photoCount={quantity}
+              darkMode={darkMode}
+            />
+
             <PrintLayoutOptions
               options={layoutOptions}
               onChange={setLayoutOptions}
@@ -250,6 +272,14 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
               onToggleCropGuides={setShowGuides}
               onDownloadPDF={handleGenerateSheet}
               isExporting={isGenerating}
+            />
+
+            <PrintBleedMarginAdjuster
+              bleedMm={layoutOptions.bleed || 2}
+              marginMm={layoutOptions.margins || 15}
+              onChangeBleed={(val) => setLayoutOptions((prev) => ({ ...prev, bleed: val }))}
+              onChangeMargin={(val) => setLayoutOptions((prev) => ({ ...prev, margins: val }))}
+              darkMode={darkMode}
             />
 
             <hr className="divider" />

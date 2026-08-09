@@ -10,7 +10,8 @@ const JobQueueContext = createContext(null);
 
 export const JobQueueProvider = ({ children }) => {
   const navigate = useNavigate();
-  const { showToast } = useToast();
+  const toastCtx = useToast();
+  const showToast = toastCtx?.showToast || (() => {});
 
   const [jobs, setJobs] = useState(() => {
     try {

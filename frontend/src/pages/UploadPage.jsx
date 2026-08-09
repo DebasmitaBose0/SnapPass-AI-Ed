@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import ExifMetadataInspector from '../components/ExifMetadataInspector';
+import PhotoQualityHealthMeter from '../components/PhotoQualityHealthMeter';
 import UploadBox from '../components/UploadBox';
 import PhotoPreview from '../components/PhotoPreview';
 import UploadProgress from '../components/UploadProgress';
 import usePhotoUpload from '../hooks/usePhotoUpload';
+import { useBatchUpload } from '../hooks/useBatchUpload';
 import { compressImage } from '../utils/imageCompression';
 import { useLanguage } from '../context/LanguageContext';
 import { translations } from '../translations/translations';
 import { iconMap } from '../data/UploadPageData';
 import { runImageDiagnostics } from '../utils/imageDiagnostics';
+import ExifMetadataInspector from '../components/ExifMetadataInspector';
 import './UploadPage.css';
 
 function UploadPage({ darkMode, toggleTheme }) {
@@ -24,6 +28,9 @@ function UploadPage({ darkMode, toggleTheme }) {
     uploadProgress,
     reset,
   } = usePhotoUpload();
+  const batchUpload = useBatchUpload({ concurrency: 3 });
+  const [isBatchMode, setIsBatchMode] = useState(false);
+
   const [localPreview, setLocalPreview] = useState(null);
   const [diagResults, setDiagResults] = useState(null);
 
@@ -44,6 +51,10 @@ function UploadPage({ darkMode, toggleTheme }) {
   };
 
   const handleFileSelect = async (file) => {
+    if (isBatchMode) {
+      batchUpload.addFiles([file]);
+      return;
+    }
     reset();
     setDiagResults(null);
     const diags = await runImageDiagnostics(file);
@@ -82,6 +93,7 @@ function UploadPage({ darkMode, toggleTheme }) {
     setLocalPreview(null);
     setDiagResults(null);
     reset();
+    batchUpload.reset();
   };
 
   const displayUrl = uploadedFile?.localUrl || localPreview;
@@ -106,6 +118,17 @@ function UploadPage({ darkMode, toggleTheme }) {
           >
             {t.uploadSubtitle}
           </p>
+          <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'center', gap: '8px', alignItems: 'center' }}>
+            <label style={{ fontSize: '0.9rem', color: darkMode ? '#cbd5e1' : '#475569', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={isBatchMode}
+                onChange={(e) => setIsBatchMode(e.target.checked)}
+                style={{ marginRight: '6px' }}
+              />
+              Enable Batch Processing Mode
+            </label>
+          </div>
         </motion.div>
 
         <motion.div
@@ -114,7 +137,7 @@ function UploadPage({ darkMode, toggleTheme }) {
           animate="visible"
           custom={0.2}
         >
-          {displayUrl ? (
+          {displayUrl && !isBatchMode ? (
             <>
               <PhotoPreview
                 imageUrl={displayUrl}
@@ -124,6 +147,12 @@ function UploadPage({ darkMode, toggleTheme }) {
                 isUploading={isUploading}
                 darkMode={darkMode}
               />
+              {uploadedFile?.file && (
+                <>
+                  <ExifMetadataInspector file={uploadedFile.file} darkMode={darkMode} />
+                  <PhotoQualityHealthMeter file={uploadedFile.file} complianceScore={88} darkMode={darkMode} />
+                </>
+              )}
               {diagResults && (
                 <div aria-live="polite" aria-label="Image Diagnostics Results" style={{ marginTop: '15px', padding: '12px', borderRadius: '8px', background: diagResults.success ? 'rgba(16,185,129,0.05)' : 'rgba(239,68,68,0.05)', border: diagResults.success ? '1px solid rgba(16,185,129,0.2)' : '1px solid rgba(239,68,68,0.2)', textAlign: 'left' }}>
                   <p style={{ margin: '0 0 5px 0', fontSize: '0.85rem', fontWeight: '600', color: diagResults.success ? '#10b981' : '#ef4444' }}>

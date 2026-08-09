@@ -4,7 +4,7 @@ import React from 'react';
  * ComplianceScoreGauge — Dynamic SVG gauge component visualizing
  * passport photo compliance percentage and compliance grade.
  */
-export function ComplianceScoreGauge({ score = 92, status = 'COMPLIANT' }) {
+export function ComplianceScoreGauge({ score = 92, grade = 'A', status = 'COMPLIANT' }) {
   const radius = 42;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (score / 100) * circumference;
@@ -68,11 +68,11 @@ export function ComplianceScoreGauge({ score = 92, status = 'COMPLIANT' }) {
             justifyContent: 'center',
           }}
         >
-          <span style={{ fontSize: '1.5rem', fontWeight: 700, color: getStatusColor() }}>
+          <span style={{ fontSize: '1.4rem', fontWeight: 700, color: getStatusColor() }}>
             {score}%
           </span>
-          <span style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase' }}>
-            Score
+          <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#e2e8f0' }}>
+            Grade {grade}
           </span>
         </div>
       </div>
@@ -88,7 +88,7 @@ export function ComplianceScoreGauge({ score = 92, status = 'COMPLIANT' }) {
           border: `1px solid ${getStatusColor()}40`,
         }}
       >
-        {status === 'COMPLIANT' ? 'Official Compliant' : status === 'NEEDS_ADJUSTMENT' ? 'Minor Adjustment Needed' : 'Non-Compliant'}
+        {status === 'EXCELLENT' || status === 'COMPLIANT' ? 'Official Compliant' : status === 'NEEDS_REVISION' || status === 'NEEDS_ADJUSTMENT' ? 'Minor Adjustment Needed' : 'Non-Compliant'}
       </div>
     </div>
   );

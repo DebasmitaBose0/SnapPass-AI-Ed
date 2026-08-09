@@ -61,7 +61,6 @@ export const Navbar = ({ darkMode = false, toggleTheme }) => {
       className={`navbar navbar--${themeClass}`}
       aria-label="Primary navigation"
     >
-      <NavbarAlignmentDetector navbarRef={navbarRef} />
       <div className="navbar__inner">
         <Link className="navbar__brand" to="/" onClick={closeMenu}>
           <span className="navbar__logo-icon" aria-hidden="true">
@@ -104,34 +103,6 @@ export const Navbar = ({ darkMode = false, toggleTheme }) => {
         </div>
 
         <div className="navbar__actions" style={{ position: 'relative' }}>
-          <button
-            type="button"
-            className={`navbar__language-selector navbar__language-selector-${themeClass}`}
-            onClick={() => setShowThemePicker((prev) => !prev)}
-            aria-label="Theme accent customizer"
-            title="Theme Palette"
-          >
-            🎨 Theme
-          </button>
-
-          {showThemePicker && (
-            <div
-              style={{
-                position: 'absolute',
-                top: '110%',
-                right: '0',
-                background: darkMode ? '#0f172a' : '#ffffff',
-                boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
-                borderRadius: '12px',
-                padding: '12px',
-                zIndex: 1000,
-                minWidth: '220px',
-              }}
-            >
-              <ThemeColorSelector compact />
-            </div>
-          )}
-
           <select
             className={`navbar__language-selector navbar__language-selector-${themeClass} navbar__desktop-language`}
             value={language}
@@ -196,8 +167,6 @@ export const Navbar = ({ darkMode = false, toggleTheme }) => {
             {item.label}
           </NavLink>
         ))}
-
-        <ThemeColorSelector />
 
         <select
           className={`navbar__language-selector navbar__language-selector-${themeClass}`}

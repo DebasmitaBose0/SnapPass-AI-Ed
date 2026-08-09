@@ -3,18 +3,32 @@ import './AdminDashboard.css';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { translations } from '../translations/translations';
+import { AnalyticsTrendChart, SystemHealthCard } from '../components/AnalyticsChart';
 
 /**
  * AdminDashboard — placeholder admin panel.
  * Shows summary stats and a table of recent uploads.
  * Backend integration pending — contributors welcome!
  */
-function AdminDashboard() {
-  const { darkMode } = useTheme();
-  const { language } = useLanguage();
-  const t = translations[language];
+function AdminDashboard({ darkMode: darkModeProp }) {
+  let darkMode = darkModeProp;
+  try {
+    const themeCtx = useTheme();
+    if (typeof darkMode === 'undefined') {
+      darkMode = themeCtx?.darkMode || false;
+    }
+  } catch (_) {
+    darkMode = darkModeProp || false;
+  }
+  let language = 'en';
+  try {
+    const langCtx = useLanguage();
+    language = langCtx?.language || 'en';
+  } catch (_) {}
+  const t = translations?.[language] || translations?.en || {};
   const [activeTab, setActiveTab] = useState('overview');
   const [analytics, setAnalytics] = useState(null);
+  const [trendData, setTrendData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -24,11 +38,20 @@ function AdminDashboard() {
       setLoading(true);
       setError('');
       try {
-        // Future Scope: Integrate IndexedDB sync fallback if network is offline
-        const res = await fetch('/api/analytics/stats');
-        if (!res.ok) throw new Error('Failed to fetch');
-        const body = await res.json();
-        if (!cancelled && body.success) setAnalytics(body.data);
+        const [statsRes, trendRes] = await Promise.all([
+          fetch('/api/analytics/stats'),
+          fetch('/api/analytics/trend?days=7'),
+        ]);
+
+        if (statsRes.ok) {
+          const body = await statsRes.json();
+          if (!cancelled && body.success) setAnalytics(body.data);
+        }
+
+        if (trendRes.ok) {
+          const trendBody = await trendRes.json();
+          if (!cancelled && trendBody.success) setTrendData(trendBody.data || []);
+        }
       } catch (err) {
         if (!cancelled) setError('Could not load analytics. Ensure the server is running.');
       } finally {
@@ -40,15 +63,15 @@ function AdminDashboard() {
   }, []);
 
   const stats = analytics ? [
-    { label: t.totalUploads, value: analytics.stats.totalUploads, icon: 'upload' },
-    { label: t.sheetsGenerated, value: analytics.stats.totalSheets, icon: 'print' },
-    { label: 'Processed Images', value: analytics.stats.totalProcessed, icon: 'palette' },
-    { label: t.activeToday, value: analytics.stats.todayUploads, icon: 'calendar' },
+    { label: t?.totalUploads || 'Total Uploads', value: analytics.stats?.totalUploads ?? 0, icon: 'upload' },
+    { label: t?.sheetsGenerated || 'Sheets Generated', value: analytics.stats?.totalSheets ?? 0, icon: 'print' },
+    { label: 'Processed Images', value: analytics.stats?.totalProcessed ?? 0, icon: 'palette' },
+    { label: t?.activeToday || 'Active Today', value: analytics.stats?.todayUploads ?? 0, icon: 'calendar' },
   ] : [
-    { label: t.totalUploads, value: loading ? '...' : '\u2014', icon: 'upload' },
-    { label: t.sheetsGenerated, value: loading ? '...' : '\u2014', icon: 'print' },
+    { label: t?.totalUploads || 'Total Uploads', value: loading ? '...' : '\u2014', icon: 'upload' },
+    { label: t?.sheetsGenerated || 'Sheets Generated', value: loading ? '...' : '\u2014', icon: 'print' },
     { label: 'Processed Images', value: loading ? '...' : '\u2014', icon: 'palette' },
-    { label: t.activeToday, value: loading ? '...' : '\u2014', icon: 'calendar' },
+    { label: t?.activeToday || 'Active Today', value: loading ? '...' : '\u2014', icon: 'calendar' },
   ];
 
   const iconMap = {
@@ -103,9 +126,9 @@ function AdminDashboard() {
   };
 
   const tabs = [
-    { key: 'overview', label: t.overview },
-    { key: 'uploads', label: t.uploadsTab },
-    { key: 'settings', label: t.settings },
+    { key: 'overview', label: t?.overview || 'Overview' },
+    { key: 'uploads', label: t?.uploadsTab || 'Uploads' },
+    { key: 'settings', label: t?.settings || 'Settings' },
   ];
 
   return (
@@ -118,9 +141,9 @@ function AdminDashboard() {
         >
           <div>
             <h1 className={`title ${darkMode ? 'title-dark' : ''}`}>
-              {t.adminDashboard}
+              {t?.adminDashboard || 'Admin Dashboard'}
             </h1>
-            <p className="section-subtitle">{t.adminSubtitle}</p>
+            <p className="section-subtitle">{t?.adminSubtitle || 'Manage app metrics and system telemetry'}</p>
           </div>
           {loading && <span className="badge badge-blue">Loading...</span>}
           {error && <span className="badge badge-red" title={error}>Error</span>}
@@ -167,15 +190,8 @@ function AdminDashboard() {
               </div>
             )}
 
-            {!analytics && !loading && !error && (
-              <div className="admin-placeholder card">
-                <p className="admin-placeholder__icon" aria-hidden="true">
-                  {iconMap.chart}
-                </p>
-                <p className={`admin-placeholder__title ${darkMode ? 'admin-placeholder__title-dark' : ''}`}>{t.analyticsSoon}</p>
-                <p className="admin-placeholder__desc">{t.analyticsDesc}</p>
-              </div>
-            )}
+            <AnalyticsTrendChart data={trendData} darkMode={darkMode} />
+            <SystemHealthCard darkMode={darkMode} />
           </div>
         )}
 
@@ -186,7 +202,7 @@ function AdminDashboard() {
             >
               <thead>
                 <tr>
-                  <th>{t.fileName}</th>
+                  <th>{t?.fileName || 'File Name'}</th>
                   <th>Date</th>
                   <th>Status</th>
                 </tr>
@@ -202,7 +218,7 @@ function AdminDashboard() {
                   ))
                 ) : (
                   <tr className="admin-table__empty-row">
-                    <td colSpan={3}>{t.noUploads}</td>
+                    <td colSpan={3}>{t?.noUploads || 'No recent uploads recorded.'}</td>
                   </tr>
                 )}
               </tbody>
@@ -215,9 +231,9 @@ function AdminDashboard() {
             <p
               className={`admin-placeholder__title ${darkMode ? 'admin-placeholder__title-dark' : ''}`}
             >
-              {t.settingsPanel}
+              {t?.settingsPanel || 'Admin Settings & Configuration'}
             </p>
-            <p className="admin-placeholder__desc">{t.settingsDesc}</p>
+            <p className="admin-placeholder__desc">{t?.settingsDesc || 'Configure system endpoints and operational parameters.'}</p>
           </div>
         )}
       </div>
