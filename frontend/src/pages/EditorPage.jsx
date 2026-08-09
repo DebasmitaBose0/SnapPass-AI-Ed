@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
 import { translations } from '../translations/translations';
 import { saveSession, getSession } from '../utils/sessionManager';
+import PresetFilterManager from '../components/PresetFilterManager';
+import HistogramAnalyzer from '../components/HistogramAnalyzer';
 import SizeSelector from '../components/SizeSelector';
 import BackgroundSelector from '../components/BackgroundSelector';
 import AttireSelector from '../components/AttireSelector';
@@ -493,6 +495,7 @@ function EditorPage({ darkMode, toggleTheme }) {
                 selectedColor={background}
                 onChangeColor={setBackground}
               />
+              <HistogramAnalyzer imageUrl={displayImageUrl} darkMode={darkMode} />
             </div>
           </motion.div>
 
