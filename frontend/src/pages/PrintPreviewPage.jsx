@@ -12,6 +12,7 @@ import ConfirmModal from '../components/ConfirmModal';
 import ShareModal from '../components/share/ShareModal';
 import { motion } from 'framer-motion';
 import { generateSheet } from '../services/photoService';
+import { CustomPrintTemplateModal } from '../components/print/CustomPrintTemplateModal';
 import { PrintLayoutOptions } from '../components/editor/PrintLayoutOptions';
 import { useLanguage } from '../context/LanguageContext';
 import { translations } from '../translations/translations';
