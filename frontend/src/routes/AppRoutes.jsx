@@ -56,6 +56,7 @@ function AppRoutes({ darkMode, toggleTheme }) {
           <Route path="/api-docs" element={<ApiDocsPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/share/:shareId" element={<SharedPhotoPage darkMode={darkMode} />} />
+          <Route path="/studio/analytics" element={<StudioAnalyticsDashboard darkMode={darkMode} />} />
           <Route path="*" element={<NotFoundPage darkMode={darkMode} />} />
         </Routes>
       </Suspense>
