@@ -67,6 +67,23 @@ The `ExifMetadataInspector.jsx` component parses file dimensions, Megapixel coun
 
 ---
 
+## 🎨 Photo Editing Preset Filters
+The Editor includes `PresetFilterManager.jsx` enabling one-click ICAO and country-specific compliance adjustments (US Passport Clean, UK/EU Neutral, Schengen High Contrast, Studio Portrait). Custom preset definitions and brightness/contrast defaults are exposed via `COMPLIANCE_PRESETS`.
+
+## 📊 RGB Exposure & Luminance Histogram
+The `HistogramAnalyzer.jsx` component renders a live HTML5 Canvas RGB frequency curve with real-time average luminance calculations, shadow clipping flags (<20), and highlight clipping warnings (>240).
+
+## 🔒 Proof Watermark Protection & Canvas Security
+The `WatermarkOverlayManager.jsx` component provides draft proof protection by burning configurable translucent text watermarks (Center Diagonal, Bottom Right, Tiled) onto client preview canvases via `applyWatermarkToCanvas`.
+
+## 📷 Photo Technical Metadata (EXIF) Inspector
+The `ExifMetadataInspector.jsx` component parses file dimensions, Megapixel count, aspect ratio, and evaluates against ICAO print resolution guidelines (>=600px).
+
+## 📏 Print Bleed & Page Margin Customizer
+The `PrintBleedMarginAdjuster.jsx` component exposes real-time slider controls for fine-tuning individual photo bleed margins (0–10mm) and outer page margin padding (5–25mm) on multi-photo print sheets.
+
+---
+
 ## 🧪 Testing Suites
 - **Frontend Unit Tests**: `cd frontend && npm test`
 - **Backend Tests**: `cd backend && npm test`
