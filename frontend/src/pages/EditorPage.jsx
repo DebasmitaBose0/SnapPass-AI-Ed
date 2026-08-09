@@ -21,6 +21,7 @@ import api from '../services/api';
 import { autoEnhanceImage } from '../utils/imageEnhancer';
 import { AttireManualAdjuster } from '../components/AttireManualAdjuster';
 import PassportAssistantChatbot from '../chatbot/PassportAssistantChatbot';
+import { ImageComparisonSlider } from '../components/editor/ImageComparisonSlider';
 import { uploadPhoto } from '../services/photoService';
 import './EditorPage.css';
 
@@ -62,6 +63,8 @@ function EditorPage({ darkMode, toggleTheme }) {
   const [isAutoEnhanced, setIsAutoEnhanced] = useState(false);
   const [enhancedDataUrl, setEnhancedDataUrl] = useState(null);
   const [isEnhancing, setIsEnhancing] = useState(false);
+  const [showComparison, setShowComparison] = useState(false);
+
 
   const getBackendRoot = () => {
     if (import.meta?.env?.VITE_API_URL) {
