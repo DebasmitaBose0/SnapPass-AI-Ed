@@ -1,42 +1,28 @@
-# 💻 SnapPass-AI Developer Onboarding & Local Setup Guide
+# SnapPass-AI Developer Onboarding & Technical Guide
 
-## 🛠️ Prerequisites
-- **Node.js**: v18.0.0 or higher
-- **npm**: v9.0.0 or higher
-- **Python**: v3.10 or higher
-- **Docker & Docker Compose** (Optional, for containerized local dev)
+## Local Setup Instructions
 
----
+### Prerequisites
+- Node.js >= 18.x
+- npm >= 9.x
+- Python >= 3.10 (for backend AI service)
 
-## 🏃 Local Development Quickstart
-
-### 1. Frontend Setup
+### Running Frontend
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-### 2. Backend Setup
+### Running Backend API
 ```bash
 cd backend
 npm install
-cp .env.example .env
-npm run dev
+npm start
 ```
 
-### 3. Python AI Service Setup
-```bash
-cd python-ai-service
-python -m venv venv
-source venv/bin/activate  # Or venv\Scripts\activate on Windows
-pip install -r requirements.txt
-python main.py
-```
-
----
-
-## 🧪 Testing Suites
-- **Frontend Unit Tests**: `cd frontend && npm test`
-- **Backend Tests**: `cd backend && npm test`
-- **Python AI Tests**: `cd python-ai-service && pytest`
+## Project Directory Layout
+- `frontend/src/components/`: Reusable React components grouped by feature (analytics, batch, editor, print, security).
+- `frontend/src/services/`: Core logic, API communication, and IndexedDB storage engines.
+- `frontend/src/types/`: TypeScript interface contracts.
+- `frontend/src/utils/`: Pixel math, EXIF binary parsing, and layout calculation helpers.
