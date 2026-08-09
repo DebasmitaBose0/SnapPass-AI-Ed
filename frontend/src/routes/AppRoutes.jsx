@@ -25,7 +25,8 @@ const ApiDocsPage = lazy(() => import('../pages/ApiDocsPage'));
 const CookiesPage = lazy(() => import('../pages/CookiesPage'));
 const QueuePage = lazy(() => import('../pages/QueuePage'));
 const SharedPhotoPage = lazy(() => import('../pages/SharedPhotoPage'));
-const StudioAnalyticsDashboard = lazy(() => import('../pages/StudioAnalyticsDashboard'));
+const AnalyticsPage = lazy(() => import('../pages/AnalyticsPage').then(m => ({ default: m.AnalyticsPage })));
+
 
 function AppRoutes({ darkMode, toggleTheme }) {
   const location = useLocation();
@@ -53,6 +54,7 @@ function AppRoutes({ darkMode, toggleTheme }) {
           <Route path="/queue" element={<QueuePage darkMode={darkMode} />} />
           <Route path="/compare-requirements" element={<PassportComparatorPage darkMode={darkMode} toggleTheme={toggleTheme} />} />
           <Route path="/api-docs" element={<ApiDocsPage />} />
+          <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/share/:shareId" element={<SharedPhotoPage darkMode={darkMode} />} />
           <Route path="/studio/analytics" element={<StudioAnalyticsDashboard darkMode={darkMode} />} />
           <Route path="*" element={<NotFoundPage darkMode={darkMode} />} />
