@@ -16,6 +16,7 @@ import { scanBackendPorts } from './services/portSync';
 import ToastContainer from './components/ToastContainer';
 
 import CustomCursor from './components/CustomCursor';
+import KeyboardShortcutsModal from './components/KeyboardShortcutsModal';
 
 function AppContent() {
   // Retrieve global visual and functional preferences from mounted contexts
@@ -46,6 +47,7 @@ function AppContent() {
       <SnapPassAssistant />
       <ScrollToTopButton />
       <CookieConsentBanner darkMode={darkMode} />
+      <KeyboardShortcutsModal darkMode={darkMode} />
     </div>
   );
 }
