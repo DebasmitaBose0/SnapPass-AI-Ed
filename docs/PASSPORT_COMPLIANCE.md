@@ -8,7 +8,9 @@ This document tracks the tasks and specifications for passport photo compliance 
 - [ ] Enforce face proportion logic (e.g., face height must cover 70-80% of the image height).
 - [ ] Show warnings or instructions if the crop does not comply with the selected preset guidelines.
 
-## Print Sheet & Paper Dimension Calculator
-- Dynamic millimeter to pixel conversion across 150, 300, and 600 DPI output targets.
-- Presets quick-select for standard A4, US Letter, US Legal, and 4x6 / 5x7 photo cards.
+## Preset Filter Definitions (`COMPLIANCE_PRESETS`)
+- **US Passport Clean**: Contrast 120%, Brightness 105%
+- **UK / EU Balanced Neutral**: Contrast 110%, Sharpness +15
+- **Schengen High Contrast**: Contrast 125%, Gamma 0.95
+- **India Passport Matte**: Contrast 115%, Brightness 104%
 
