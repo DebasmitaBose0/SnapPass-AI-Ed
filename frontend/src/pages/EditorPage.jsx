@@ -24,7 +24,8 @@ import { cachePhotoOffline } from '../services/indexedDb';
 import api from '../services/api';
 import { autoEnhanceImage } from '../utils/imageEnhancer';
 import { AttireManualAdjuster } from '../components/AttireManualAdjuster';
-import { ExifScrubberModal } from '../components/security/ExifScrubberModal';
+import PassportAssistantChatbot from '../chatbot/PassportAssistantChatbot';
+import { ImageComparisonSlider } from '../components/editor/ImageComparisonSlider';
 import { uploadPhoto } from '../services/photoService';
 import { BatchPresetConverterModal } from '../components/batch/BatchPresetConverterModal';
 import './EditorPage.css';
@@ -67,7 +68,7 @@ function EditorPage({ darkMode, toggleTheme }) {
   const [isAutoEnhanced, setIsAutoEnhanced] = useState(false);
   const [enhancedDataUrl, setEnhancedDataUrl] = useState(null);
   const [isEnhancing, setIsEnhancing] = useState(false);
-  const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
+  const [showComparison, setShowComparison] = useState(false);
 
 
   const getBackendRoot = () => {
