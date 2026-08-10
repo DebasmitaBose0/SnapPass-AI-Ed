@@ -8,7 +8,7 @@ This document tracks the tasks and specifications for passport photo compliance 
 - [ ] Enforce face proportion logic (e.g., face height must cover 70-80% of the image height).
 - [ ] Show warnings or instructions if the crop does not comply with the selected preset guidelines.
 
-## Accessibility (WCAG 2.1 AA) Compliance
-- High Contrast Mode toggle mapping yellow/black borders for low-vision users.
-- Visible focus rings (:focus-visible) on all interactive editor controls.
-- Dynamic font scaling with aria-pressed states and ARIA regions on toolbars.
+## Print Sheet & Paper Dimension Calculator
+- Dynamic millimeter to pixel conversion across 150, 300, and 600 DPI output targets.
+- Presets quick-select for standard A4, US Letter, US Legal, and 4x6 / 5x7 photo cards.
+
