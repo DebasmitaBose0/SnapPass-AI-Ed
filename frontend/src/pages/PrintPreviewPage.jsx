@@ -6,6 +6,7 @@ import CustomPaperSizeCalculator from '../components/CustomPaperSizeCalculator';
 import PrintCostEstimator from '../components/PrintCostEstimator';
 import PrintSheetLayoutCustomizer from '../components/PrintSheetLayoutCustomizer';
 import PrintBleedMarginAdjuster from '../components/PrintBleedMarginAdjuster';
+import CustomPaperSizeCalculator from '../components/CustomPaperSizeCalculator';
 import DownloadPackagePanel from '../components/DownloadPackagePanel';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import useBatchExport from '../hooks/useBatchExport';
@@ -15,6 +16,7 @@ import ConfirmModal from '../components/ConfirmModal';
 import ShareModal from '../components/share/ShareModal';
 import { motion } from 'framer-motion';
 import { generateSheet } from '../services/photoService';
+import { CustomPrintTemplateModal } from '../components/print/CustomPrintTemplateModal';
 import { PrintLayoutOptions } from '../components/editor/PrintLayoutOptions';
 import { useLanguage } from '../context/LanguageContext';
 import { translations } from '../translations/translations';
@@ -234,6 +236,21 @@ function PrintPreviewPage({ darkMode, toggleTheme }) {
               toggleTheme={toggleTheme}
               value={quantity}
               onChange={setQuantity}
+            />
+
+            <PrintBleedMarginAdjuster
+              bleedMm={layoutOptions.bleed || 2}
+              marginMm={layoutOptions.margins || 15}
+              onChangeBleed={(val) => setLayoutOptions((prev) => ({ ...prev, bleed: val }))}
+              onChangeMargin={(val) => setLayoutOptions((prev) => ({ ...prev, margins: val }))}
+              darkMode={darkMode}
+            />
+
+            <CustomPaperSizeCalculator
+              onApplyCustomPaper={(customSpec) =>
+                setLayoutOptions((prev) => ({ ...prev, paperSize: customSpec.label, ...customSpec }))
+              }
+              darkMode={darkMode}
             />
 
             <hr className="divider" />

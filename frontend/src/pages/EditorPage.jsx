@@ -8,9 +8,8 @@ import PresetFilterManager from '../components/PresetFilterManager';
 import HistogramAnalyzer from '../components/HistogramAnalyzer';
 import SizeSelector from '../components/SizeSelector';
 import BackgroundSelector from '../components/BackgroundSelector';
-import HistogramAnalyzer from '../components/HistogramAnalyzer';
 import WatermarkOverlayManager from '../components/WatermarkOverlayManager';
-import AttireSelector from '../components/AttireSelector';
+import ColorTemperatureAdjuster from '../components/ColorTemperatureAdjuster';
 import BackgroundColorPalettePicker from '../components/BackgroundColorPalettePicker';
 import AttireStudioSelector from '../components/AttireStudioSelector';
 import CompliancePanel from '../components/CompliancePanel';
@@ -26,7 +25,9 @@ import api from '../services/api';
 import { autoEnhanceImage } from '../utils/imageEnhancer';
 import { AttireManualAdjuster } from '../components/AttireManualAdjuster';
 import PassportAssistantChatbot from '../chatbot/PassportAssistantChatbot';
+import { ImageComparisonSlider } from '../components/editor/ImageComparisonSlider';
 import { uploadPhoto } from '../services/photoService';
+import { BatchPresetConverterModal } from '../components/batch/BatchPresetConverterModal';
 import './EditorPage.css';
 
 const SIZE_PRESETS = [
@@ -67,6 +68,8 @@ function EditorPage({ darkMode, toggleTheme }) {
   const [isAutoEnhanced, setIsAutoEnhanced] = useState(false);
   const [enhancedDataUrl, setEnhancedDataUrl] = useState(null);
   const [isEnhancing, setIsEnhancing] = useState(false);
+  const [showComparison, setShowComparison] = useState(false);
+
 
   const getBackendRoot = () => {
     if (import.meta?.env?.VITE_API_URL) {
@@ -537,6 +540,15 @@ function EditorPage({ darkMode, toggleTheme }) {
               onReset={() => setFilters({ brightness: 100, contrast: 100, saturation: 100 })}
             />
 
+            <ColorTemperatureAdjuster
+              temperature={filters.temperature || 0}
+              tint={filters.tint || 0}
+              onChangeTemperature={(val) => setFilters((prev) => ({ ...prev, temperature: val }))}
+              onChangeTint={(val) => setFilters((prev) => ({ ...prev, tint: val }))}
+              onReset={() => setFilters((prev) => ({ ...prev, temperature: 0, tint: 0 }))}
+              darkMode={darkMode}
+            />
+
             <hr className="divider" />
 
             <PresetFilterManager
@@ -628,6 +640,11 @@ function EditorPage({ darkMode, toggleTheme }) {
         </div>
       </div>
       <PassportAssistantChatbot />
+      <BatchPresetConverterModal
+        isOpen={isBatchModalOpen}
+        onClose={() => setIsBatchModalOpen(false)}
+        sourceImageUrl={currentDisplayUrl || ''}
+      />
     </div>
   );
 }
