@@ -67,7 +67,7 @@ function EditorPage({ darkMode, toggleTheme }) {
   const [isAutoEnhanced, setIsAutoEnhanced] = useState(false);
   const [enhancedDataUrl, setEnhancedDataUrl] = useState(null);
   const [isEnhancing, setIsEnhancing] = useState(false);
-  const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
+  const [showComparison, setShowComparison] = useState(false);
 
 
   const getBackendRoot = () => {

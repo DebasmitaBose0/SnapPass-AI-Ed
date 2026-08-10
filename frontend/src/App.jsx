@@ -6,9 +6,7 @@ import SkipToContent from './components/SkipToContent';
 import SnapPassAssistant from './chatbot/SnapPassAssistant';
 import { ToastProvider, useToast } from './context/ToastContext';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
-import { ThemeCustomizerProvider } from './context/ThemeCustomizerContext';
-import { CommandPaletteModal } from './components/common/CommandPaletteModal';
-import { useNavigate } from 'react-router-dom';
+import { OfflineStatusIndicator } from './components/common/OfflineStatusIndicator';
 import './App.css';
 import ScrollToTopButton from './components/ScrollToTopButton';
 import CookieConsentBanner from './components/cookie/CookieConsentBanner';
@@ -52,11 +50,8 @@ function AppContent() {
       <SkipToContent />
       <ToastContainer />
       <CustomCursor />
-      <CommandPaletteModal
-        isOpen={isCommandPaletteOpen}
-        onClose={() => setIsCommandPaletteOpen(false)}
-        commands={defaultCommands}
-      />
+      <OfflineStatusIndicator />
+      {/* Primary content area rendering child routes */}
       <Navbar darkMode={darkMode} toggleTheme={toggleTheme} />
       <main className="app-main" id="main-content" tabIndex={-1}>
         <AppRoutes darkMode={darkMode} toggleTheme={toggleTheme} />
