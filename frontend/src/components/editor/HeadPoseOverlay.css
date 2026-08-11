@@ -1,0 +1,19 @@
+.head-pose-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  display: flex;
+  gap: 8px;
+  color: white;
+}
+
+.head-pose-badge.compliant {
+  background: rgba(16, 185, 129, 0.9);
+}
+
+.head-pose-badge.non-compliant {
+  background: rgba(239, 68, 68, 0.9);
+}

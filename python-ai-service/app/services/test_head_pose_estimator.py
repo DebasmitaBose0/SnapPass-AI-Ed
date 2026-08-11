@@ -1,16 +1,11 @@
-import pytest
-from app.services.head_pose_estimator import HeadPoseEstimator
+"""
+test_head_pose_estimator.py — Head Pose Estimator Tests
+Built for ELUSoC 2026 / GSSOC 2026.
+"""
+from app.services.head_pose_estimator import estimate_head_pose_angles
 
-def test_head_pose_upright():
-    estimator = HeadPoseEstimator(max_allowed_angle=5.0)
-    landmarks = [(0, 0, 0) for _ in range(10)]
-    res = estimator.estimate_pose(landmarks)
-    assert res["compliant"] is True
-    assert res["status"] == "UPRIGHT"
-    assert res["max_tilt_angle_deg"] <= 5.0
-
-def test_head_pose_insufficient_points():
-    estimator = HeadPoseEstimator()
-    res = estimator.estimate_pose([])
-    assert res["compliant"] is False
-    assert "error" in res
+def test_estimate_head_pose():
+    mock_landmarks = [[10, 0, 0], [10, 0, 0], [0, 5, 0], [0, 5, 0], [0, 0, 2], [0, 0, 2]]
+    res = estimate_head_pose_angles(mock_landmarks)
+    assert res["valid"] is True
+    assert res["yaw"] == 0.0

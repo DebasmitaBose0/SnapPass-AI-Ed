@@ -1,35 +1,21 @@
+"""
+head_pose_estimator.py — 3D Head Pose Landmark Estimator
+Built for ELUSoC 2026 / GSSOC 2026.
+"""
 import numpy as np
 
-class HeadPoseEstimator:
-    def __init__(self, max_allowed_angle=5.0):
-        self.max_allowed_angle = max_allowed_angle
+def estimate_head_pose_angles(landmarks_3d: list) -> dict:
+    if not landmarks_3d or len(landmarks_3d) < 6:
+        return {"yaw": 0.0, "pitch": 0.0, "roll": 0.0, "valid": False}
 
-    def estimate_pose(self, 3d_landmarks):
-        """
-        Estimates pitch, yaw, and roll inclination angles using 3D facial mesh points.
-        """
-        if not 3d_landmarks or len(3d_landmarks) < 6:
-            return {
-                "compliant": False,
-                "error": "Insufficient 3D facial landmarks for pose matrix calculation."
-            }
+    # Compute facial plane orientation angles
+    yaw = float(landmarks_3d[0][0] - landmarks_3d[1][0])
+    pitch = float(landmarks_3d[2][1] - landmarks_3d[3][1])
+    roll = float(landmarks_3d[4][2] - landmarks_3d[5][2])
 
-        # Simulated PnP rotation matrix calculation
-        pitch = 1.8  # Up/Down tilt
-        yaw = -0.9   # Left/Right turn
-        roll = 0.4   # Side tilt
-
-        max_tilt = max(abs(pitch), abs(yaw), abs(roll))
-        is_compliant = max_tilt <= self.max_allowed_angle
-
-        return {
-            "compliant": is_compliant,
-            "max_tilt_angle_deg": round(max_tilt, 2),
-            "allowed_threshold_deg": self.max_allowed_angle,
-            "angles": {
-                "pitch": round(pitch, 2),
-                "yaw": round(yaw, 2),
-                "roll": round(roll, 2)
-            },
-            "status": "UPRIGHT" if is_compliant else "INCLINED"
-        }
+    return {
+        "yaw": round(yaw, 2),
+        "pitch": round(pitch, 2),
+        "roll": round(roll, 2),
+        "valid": True
+    }
