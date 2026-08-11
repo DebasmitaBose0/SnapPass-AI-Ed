@@ -1,0 +1,17 @@
+.a11y-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.a11y-modal-card {
+  background: #111827;
+  border: 2px solid #6366f1;
+  padding: 24px;
+  border-radius: 12px;
+  color: white;
+}
