@@ -1,27 +1,15 @@
-import SecurityAudit from '../models/securityAudit.model.js';
-
-export const logSecurityEvent = async ({
-  action,
-  userId = null,
-  email,
-  ip = '',
-  status = 'SUCCESS',
-  severity = 'INFO',
-  userAgent = '',
-  details = ''
-}) => {
-  try {
-    await SecurityAudit.create({
-      action,
-      userId,
-      email: email ? email.toLowerCase().trim() : 'anonymous',
-      ip,
-      status,
-      severity,
-      userAgent: (userAgent || '').slice(0, 255),
-      details: typeof details === 'object' ? JSON.stringify(details) : String(details)
-    });
-  } catch (err) {
-    console.error('[SecurityAudit] Failed to log security event:', err.message);
+/**
+ * auditLogger.service.js — Structured JSON Security Audit Trail Logger
+ * Built for ELUSoC 2026 / GSSOC 2026.
+ */
+export class AuditLoggerService {
+  static logSecurityEvent(eventType, details = {}) {
+    const entry = {
+      timestamp: new Date().toISOString(),
+      eventType,
+      details,
+    };
+    console.log('[SECURITY_AUDIT]', JSON.stringify(entry));
+    return entry;
   }
-};
+}
